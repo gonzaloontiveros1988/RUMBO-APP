@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rumbo — Compartido</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#0f1720; --card:#182432; --card2:#1f2e3f; --accent:#4fd1c5; --accent2:#f6ad55;
+    --text:#eef2f6; --muted:#9aabbb; --good:#3aa66b; --danger:#e05a5a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;padding-bottom:60px;}
+  .wrap{max-width:560px;margin:0 auto;}
+  .header{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .header .logo{font-size:28px;}
+  .header h1{font-size:20px;margin:0;}
+  .header p{margin:2px 0 0;color:var(--muted);font-size:12px;}
+  .card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .card h2{font-size:15px;margin:0 0 8px;}
+  .sub{color:var(--muted);font-size:12.5px;margin:0 0 10px;line-height:1.4;}
+  .empty{color:var(--muted);font-size:13px;padding:8px 0;}
+  .insight-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13.5px;line-height:1.4;}
+  .insight-item:last-child{border-bottom:none;}
+  .iic{font-size:16px;flex-shrink:0;}
+  .place-card{background:var(--card2);border-radius:10px;padding:10px;margin-bottom:10px;}
+  .place-card img{width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:8px;}
+  .place-title{font-weight:700;font-size:14px;}
+  .place-meta{color:var(--muted);font-size:11.5px;margin-top:2px;}
+  .place-note{font-size:13px;margin-top:6px;}
+  .stars{color:var(--accent2);font-size:13px;margin-top:4px;}
+  .status{text-align:center;color:var(--muted);font-size:13px;padding:40px 0;}
+  .badge{display:inline-block;background:rgba(79,209,197,0.15);color:var(--accent);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">🧭</div>
+    <div>
+      <h1>Rumbo — vista compartida</h1>
+      <p>Solo lectura · lo que ves aquí se actualiza solo</p>
+    </div>
+  </div>
+  <div id="content"><div class="status">Cargando…</div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDIhFu4jEjokBct5obXqGX8QmbyU5GEPF4",
+  authDomain: "rumbo-a12ac.firebaseapp.com",
+  projectId: "rumbo-a12ac",
+  storageBucket: "rumbo-a12ac.firebasestorage.app",
+  messagingSenderId: "463701749930",
+  appId: "1:463701749930:web:9e03fce1722f8d2ffc60d3"
+};
+const HOME_BASE_ICAO = 'DOH';
+
+function getCodeFromUrl(){
+  const params = new URLSearchParams(location.search);
+  return (params.get('c') || params.get('codigo') || '').trim();
+}
+function flightDepDateTime(f){
+  if(!f || !f.date || !f.dep) return null;
+  const d = new Date(f.date+'T'+f.dep+':00Z');
+  return isNaN(d.getTime()) ? null : d;
+}
+function flightArrDateTime(f){
+  const dep = flightDepDateTime(f);
+  if(!dep || !f || !f.arr) return null;
+  let arr = new Date(f.date+'T'+f.arr+':00Z');
+  if(isNaN(arr.getTime())) return null;
+  if(arr <= dep) arr = new Date(arr.getTime() + 24*60*60*1000);
+  return arr;
+}
+function computeRotations(flights){
+  const sorted = [...(flights||[])].filter(f=>flightDepDateTime(f)).sort((a,b)=>flightDepDateTime(a)-flightDepDateTime(b));
+  const rotations = [];
+  let current = [];
+  sorted.forEach(f=>{
+    current.push(f);
+    if((f.to||'').toUpperCase() === HOME_BASE_ICAO){ rotations.push(current); current = []; }
+  });
+  if(current.length) rotations.push(current);
+  return rotations;
+}
+function renderContent(data){
+  const content = document.getElementById('content');
+  if(!data){
+    content.innerHTML = '<div class="card"><div class="status">No se encontraron datos para este código. Comprueba el enlace con quien te lo mandó.</div></div>';
+    return;
+  }
+  const state = data.state || {};
+  const now = new Date();
+  const rotations = computeRotations(state.flights||[]);
+  const current = rotations.find(r=>{
+    const rep = flightDepDateTime(r[0]), rel = flightArrDateTime(r[r.length-1]);
+    return rep && rel && rep<=now && now<=rel;
+  });
+  const upcoming = rotations.filter(r=>{
+    const rep = flightDepDateTime(r[0]);
+    return rep && rep>now;
+  }).sort((a,b)=>flightDepDateTime(a[0])-flightDepDateTime(b[0]));
+
+  let statusHtml = '';
+  if(current){
+    const first = current[0], last = current[current.length-1];
+    const route = [first.from||'?', ...current.map(f=>f.to||'?')].join(' → ');
+    statusHtml = `<div class="card"><h2>✈️ Ahora mismo</h2><span class="badge">En ruta</span>
+      <div class="insight-item" style="margin-top:8px;"><span class="iic">🗺️</span><span>${route}</span></div>
+      ${current.map(f=>`<div class="insight-item"><span class="iic">📍</span><span>${f.date} · ${f.from||'?'} → ${f.to||'?'} · ${f.dep||'--:--'}–${f.arr||'--:--'} UTC</span></div>`).join('')}
+      </div>`;
+  } else {
+    statusHtml = `<div class="card"><h2>🏠 Ahora mismo</h2><div class="insight-item"><span class="iic">🏠</span><span>En base (${HOME_BASE_ICAO}) o sin vuelo en curso.</span></div></div>`;
+  }
+
+  let upcomingHtml = '<div class="card"><h2>🗓️ Próximos viajes</h2>';
+  if(upcoming.length===0){
+    upcomingHtml += '<div class="empty">Sin próximos vuelos cargados.</div>';
+  } else {
+    upcomingHtml += upcoming.slice(0,5).map(r=>{
+      const first = r[0], last = r[r.length-1];
+      const route = [first.from||'?', ...r.map(f=>f.to||'?')].join(' → ');
+      const rep = flightDepDateTime(first), rel = flightArrDateTime(last);
+      const days = (rep&&rel) ? Math.round(((rel-rep)/86400000)*10)/10 : null;
+      return `<div class="insight-item"><span class="iic">✈️</span><span>${route}${days!=null?' · '+days+'d':''} · sale ${first.date}</span></div>`;
+    }).join('');
+  }
+  upcomingHtml += '</div>';
+
+  const places = [...(state.visitedPlaces||[])].reverse().slice(0,25);
+  let placesHtml = '<div class="card"><h2>📸 Diario de lugares visitados</h2>';
+  if(places.length===0){
+    placesHtml += '<div class="empty">Sin lugares guardados todavía.</div>';
+  } else {
+    placesHtml += places.map(p=>`<div class="place-card">
+      ${p.photo && p.photo.indexOf('http')===0 ? `<img src="${p.photo}">` : ''}
+      <div class="place-title">${escapeHtml(p.title||'')}</div>
+      <div class="place-meta">${p.city||''} · ${p.visitedDate||''}</div>
+      ${p.rating ? `<div class="stars">${'⭐'.repeat(p.rating)}${'☆'.repeat(5-p.rating)}</div>` : ''}
+      ${p.note ? `<div class="place-note">${escapeHtml(p.note)}</div>` : ''}
+    </div>`).join('');
+  }
+  placesHtml += '</div>';
+
+  content.innerHTML = statusHtml + upcomingHtml + placesHtml +
+    '<div class="status" style="padding:10px 0;">Actualizado automáticamente · datos de solo lectura</div>';
+}
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+const code = getCodeFromUrl();
+if(!code){
+  document.getElementById('content').innerHTML = '<div class="card"><div class="status">Falta el código en el enlace (?c=...). Pide el enlace completo a quien te lo comparte.</div></div>';
+} else {
+  try{
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    auth.signInAnonymously().then(function(){
+      db.collection('syncData').doc(code).onSnapshot(function(doc){
+        renderContent(doc.exists ? doc.data() : null);
+      }, function(err){
+        document.getElementById('content').innerHTML = '<div class="card"><div class="status">No se pudo cargar (' + err.message + ').</div></div>';
+      });
+    }).catch(function(err){
+      document.getElementById('content').innerHTML = '<div class="card"><div class="status">No se pudo conectar. Revisa tu conexión a internet.</div></div>';
+    });
+  }catch(e){
+    document.getElementById('content').innerHTML = '<div class="card"><div class="status">Este navegador no puede cargar la vista compartida.</div></div>';
+  }
+}
+</script>
+</body>
+</html>
