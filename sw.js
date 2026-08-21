@@ -4,7 +4,7 @@
    pide la versión nueva por red para tenerla lista la próxima vez que se abra.
    Si cambias algo importante en index.html y quieres forzar que los dispositivos cojan la
    versión nueva más rápido, sube el número de CACHE_NAME (v1 -> v2, etc). */
-const CACHE_NAME = 'ontis-cache-v30';
+const CACHE_NAME = 'ontis-cache-v31';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
