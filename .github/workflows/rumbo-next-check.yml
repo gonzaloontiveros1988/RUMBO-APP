@@ -24,7 +24,9 @@ jobs:
           from pathlib import Path
           import re
           html = Path('rumbo-next/index.html').read_text()
-          scripts = re.findall(r'<script>([\\s\\S]*?)</script>', html)
+          scripts = html.split('<script>', 1)[1:]
+          assert scripts, 'No inline startup script found'
+          scripts[0] = scripts[0].split('</script>', 1)[0]
           assert scripts, 'No inline startup script found'
           Path('/tmp/rumbo-inline-startup.js').write_text(scripts[0])
           PY
