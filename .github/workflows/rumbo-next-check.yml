@@ -1,0 +1,25 @@
+name: RUMBO 3.0 validation
+on:
+  push:
+    branches:
+      - redesign/rumbo-os-v4
+    paths:
+      - 'rumbo-next/**'
+      - '.github/workflows/rumbo-next-check.yml'
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check application JavaScript
+        run: node --check rumbo-next/app.js
+      - name: Verify required app files
+        run: |
+          test -s rumbo-next/index.html
+          test -s rumbo-next/app.css
+          test -s rumbo-next/app.js
+          test -s rumbo-next/manifest.webmanifest
