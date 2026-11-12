@@ -1,19 +1,39 @@
 {
-  "name": "RUMBO — Pilot Life & Flight",
+  "name": "RUMBO — Personal Flight & Life Workspace",
   "short_name": "RUMBO",
-  "description": "App de bienestar y operaciones para pilotos",
+  "description": "Tu centro personal de aviación, hogar, organización y bienestar.",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0b1220",
-  "theme_color": "#101827",
+  "background_color": "#091321",
+  "theme_color": "#091321",
   "lang": "es",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
