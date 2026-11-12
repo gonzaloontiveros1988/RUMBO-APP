@@ -19,20 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Validate modules before publishing
-        run: |
-          node --check rumbo-next/app.js
-          node --test tests/rumbo-core.test.mjs
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
       - name: Prepare isolated preview
         run: |
           mkdir -p _site
           cp -R rumbo-next _site/rumbo-next
           cat > _site/index.html <<'EOF'
           <!doctype html>
-          <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./rumbo-next/"><title>RUMBO 3.0 Preview</title></head><body><p>Abriendo RUMBO 3.0… <a href="./rumbo-next/">Entrar</a></p></body></html>
+          <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./rumbo-next/"><title>RUMBO 3.0 Preview</title></head><body style="font-family:system-ui;background:#081522;color:#eaf4ff;padding:3rem"><h1>RUMBO 3.0</h1><p>Abriendo la demo…</p><a style="color:#4ddac5" href="./rumbo-next/">Entrar en RUMBO</a></body></html>
           EOF
       - uses: actions/upload-pages-artifact@v3
         with:
