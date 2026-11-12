@@ -29,15 +29,27 @@ jobs:
           <!doctype html>
           <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./rumbo-next/"><title>RUMBO 3.0 Preview</title></head><body style="font-family:system-ui;background:#081522;color:#eaf4ff;padding:3rem"><h1>RUMBO 3.0</h1><p>Abriendo la demo…</p><a style="color:#4ddac5" href="./rumbo-next/">Entrar en RUMBO</a></body></html>
           EOF
-      - uses: actions/upload-pages-artifact@v3
+      - name: Verify preview payload
+        run: |
+          test -s _site/index.html
+          test -s _site/rumbo-next/index.html
+          test -s _site/rumbo-next/app.js
+          test -s _site/rumbo-next/app.css
+          test -s _site/rumbo-next/manifest.webmanifest
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
   deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - id: deployment
+      - name: Deploy isolated preview
+        id: deployment
         uses: actions/deploy-pages@v4
