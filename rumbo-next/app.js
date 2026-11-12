@@ -131,7 +131,7 @@ $("#fileInput").addEventListener("change",async e=>{
     const fresh=rows.filter(x=>!seen.has(x.date+"|"+x.code));
     state.duties.push(...fresh);save();active="roster";render();
     toast(fresh.length+" registros importados. Revisa el calendario.");
-  }catch(err){console.error(err);toast("No se pudo importar "+f.name+": "+(err.message||"error desconocido"));const box=document.createElement("section");box.className="panel";box.style.marginBottom="14px";box.innerHTML="<b>Importación no completada</b><p class=\\"muted\\"></p>";box.querySelector("p").textContent=err.message||String(err);$("#view").prepend(box);}
+  }catch(err){console.error(err);toast("No se pudo importar "+f.name+": "+(err.message||"error desconocido"));const box=document.createElement("section");box.className="panel";box.style.marginBottom="14px";box.innerHTML="<b>Importación no completada</b><p class=\"muted\"></p>";box.querySelector("p").textContent=err.message||String(err);$("#view").prepend(box);}
   finally{e.target.value="";}
 });
 $("#waderCsvInput").addEventListener("change",async e=>{
@@ -164,7 +164,7 @@ $("#backupInput").addEventListener("change",async e=>{
  finally{e.target.value=""}
 });
 $("#exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify({schema:"rumbo3-local-v1",exportedAt:new Date().toISOString(),state},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rumbo-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Copia local exportada.")};
-function showStartupError(message){const host=$("#view");if(host){host.innerHTML="<section class=\\"panel\\"><div class=\\"kicker\\">RUMBO RECOVERY</div><h1>RUMBO no ha podido cargar esta pantalla</h1><p>Se ha detectado un error y se ha evitado dejar la aplicación en blanco.</p><pre id=\\"rumboStartupError\\" style=\\"white-space:pre-wrap;color:#f3b6a5\\"></pre><button class=\\"btn primary\\" id=\\"rumboReload\\">Recargar</button></section>";$("#rumboStartupError").textContent=message;$("#rumboReload").onclick=()=>location.reload()}}
+function showStartupError(message){const host=$("#view");if(host){host.innerHTML="<section class=\"panel\"><div class=\"kicker\">RUMBO RECOVERY</div><h1>RUMBO no ha podido cargar esta pantalla</h1><p>Se ha detectado un error y se ha evitado dejar la aplicación en blanco.</p><pre id=\"rumboStartupError\" style=\"white-space:pre-wrap;color:#f3b6a5\"></pre><button class=\"btn primary\" id=\"rumboReload\">Recargar</button></section>";$("#rumboStartupError").textContent=message;$("#rumboReload").onclick=()=>location.reload()}}
 window.addEventListener("error",e=>showStartupError((e.message||"Error JavaScript")+"\nArchivo: "+(e.filename||"no indicado")+"\nLínea: "+(e.lineno||"?")+" · Columna: "+(e.colno||"?")));window.addEventListener("unhandledrejection",e=>showStartupError(e.reason?.stack||e.reason?.message||String(e.reason||"Error al cargar un módulo")));
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});try{render()}catch(err){console.error(err);showStartupError(err?.stack||err?.message||String(err))}
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
