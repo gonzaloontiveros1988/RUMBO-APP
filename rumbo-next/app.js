@@ -6,7 +6,7 @@ import {parseWaderCsv} from "./wader-import.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Monthly Autopilot"],["aviation","Flight Intelligence"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
-const KEY="rumbo3_local_v1";let state=load();let active="home";
+const KEY="rumbo3_local_v1";let state=load();let active="home";let pendingPdf=null;
 function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],budgets:{},trainingPlan:[],rosterHotels:[],rosterTraining:[]}}
 function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","logbook","recommendations","mealPlan","pantry","trainingPlan","rosterHotels","rosterTraining"])if(!Array.isArray(next[key]))next[key]=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
