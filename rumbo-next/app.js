@@ -124,6 +124,20 @@ $("#fileInput").addEventListener("change",async e=>{
   }catch(err){console.error(err);toast("Error al leer el archivo: "+(err.message||"desconocido"));}
   finally{e.target.value="";}
 });
+$("#waderCsvInput").addEventListener("change",async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const parsed=parseWaderCsv(await file.text()),x=parsed.summary;
+  const msg="WADER LOGBOOK IMPORT\\n\\n"+x.flights+" flights\\n"+x.simulatorSessions+" simulator records (separate)\\n"+x.previousExperienceHours.toFixed(2)+" previous-experience hours\\n"+x.recordedFlightHours.toFixed(2)+" dated flight hours\\n"+x.allTimeHours.toFixed(2)+" all-time hours\\n"+x.airports+" airports\\n"+x.dateFrom+" to "+x.dateTo+"\\nAircraft: "+x.aircraft.join(", ")+"\\nPotential duplicate candidates: "+x.duplicateCandidates+"\\n\\nImport these records?";
+  if(!confirm(msg))return;
+  const seen=new Set(state.logbook.map(v=>[v.date,v.flightNumber||"",v.from,v.to].join("|")));
+  const fresh=parsed.flights.filter(v=>{const k=[v.date,v.flightNumber||"",v.from,v.to].join("|");if(seen.has(k))return false;seen.add(k);return true});
+  state.logbook.push(...fresh);state.previousExperienceHours=x.previousExperienceHours;
+  state.waderImportSummary={...x,importedAt:new Date().toISOString(),simulatorRecords:parsed.simulators,previousExperience:parsed.previous};
+  save();active="aviation";render();toast(fresh.length+" Wader sectors imported; "+(parsed.flights.length-fresh.length)+" duplicates skipped.");
+ }catch(err){console.error(err);toast("Wader CSV import failed: "+err.message)}
+ finally{e.target.value=""}
+});
 $("#importBackupBtn").onclick=()=>$("#backupInput").click();
 $("#backupInput").addEventListener("change",async e=>{
  const file=e.target.files[0];if(!file)return;
