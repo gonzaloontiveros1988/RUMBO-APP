@@ -16,8 +16,8 @@
    location.reload();
   };
  }
- window.addEventListener("error",function(e){showBootError(e.message||"Error de JavaScript")});
- window.addEventListener("unhandledrejection",function(e){showBootError(e.reason&&e.reason.stack||String(e.reason||"Error al cargar un módulo"))});
+ window.addEventListener("error",function(e){var detail=(e.message||"Error de JavaScript")+"\\nArchivo: "+(e.filename||"no indicado")+"\\nLínea: "+(e.lineno||"?")+" · Columna: "+(e.colno||"?");showBootError(detail);console.error("RUMBO startup error",e)});
+ window.addEventListener("unhandledrejection",function(e){var reason=e.reason&&e.reason.stack||String(e.reason||"Error al cargar un módulo");showBootError("Error asíncrono\\n"+reason);console.error("RUMBO startup rejection",e.reason)});
  window.setTimeout(function(){var nav=document.getElementById("nav"),view=document.getElementById("view");if(nav&&view&&!nav.children.length&&!view.children.length)showBootError("La interfaz no se ha iniciado. Se recomienda actualizar la caché de la aplicación.")},5000);
 })();
 </script>
