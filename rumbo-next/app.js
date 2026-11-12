@@ -123,6 +123,21 @@ $("#fileInput").addEventListener("change",async e=>{
   }catch(err){console.error(err);toast("Error al leer el archivo: "+(err.message||"desconocido"));}
   finally{e.target.value="";}
 });
+$("#importBackupBtn").onclick=()=>$("#backupInput").click();
+$("#backupInput").addEventListener("change",async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const parsed=JSON.parse(await file.text()),candidate=parsed?.state;
+  if(parsed?.schema!=="rumbo3-local-v1"||!candidate||typeof candidate!=="object"||Array.isArray(candidate))throw new Error("Formato de copia no reconocido.");
+  const keys=["duties","events","workouts","shopping","expenses","logbook","recommendations","mealPlan","pantry"];
+  for(const key of keys)if(candidate[key]!==undefined&&!Array.isArray(candidate[key]))throw new Error("La sección "+key+" no tiene un formato válido.");
+  if(!confirm("Vas a sustituir los datos locales actuales por la copia del "+(parsed.exportedAt||"fecha desconocida")+". Exporta antes una copia actual si quieres conservarlos. ¿Continuar?"))return;
+  const safe={...candidate};
+  for(const key of keys)if(!Array.isArray(safe[key]))safe[key]=[];
+  state=safe;save();render();toast("Copia restaurada en este dispositivo.");
+ }catch(err){toast("No se pudo restaurar: "+err.message);}
+ finally{e.target.value=""}
+});
 $("#exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify({schema:"rumbo3-local-v1",exportedAt:new Date().toISOString(),state},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rumbo-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Copia local exportada.")};
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});render();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
