@@ -20,6 +20,7 @@ jobs:
           node --check rumbo-next/app.js
           node --check rumbo-next/roster-import.js
           node --check rumbo-next/qatar-pdf-import.js
+          node --check rumbo-next/monthly-planner.js
       - name: Verify required app files
         run: |
           test -s rumbo-next/index.html
@@ -27,4 +28,5 @@ jobs:
           test -s rumbo-next/app.js
           test -s rumbo-next/manifest.webmanifest
           test -s rumbo-next/qatar-pdf-import.js
+          test -s rumbo-next/monthly-planner.js
           test -s rumbo-next/sw.js
