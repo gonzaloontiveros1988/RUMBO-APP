@@ -28,12 +28,12 @@ export function parseRosterText(text, filename="roster.csv") {
   if(filename.toLowerCase().endsWith(".ics")){
     text=text.replace(/\r?\n[ \t]/g,"");
     for(const event of text.split("BEGIN:VEVENT").slice(1)){
-      const dt=event.match(/DTSTART(?:;[^:]*)?:(\d{8})/);
+      const dt=event.match(/DTSTART(?:;[^:]*)?:(\d{8})(?:T(\d{2})(\d{2}))?/);const end=event.match(/DTEND(?:;[^:]*)?:(\d{8})?(?:T(\d{2})(\d{2}))?/);
       const summary=event.match(/SUMMARY:(.*)/);
       const description=event.match(/DESCRIPTION:(.*)/);
       if(!dt) continue;
       const d=dt[1];
-      rows.push({date:d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6,8),code:(summary?.[1]||"IMPORTED DUTY").trim(),route:(description?.[1]||"").trim(),time:""});
+      rows.push({date:d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6,8),code:(summary?.[1]||"IMPORTED DUTY").trim(),route:(description?.[1]||"").trim(),time:dt[2]?dt[2]+":"+dt[3]:"",reportTime:dt[2]?dt[2]+":"+dt[3]:"",endTime:end?.[2]?end[2]+":"+end[3]:""});
     }
     return rows;
   }
@@ -42,7 +42,7 @@ export function parseRosterText(text, filename="roster.csv") {
     const o=Object.fromEntries(headers.map((h,i)=>[h,cells[i]||""]));
     const date=normalizeRosterDate(o.date||o.dutydate||o.startdate||o.fecha||o.datum);
     if(!date) continue;
-    rows.push({date,code:o.code||o.flight||o.duty||o.flightnumber||o.flightno||"DUTY",route:o.route||[o.from||o.origin,o.to||o.destination].filter(Boolean).join("–"),time:o.time||o.report||o.reporttime||""});
+    rows.push({date,code:o.code||o.flight||o.duty||o.flightnumber||o.flightno||"DUTY",route:o.route||[o.from||o.origin,o.to||o.destination].filter(Boolean).join("–"),time:o.time||o.report||o.reporttime||o.rpt||"",reportTime:o.reporttime||o.report||o.rpt||o.time||"",endTime:o.endtime||o.dutyend||o.release||o.offtime||o.finish||""});
   }
   return rows;
 }
