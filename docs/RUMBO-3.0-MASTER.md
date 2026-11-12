@@ -140,3 +140,41 @@ Dirección visual: aviation-led, premium, técnica, legible y calmada.
 - family-preview.html es un prototipo separado de aproximadamente 32.6 KB, con datos de demostración y sin conexión Firebase. No es la aplicación funcional.
 - La auditoría de Firebase, módulos originales, reglas y backups está pendiente. No afirmar que se ha verificado la integridad de estos elementos hasta inspeccionarlos.
 - No se modificará main ni se reasignarán dominios de producción.
+
+## 13. Auditoría funcional del código original (lectura estática del index.html de main)
+La inspección del HTML original de 3.066.277 caracteres confirma que RUMBO ya contiene mucho más producto del que mostraba el prototipo previo. No se debe reconstruir ignorando estas capacidades.
+
+### Capacidades existentes identificadas en el código
+- **Inicio:** mapa mundial de vuelos, resumen de actividad, calendario/roster, tablero semanal familiar, vigencia de documentos y checklist pre-vuelo.
+- **Salud y hábitos:** datos de salud, estado de ánimo, rutinas de sueño, meditación, respiración, seguimiento y programas de bienestar.
+- **Nutrición:** objetivo de calorías/macros, registro alimentario, menú semanal personal, menú familiar de cenas, batch cooking, alternativas de comida en vuelo, snacks y seguimiento corporal.
+- **Compra y cocina:** planificador de compra, cantidades por personas, despensa, recetario familiar, recetas guardadas y exportación PDF de la compra.
+- **Entrenamiento:** rutina de gimnasio, rutina de layover, estiramientos y contenidos de movilidad.
+- **Familia:** clases/horarios escolares, checklist del colegio, calendario escolar, contactos, cumpleaños, vacunas/revisiones, documentos y medicación infantil, coordinación de recogidas, diario de niños, tareas domésticas y ayuda del hogar.
+- **Aviación:** modos pre-vuelo/crucero/post-vuelo/jetlag/escala/documentos; relojes; información de destino; WOCL; snacks; METAR/TAF; clima/luz; maleta; comida/cafeína; IM SAFE; registro y tendencia de fatiga.
+- **Roster y logbook:** calendario mensual, detalle diario, alertas de descanso, logbook y mapas.
+- **Economía:** ingresos, gastos, dietas, presupuesto, cartera de efectivo, ahorro, pensión, gastos fijos, importación CSV de extractos, conversión de divisas y exportación CSV.
+- **Viajes y progreso:** mapa familiar de viajes, destinos, POI, objetivos, resumen semanal/mensual y generación PDF.
+- **Otras funciones:** documentos, contactos de tripulación, bids/escenarios, vacaciones, relojes y utilidades de bienestar.
+
+### Estado y persistencia identificados
+- El estado principal se inicializa desde `localStorage` con clave `rumbo_v1` y se compone sobre `DEFAULT_STATE`.
+- Firebase JS compat se usa para Authentication, Firestore y Storage.
+- La autenticación se inicia anónimamente; persistencia local de sesión.
+- La sincronización compartida utiliza Firestore `syncData/{syncCode}`, con un documento que contiene `state` y `updatedAt`; listener en tiempo real.
+- El código de sincronización se guarda localmente como `rumbo_sync_code`.
+- El payload de sincronización excluye caché POI, backups automáticos y ciertas claves económicas/privadas.
+- Las claves excluidas explícitamente de la nube incluyen sueldo, pensión y determinados saldos/objetivos de ahorro.
+- Las fotos del diario de lugares pueden subirse a Firebase Storage; caché y fotos locales no subidas permanecen en dispositivo.
+- El comentario de implementación indica que el documento Firestore debe mantenerse por debajo de 1 MB.
+- El sistema local conserva más datos que el payload remoto. Es esencial preservar esta distinción en cualquier migración.
+
+### Riesgos y comprobaciones pendientes
+- La auditoría ha sido estática sobre el código; no se han consultado las reglas reales de Firestore/Storage, índices, configuración de Authentication, cuotas, backups ni consola Firebase.
+- El modelo de sincronización por código compartido necesita una revisión de seguridad: fortaleza/entropía del código, reglas, aislamiento entre hogares, colisiones, recuperación y control de acceso. No asumir que autenticación anónima + código compartido equivale a una identidad familiar segura.
+- El documento único de Firestore puede alcanzar límites de tamaño y genera riesgo de conflictos de escritura/última actualización. Antes de ampliar datos o perfiles compartidos conviene diseñar colecciones por hogar/usuario y migración versionada, manteniendo compatibilidad hacia atrás.
+- La aplicación incluye datos de salud y de menores, así como información financiera privada. Requiere controles de acceso y consentimiento antes de cualquier nueva sincronización.
+- El prototipo `rumbo-os-preview.html` es una interfaz aislada con datos ilustrativos, sin autenticación ni conexión al estado original. No se debe confundir con una migración funcional.
+
+### Decisión de migración
+No sustituir `index.html` en bloque. Primero inventariar funciones, claves de estado, eventos y módulos; después construir adaptadores que lean/escriban el modelo existente de forma controlada; luego migrar módulo a módulo con exportación, copia previa, pruebas de ida/vuelta y rollback. Mantener la aplicación legacy accesible hasta superar la validación de equivalencia.
