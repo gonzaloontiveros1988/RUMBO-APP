@@ -24,14 +24,29 @@ function bind(id,fn){const e=$("#"+id);if(e)e.onclick=fn}
 function render(){nav();$("#view").innerHTML=views[active]();if(active==="roster"&&pendingPdf){const p=pendingPdf;const box=document.createElement("section");box.className="panel";box.style.marginBottom="16px";box.innerHTML=`<div class="panel-head"><h2>PDF IMPORT REVIEW · ${esc(p.period)}</h2><span class="pill">${p.pageCount} pages</span></div><p class="muted">Crew: ${esc(p.crew)} · Parser: ${esc(p.parser)}</p><div class="grid three"><div><div class="stat-label">DETECTED DUTIES</div><div class="stat">${p.duties.length}</div></div><div><div class="stat-label">BLOCK HOURS</div><div class="stat">${esc(p.stats?.blockHours||"—")}</div></div><div><div class="stat-label">DUTY HOURS</div><div class="stat">${esc(p.stats?.dutyHours||"—")}</div></div></div><div class="list" style="margin:12px 0">${p.duties.map(d=>`<div class="item"><span class="grow"><b>${esc(d.date)} · ${esc(d.code)}</b><small>${esc(d.kind)} · ${esc(d.route)} · RPT ${esc(d.time)}</small></span><span class="pill">${esc(d.source)}</span></div>`).join("")}</div><p class="muted">Hotel stays: ${p.hotels.length} · Training records: ${p.training.length}. El PDF original no se modifica. Comprueba cada día antes de confirmar; la extracción es asistida y puede requerir correcciones.</p><div class="form"><button class="btn primary" id="confirmPdf">Confirm roster import</button><button class="btn ghost" id="cancelPdf">Discard</button></div>`;$("#view").prepend(box);}bind("importBtn",()=>$("#fileInput").click());bind("confirmPdf",()=>{if(!pendingPdf)return;let seen=new Set(state.duties.map(x=>x.date+"|"+x.code));let fresh=pendingPdf.duties.filter(x=>!seen.has(x.date+"|"+x.code));state.duties.push(...fresh);state.rosterMeta={period:pendingPdf.period,stats:pendingPdf.stats,hotels:pendingPdf.hotels,training:pendingPdf.training,crew:pendingPdf.crew};pendingPdf=null;save();render();toast(fresh.length+" PDF roster entries imported.");});bind("cancelPdf",()=>{pendingPdf=null;render();toast("PDF import discarded.");});bind("addDuty",()=>{let date=$("#dutyDate").value,code=$("#dutyCode").value.trim();if(!date||!code)return toast("Indica fecha y duty.");state.duties.push({date,code,route:$("#dutyRoute").value,time:$("#dutyTime").value});save();render();toast("Duty guardado localmente.")});bind("generate",()=>{state.recommendations=state.duties.map(d=>({date:d.date,title:"Revisar recuperación y plan personal · "+d.code}));save();render();toast("Borrador de planificación creado.")});bind("addLog",()=>{let date=$("#logDate").value,from=$("#logFrom").value.trim().toUpperCase(),to=$("#logTo").value.trim().toUpperCase(),hours=$("#logHours").value;if(!date||!from||!to)return toast("Completa fecha, origen y destino.");state.logbook.push({date,from,to,hours});save();render();toast("Sector guardado.")});bind("addWorkout",()=>{if(!$("#workDate").value)return toast("Indica la fecha.");state.workouts.push({date:$("#workDate").value,type:$("#workType").value,minutes:Number($("#workMinutes").value)||0});save();render();toast("Entrenamiento guardado.")});bind("addShop",()=>{let name=$("#shopItem").value.trim();if(!name)return toast("Escribe un producto.");state.shopping.push({name,qty:$("#shopQty").value,done:false});save();render();toast("Añadido a la compra.")});bind("addEvent",()=>{let date=$("#eventDate").value,title=$("#eventTitle").value.trim();if(!date||!title)return toast("Completa fecha y evento.");state.events.push({date,title});save();render();toast("Evento guardado.")});bind("addExpense",()=>{let date=$("#expenseDate").value,name=$("#expenseName").value.trim(),amount=$("#expenseAmount").value;if(!date||!name||!amount)return toast("Completa los datos del gasto.");state.expenses.push({date,name,amount,currency:$("#expenseCurrency").value});save();render();toast("Gasto guardado.")});bind("askAi",()=>{let q=$("#aiPrompt").value.trim();if(!q)return;$("#aiAnswer").innerHTML="<b>LOCAL CONTEXT</b><p>Ahora mismo tienes "+state.duties.length+" duties, "+state.events.length+" eventos familiares y "+state.workouts.length+" entrenamientos registrados en esta instalación. La conexión al asistente IA real está pendiente.</p>"});document.querySelectorAll("[data-shop]").forEach(e=>e.onchange=()=>{state.shopping[Number(e.dataset.shop)].done=e.checked;save();render()})}
 $("#fileInput").addEventListener("change",async e=>{
   const f=e.target.files[0]; if(!f)return;
-  const {parseRosterText}=await import("./roster-import.js");
-  const rows=parseRosterText(await f.text(),f.name);
-  if(!rows.length){toast("No se detectaron registros. Revisa el formato.");e.target.value="";return;}
-  const seen=new Set(state.duties.map(x=>x.date+"|"+x.code));
-  const fresh=rows.filter(x=>!seen.has(x.date+"|"+x.code));
-  const added=fresh.length;
-  state.duties.push(...fresh);save();active="roster";render();
-  toast(added+" registros importados. Revisa el calendario.");e.target.value="";
+  try{
+    let rows=[],summary="";
+    if(f.name.toLowerCase().endsWith(".pdf")){
+      toast("Leyendo roster PDF…");
+      const {parseQatarRosterPDF}=await import("./qatar-pdf-import.js");
+      const parsed=await parseQatarRosterPDF(f);
+      rows=parsed.duties;
+      summary="Periodo: "+parsed.period+"\\nServicios detectados: "+rows.length+"\\nBlock hours: "+(parsed.stats?.blockHours||"No detectadas")+"\\nDuty hours: "+(parsed.stats?.dutyHours||"No detectadas")+"\\nHoteles: "+parsed.hotels.length+" · Formación: "+parsed.training.length;
+      if(!rows.length){toast("PDF leído, pero no se detectaron duties con suficiente estructura. No se ha guardado nada.");console.warn(parsed);return;}
+      const sample=rows.slice(0,18).map(x=>x.date+" · "+x.code+" · "+(x.route||"route pending")+" · RPT "+(x.time||"—")).join("\\n");
+      if(!confirm("REVISIÓN DEL ROSTER PDF\\n\\n"+summary+"\\n\\nMuestra de registros:\\n"+sample+"\\n\\n¿Importar estos registros?"))return;
+      state.rosterStats=parsed.stats;state.rosterPeriod=parsed.period;state.rosterHotels=parsed.hotels;state.rosterTraining=parsed.training;
+    }else{
+      const {parseRosterText}=await import("./roster-import.js");
+      rows=parseRosterText(await f.text(),f.name);
+      if(!rows.length){toast("No se detectaron registros. Revisa el formato.");return;}
+    }
+    const seen=new Set(state.duties.map(x=>x.date+"|"+x.code));
+    const fresh=rows.filter(x=>!seen.has(x.date+"|"+x.code));
+    state.duties.push(...fresh);save();active="roster";render();
+    toast(fresh.length+" registros importados. Revisa el calendario.");
+  }catch(err){console.error(err);toast("Error al leer el archivo: "+(err.message||"desconocido"));}
+  finally{e.target.value="";}
 });
 $("#exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify({schema:"rumbo3-local-v1",exportedAt:new Date().toISOString(),state},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rumbo-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Copia local exportada.")};
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});render();
