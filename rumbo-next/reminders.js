@@ -13,20 +13,20 @@ export function expandReminders(reminders=[],from,to){
   const first=dateOf(r.startDate);if(Number.isNaN(first.getTime()))continue;
   const repeat=["monthly","weekly","yearly"].includes(r.repeat)?r.repeat:"none";
   if(repeat==="none"){
-   if(first>=start&&first<=end)out.push({date:keyOf(first),title:r.title,reminderId:r.id,repeat});
+   if(first>=start&&first<=end)out.push({date:keyOf(first),title:r.title,reminderId:r.id,repeat,done:(r.completedDates||[]).includes(keyOf(first))});
    continue;
   }
   let cursor=new Date(Math.max(first.getTime(),start.getTime()));
   if(repeat==="weekly"){
    const diff=Math.max(0,Math.ceil((cursor-first)/86400000));
    cursor.setDate(cursor.getDate()+((7-(diff%7))%7));
-   while(cursor<=end){if(cursor>=first)out.push({date:keyOf(cursor),title:r.title,reminderId:r.id,repeat});cursor.setDate(cursor.getDate()+7)}
+   while(cursor<=end){if(cursor>=first)out.push({date:keyOf(cursor),title:r.title,reminderId:r.id,repeat,done:(r.completedDates||[]).includes(keyOf(cursor))});cursor.setDate(cursor.getDate()+7)}
   }else if(repeat==="monthly"){
    let index=Math.max(0,(cursor.getFullYear()-first.getFullYear())*12+cursor.getMonth()-first.getMonth());
    for(;index<2400;index++){
     const y=first.getFullYear()+Math.floor((first.getMonth()+index)/12),m=(first.getMonth()+index)%12;
     const d=new Date(y,m,Math.min(first.getDate(),daysInMonth(y,m)),12);
-    if(d>end)break;if(d>=first&&d>=start)out.push({date:keyOf(d),title:r.title,reminderId:r.id,repeat});
+    if(d>end)break;if(d>=first&&d>=start)out.push({date:keyOf(d),title:r.title,reminderId:r.id,repeat,done:(r.completedDates||[]).includes(keyOf(d))});
    }
   }else{
    let index=Math.max(0,cursor.getFullYear()-first.getFullYear());
