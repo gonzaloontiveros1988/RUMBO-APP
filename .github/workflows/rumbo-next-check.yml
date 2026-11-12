@@ -19,6 +19,16 @@ jobs:
       - name: Check application JavaScript
         run: |
           node --check rumbo-next/app.js
+          node --check rumbo-next/sw.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('rumbo-next/index.html').read_text()
+          scripts = re.findall(r'<script>([\\s\\S]*?)</script>', html)
+          assert scripts, 'No inline startup script found'
+          Path('/tmp/rumbo-inline-startup.js').write_text(scripts[0])
+          PY
+          node --check /tmp/rumbo-inline-startup.js
           node --check rumbo-next/roster-import.js
           node --check rumbo-next/qatar-pdf-import.js
           node --check rumbo-next/monthly-planner.js
