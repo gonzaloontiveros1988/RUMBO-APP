@@ -217,3 +217,19 @@
 @media(max-width:1050px){.dash-week-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-day{min-height:125px}}
 @media(max-width:700px){.world-map-command{height:300px;min-height:260px}.dash-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.family-detail-grid{grid-template-columns:1fr}.family-calendar-toolbar{align-items:flex-start}.family-calendar-day{min-height:72px;padding:6px 5px}.family-calendar-day>small{font-size:7px}.family-calendar-weekdays span{font-size:8px}.family-calendar-cells.week-mode .family-calendar-day{min-height:120px}}
 @media(max-width:420px){.dash-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.family-calendar-actions{width:100%}.family-calendar-actions .segmented{margin-right:auto}.family-calendar-day{min-height:62px}.family-calendar-day>small{display:none}.family-detail-row>small{width:82px}}
+
+/* RUMBO 3.0 integrated module additions */
+.meal-day{padding:10px 0;border-bottom:1px solid var(--line)}
+.meal-day:last-child{border-bottom:0}
+.meal-day-head{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.meal-day-head small{color:var(--muted);line-height:1.45}
+.finance-trend{padding:12px 0;border-bottom:1px solid var(--line)}
+.finance-bars{height:112px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:end;margin:12px 0 6px}
+.finance-bars>div{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
+.finance-bars i{display:block;width:100%;min-height:2px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--cyan),#2c7890)}
+.finance-bars small{font-size:10px;color:var(--muted)}
+.budget-progress{padding:10px 0;border-bottom:1px solid var(--line)}
+.progress-track{height:7px;border-radius:99px;background:var(--panel2);overflow:hidden;margin:8px 0}
+.progress-track i{display:block;height:100%;border-radius:99px;background:var(--cyan)}
+#airportNoteText{width:100%;min-height:100px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--white);padding:12px;font:inherit}
+@media(max-width:650px){.finance-bars{gap:5px}.finance-bars small{font-size:9px}}
