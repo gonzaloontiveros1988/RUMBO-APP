@@ -87,3 +87,8 @@ test("weekly, yearly and one-off reminders expand only in the selected date rang
  assert.deepEqual(r.map(x=>x.date),["2026-11-07","2026-11-10","2026-11-12","2026-11-14","2026-11-21"]);
  assert.equal(reminderLabel("monthly"),"Cada mes");
 });
+
+test("completion is stored per occurrence without completing future monthly reminders",()=>{
+ const r=expandReminders([{id:"bill",title:"Electricity",startDate:"2026-11-05",repeat:"monthly",completedDates:["2026-11-05"]}],"2026-11-01","2027-01-31");
+ assert.deepEqual(r.map(x=>x.done),[true,false,false]);
+});
