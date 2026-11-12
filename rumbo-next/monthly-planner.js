@@ -4,11 +4,11 @@ const pad=n=>String(n).padStart(2,"0");
 export const isoDate=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 export function classifyDuty(duty){
  const raw=[duty.code,duty.kind,duty.status,duty.raw,duty.type].filter(Boolean).join(" ").toUpperCase();
- if(/\\b(PSBY|STANDBY|STAND-BY|SBY)\\b/.test(raw))return "STANDBY";
- if(/\\b(OFF|DOFF|DAY OFF|REST)\\b/.test(raw))return "OFF";
- if(/\\b(GRND|GROUND|TRAINING|SIM|SIMULATOR|TRNG|TRG)\\b/.test(raw))return "TRAINING";
- if(/\\b(LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\\b/.test(raw))return "LEAVE";
- if(/\\b(FLIGHT|DUTY)\\b/.test(raw)||/\\b(?:QR)?\\d{3,4}\\b/.test(raw)||duty.segments?.length||duty.flightNumbers?.length||duty.flightNumber)return "FLIGHT";
+ if(/\b(PSBY|STANDBY|STAND-BY|SBY)\b/.test(raw))return "STANDBY";
+ if(/\b(OFF|DOFF|DAY OFF|REST)\b/.test(raw))return "OFF";
+ if(/\b(GRND|GROUND|TRAINING|SIM|SIMULATOR|TRNG|TRG)\b/.test(raw))return "TRAINING";
+ if(/\b(LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\b/.test(raw))return "LEAVE";
+ if(/\b(FLIGHT|DUTY)\b/.test(raw)||/\b(?:QR)?\d{3,4}\b/.test(raw)||duty.segments?.length||duty.flightNumbers?.length||duty.flightNumber)return "FLIGHT";
  return "OTHER";
 }
 export function summarizeRoster(duties,year,month){
