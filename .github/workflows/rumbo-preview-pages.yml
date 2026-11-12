@@ -1,0 +1,41 @@
+name: Publish RUMBO 3.0 preview
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - redesign/rumbo-os-v4
+    paths:
+      - 'rumbo-next/**'
+      - '.github/workflows/rumbo-preview-pages.yml'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: rumbo-preview-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated preview
+        run: |
+          mkdir -p _site
+          cp -R rumbo-next _site/rumbo-next
+          cat > _site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./rumbo-next/"><title>RUMBO 3.0 Preview</title></head><body><p>Abriendo RUMBO 3.0… <a href="./rumbo-next/">Entrar</a></p></body></html>
+          EOF
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
