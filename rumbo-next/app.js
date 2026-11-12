@@ -78,6 +78,19 @@ function nutrition(){
  ${panel("BATCH COOKING",`<div class="callout"><b>PREP AHEAD</b><p>Use the weekly menu to identify recipes suitable for preparing in batches. Food storage and safe holding times must follow local food-safety guidance; RUMBO does not assume a dish remains safe indefinitely.</p></div>`)}
  </div>`;
 }
+const sandraSchoolYear={student:"Sandra",className:"Pre 3A",schoolYear:"2026–2027",days:["Sunday","Monday","Tuesday","Wednesday","Thursday"],slots:[
+["7:05–7:20","Welcome","Welcome","Welcome","Welcome","Welcome"],
+["7:20–8:05","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack"],
+["8:05–8:50","Spanish","Homeroom / Islamic Studies","Homeroom","Arabic","Homeroom"],
+["8:50–9:35","Homeroom","Arabic","Arabic","Homeroom","Homeroom"],
+["9:35–10:00","Snack","Snack","Snack","Snack","Snack"],
+["10:00–10:45","Homeroom","Art","Homeroom","Homeroom / Islamic Studies","Spanish"],
+["10:45–11:30","Homeroom","PE","PE","Library","Art"],
+["11:30–12:15","Lunch","Lunch","Lunch","Lunch","Lunch"],
+["12:15–13:00","Nap time","Nap time","Homeroom","Nap time","Nap time"],
+["13:00–13:45","Discovery","Discovery","Early dismissal · 12:50","Discovery","Discovery"],
+["13:45–14:20","Homeroom","Homeroom","Early dismissal · 12:50","Homeroom","Homeroom"]
+]};
 function family(){
  const start=state.familyWeekStart||today(),end=new Date(start+"T12:00:00");end.setDate(end.getDate()+6);
  const endKey=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
@@ -88,6 +101,7 @@ function family(){
  return head("FAMILY INTELLIGENCE","Family Week","Recordatorios sencillos, eventos familiares y días disponibles.")+
  `<div class="grid two">${panel("QUICK REMINDER",`<div class="form"><input id="reminderTitle" placeholder="Ej. Pagar la luz, mochila del colegio…" maxlength="90"><label class="muted" for="reminderDate">Fecha del primer recordatorio</label><input id="reminderDate" type="date" value="${today()}"><label class="muted" for="reminderRepeat">Repetir</label><select id="reminderRepeat"><option value="none">Una sola vez</option><option value="monthly">Todos los meses</option><option value="weekly">Todas las semanas</option><option value="yearly">Todos los años</option></select><button class="btn primary" id="addReminder">＋ Añadir recordatorio</button></div><p class="muted">Ejemplo: «Pagar la luz» · día 5 · todos los meses. Se añadirá automáticamente al calendario.</p>`)}
  ${panel("ADD FAMILY EVENT",`<div class="form"><input id="eventDate" type="date"><input id="eventTitle" placeholder="Colegio, actividad, cita…"><select id="eventType"><option>Family</option><option>School</option><option>Appointment</option><option>Travel</option></select><button class="btn ghost" id="addEvent">Add event</button></div>`)}
+ ${panel("SCHOOL TIMETABLE · 2026/27",`<div class="row"><span><b>${sandraSchoolYear.student} · ${sandraSchoolYear.className}</b><small>Weekly recurring timetable · Sunday to Thursday</small></span><span class="pill">2026–2027</span></div><div style="overflow-x:auto"><table class="school-table" style="width:100%;border-collapse:collapse;min-width:680px"><thead><tr><th style="text-align:left;padding:8px">Time</th>${sandraSchoolYear.days.map(d=>`<th style="padding:8px;text-align:left">${d}</th>`).join("")}</tr></thead><tbody>${sandraSchoolYear.slots.map(row=>`<tr><th style="text-align:left;padding:8px;white-space:nowrap">${row[0]}</th>${row.slice(1).map(v=>`<td style="padding:8px;border-top:1px solid var(--line,rgba(255,255,255,.1))">${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><p class="muted">Tuesday early dismissal is at 12:50. School holidays and exceptional dates are not included because they were not shown in the timetable supplied.</p>`)}
  ${panel("WEEK NAVIGATION",`<div class="form"><button class="btn ghost" id="familyPrev">← Previous</button><input id="familyStart" type="date" value="${esc(start)}"><button class="btn ghost" id="familyNext">Next →</button></div><p class="muted">Los recordatorios repetidos aparecen en cada fecha correspondiente.</p>`)}
  ${panel("FAMILY CALENDAR",`<div class="family-week">${week.map(d=>`<div class="family-day"><b>${dateText(d.date)}</b><span class="pill">${d.duty.length?"ROSTER":"UNCONFIRMED"}</span><small>${esc(d.availability)}</small>${d.duty.map(x=>`<div class="family-event duty-event">${esc(x.code)} · ${esc(x.time||"Duty")}</div>`).join("")}${d.events.map(x=>x.reminder?`<div class="family-event reminder-event ${x.done?"reminder-done":""}"><span>${x.done?"✓":"↻"} ${esc(x.title)}</span><button class="reminder-check" data-reminder-complete="${esc(x.reminderId)}" data-reminder-date="${esc(x.date)}" aria-label="${x.done?"Marcar pendiente":"Marcar completado"}">${x.done?"Deshacer":"Hecho"}</button></div>`:`<div class="family-event">${esc(x.title)} <small>${esc(x.type||"Family")}</small></div>`).join("")}</div>`).join("")}</div>`)}
  ${panel("REMINDERS & FAMILY AGENDA",agenda.length?agenda.map(x=>x.kind==="reminder"?`<div class="row"><span><b>↻ ${esc(x.title)}</b><small>${dateText(x.startDate)} · ${reminderLabel(x.repeat)}</small></span><button class="btn ghost" data-reminder-remove="${x.index}">Eliminar</button></div>`:`<div class="row"><span><b>${dateText(x.date)} · ${esc(x.title)}</b><small>${esc(x.type||"Family")}</small></span><button class="btn ghost" data-event-remove="${x.index}">Eliminar</button></div>`).join(""):`<div class="empty">Aún no hay recordatorios ni eventos. Añade el primero arriba.</div>`)}
