@@ -23,6 +23,7 @@ jobs:
           node --check rumbo-next/qatar-pdf-import.js
           node --check rumbo-next/monthly-planner.js
           node --check rumbo-next/flight-intelligence.js
+          node --check rumbo-next/wader-import.js
           node --check rumbo-next/training-intelligence.js
           node --check tests/rumbo-core.test.mjs
           node --test tests/rumbo-core.test.mjs
@@ -37,6 +38,7 @@ jobs:
           test -s rumbo-next/qatar-pdf-import.js
           test -s rumbo-next/monthly-planner.js
           test -s rumbo-next/flight-intelligence.js
+          test -s rumbo-next/wader-import.js
           test -s rumbo-next/training-intelligence.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
