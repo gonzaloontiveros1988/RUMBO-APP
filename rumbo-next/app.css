@@ -9,3 +9,69 @@
 \ninput[type="file"]{position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
 .reminder-event{border-left:3px solid var(--amber);background:rgba(234,182,109,.10);padding:6px 8px;border-radius:5px}.family-day .family-event small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
 .reminder-event{display:flex;align-items:center;justify-content:space-between;gap:8px}.reminder-check{border:1px solid var(--line);background:transparent;color:var(--cyan);border-radius:6px;padding:4px 7px;font-size:10px;cursor:pointer;flex-shrink:0}.reminder-done>span{text-decoration:line-through;opacity:.55}.reminder-done .reminder-check{color:var(--muted)}
+/* RUMBO 3.1 · family calendar, timetable and interactive map polish */
+.family-layout{align-items:start}
+.family-layout>.panel:nth-child(n+3){grid-column:1/-1}
+.family-layout>.panel{min-width:0}
+.calendar-legend,.school-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.calendar-legend span,.school-legend span{font:9px 'DM Mono',monospace;letter-spacing:.5px;padding:5px 9px;border-radius:999px;border:1px solid transparent}
+.legend-school{background:rgba(90,151,235,.16);color:#9dc6ff;border-color:rgba(90,151,235,.35)!important}
+.legend-holiday{background:rgba(207,137,239,.15);color:#e0b1ff;border-color:rgba(207,137,239,.35)!important}
+.legend-flight{background:rgba(234,182,109,.14);color:#f1c982;border-color:rgba(234,182,109,.35)!important}
+.legend-family{background:rgba(81,212,223,.13);color:#83e7ec;border-color:rgba(81,212,223,.32)!important}
+.legend-reminder{background:rgba(238,157,101,.14);color:#ffbd8b;border-color:rgba(238,157,101,.35)!important}
+.family-week{grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+.family-day{background:linear-gradient(180deg,#102b3d,#0b1d2b);border:1px solid #29495b;border-radius:12px;padding:10px;gap:7px;min-height:170px}
+.family-day.has-school{border-top:3px solid #6098e8}
+.family-day-head{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.family-day-head>b{font-size:11px;text-transform:capitalize}
+.day-number{font:11px 'DM Mono';color:#8faabd;background:#18384c;border-radius:7px;padding:4px 6px}
+.day-school-label{font:8px 'DM Mono';letter-spacing:1px;color:#9dc6ff;margin-top:3px}
+.day-lessons{display:flex;flex-direction:column;gap:3px}
+.day-lesson{display:flex;align-items:flex-start;gap:5px;padding:4px 5px;border-radius:5px;font-size:9px;line-height:1.3;min-width:0}
+.day-lesson time{font:8px 'DM Mono';opacity:.75;white-space:nowrap;min-width:31px}
+.day-lesson span{overflow-wrap:anywhere}
+.lesson-language{background:rgba(177,135,235,.17);color:#d5b8ff;border-color:rgba(177,135,235,.35)}
+.lesson-activity{background:rgba(91,190,151,.16);color:#9be2c2;border-color:rgba(91,190,151,.35)}
+.lesson-break{background:rgba(145,165,181,.15);color:#bdcbd5;border-color:rgba(145,165,181,.28)}
+.lesson-welcome{background:rgba(81,212,223,.13);color:#9aeaf0;border-color:rgba(81,212,223,.28)}
+.lesson-homeroom{background:rgba(90,151,235,.13);color:#b1d1ff;border-color:rgba(90,151,235,.28)}
+.day-no-school{font-size:10px;color:var(--muted);padding:8px 4px}
+.family-day .family-event{font-size:9px;line-height:1.4}
+.family-day .school-holiday{background:rgba(174,103,207,.16);border-left:3px solid #c58be6;color:#e5c5f5}
+.family-day .school-event{background:rgba(84,150,220,.16);border-left:3px solid #78b5f1;color:#c5e1ff}
+.family-day .school-note{background:rgba(145,165,181,.14);border-left:3px solid #9aafbd;color:#c8d6df}
+.family-day .family-event-home{background:rgba(81,212,223,.12);border-left:3px solid var(--cyan);color:#c4f5f4}
+.family-day .duty-event{background:rgba(234,182,109,.14);border-left:3px solid var(--amber);color:#f4d8a6}
+.family-day .reminder-event{background:rgba(238,157,101,.12);border-left:3px solid #f1a36f;color:#ffd0ad}
+.school-profile{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;padding:12px 14px;background:linear-gradient(100deg,rgba(81,212,223,.1),rgba(90,151,235,.08));border:1px solid rgba(81,212,223,.2);border-radius:12px}
+.school-profile>div{display:flex;align-items:center;gap:10px}
+.school-profile b,.school-profile small{display:block}
+.school-profile b{font-size:13px}
+.school-profile small{font-size:10px;color:var(--muted);margin-top:3px}
+.school-avatar{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#1d5262;color:#9bf0ee;font-weight:800}
+.school-status{font:8px 'DM Mono';letter-spacing:1px;color:#8fe2d7;border:1px solid rgba(81,212,223,.3);padding:6px 9px;border-radius:99px}
+.timetable-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.timetable-day{min-width:0;border:1px solid #29495b;background:#0b1e2d;border-radius:11px;overflow:hidden}
+.timetable-day>header{padding:10px 9px;background:#15364a;border-bottom:1px solid #315268}
+.timetable-day>header b,.timetable-day>header small{display:block}
+.timetable-day>header b{font-size:11px}
+.timetable-day>header small{font:7px 'DM Mono';letter-spacing:.7px;color:#91b6c7;margin-top:4px}
+.timetable-lessons{padding:7px;display:flex;flex-direction:column;gap:5px}
+.timetable-lesson{padding:7px;border-radius:7px;border:1px solid transparent;min-height:43px}
+.timetable-lesson time{display:block;font:8px 'DM Mono';opacity:.72;margin-bottom:4px}
+.timetable-lesson span{display:block;font-size:10px;font-weight:700;line-height:1.3}
+.school-legend{margin-top:13px}
+.world-map{height:360px;background:#0a1d2b;border-color:#2b4b5f}
+.world-map .leaflet-container{width:100%;height:100%;background:#0a1d2b;font-family:Manrope,system-ui,sans-serif}
+.world-map .leaflet-control-attribution{font-size:8px;background:rgba(7,21,33,.75);color:#9bb2c1}
+.world-map .leaflet-control-attribution a{color:#78d8df}
+.world-map .leaflet-bar a{background:#102b3d;color:#dff7f8;border-color:#31556b}
+.world-map .leaflet-bar a:hover{background:#1c455c;color:#fff}
+.world-map .leaflet-tooltip{background:#102b3d;border:1px solid #3c7184;color:#eaf8fb;box-shadow:0 6px 20px #0005}
+.world-map .leaflet-popup-content-wrapper,.world-map .leaflet-popup-tip{background:#102b3d;color:#edf5f8}
+.world-map .leaflet-popup-content{font-size:12px}
+.world-map .leaflet-container a{color:#7de2e5}
+@media(max-width:1100px){.family-week{grid-template-columns:repeat(4,minmax(0,1fr))}.timetable-days{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.family-week{grid-template-columns:repeat(2,minmax(0,1fr))}.timetable-days{grid-template-columns:repeat(2,minmax(0,1fr))}.world-map{height:270px}}
+@media(max-width:430px){.timetable-days{grid-template-columns:1fr}.family-layout>.panel:nth-child(n+3){grid-column:auto}}
