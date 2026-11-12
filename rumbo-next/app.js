@@ -5,7 +5,7 @@ import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.
 import {parseWaderCsv} from "./wader-import.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",family:"⌂",finance:"▤",ai:"✧"};
-const modules=[["home","Command Center"],["roster","Monthly Autopilot"],["aviation","Aviation & Logbook"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
+const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
 const KEY="rumbo3_local_v1";let state=load();let active="home";let pendingPdf=null;let flightMapInstance=null;
 function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],budgets:{},trainingPlan:[],rosterHotels:[],rosterTraining:[]}}
 function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","logbook","recommendations","mealPlan","pantry","trainingPlan","rosterHotels","rosterTraining"])if(!Array.isArray(next[key]))next[key]=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};return next}
@@ -53,24 +53,73 @@ function roster(){
  const first=new Date(year,month,1),offset=(first.getDay()+6)%7,total=Math.ceil((offset+new Date(year,month+1,0).getDate())/7)*7;
  const cells=Array.from({length:total},(_,i)=>{const d=new Date(year,month,1-offset+i),iso=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),duty=state.duties.find(x=>x.date===iso);const t=duty?[duty.code,duty.kind,duty.status].join(" ").toUpperCase():"";const cls=/\\b(OFF|DOFF|REST)\\b/.test(t)?"free":/\\b(PSBY|STANDBY|SBY)\\b/.test(t)?"standby":/\\b(GRND|TRAINING|SIM|TRNG)\\b/.test(t)?"training":duty?"duty":"";return `<div class="day ${cls} ${d.getMonth()!==month?"outside":""}"><strong>${d.getDate()}</strong><small>${duty?esc(duty.code||duty.kind||"DUTY"):"—"}</small>${duty?.time?`<small>RPT ${esc(duty.time)}</small>`:""}</div>`}).join("");
  const proposals=state.recommendations.filter(x=>x.date?.startsWith(monthKey));
- return head("MONTHLY AUTOPILOT","Roster & planning","Importa tu programación y convierte los servicios en un borrador coordinado.",'<button class="btn primary" id="importBtn">＋ Import roster</button>')+
+ return head("ROSTER MANAGEMENT","Roster & Duty Planning","Importa, revisa y planifica tu programación profesional. El calendario familiar sigue siendo tu agenda global.",'<button class="btn primary" id="importBtn">＋ Import roster</button>')+
  `<div class="grid four">${metric("FLIGHT DUTIES",summary.FLIGHT)}${metric("OFF",summary.OFF)}${metric("STANDBY",summary.STANDBY)}${metric("TRAINING / LEAVE",summary.TRAINING+summary.LEAVE)}</div>
- <div class="grid two" style="margin-top:14px">${panel("MONTHLY ROSTER",`<div class="panel-head"><button class="btn ghost" id="prevMonth">←</button><b style="text-transform:capitalize">${esc(label)}</b><button class="btn ghost" id="nextMonth">→</button></div><div class="calendar"><div class="stat-label">MON</div><div class="stat-label">TUE</div><div class="stat-label">WED</div><div class="stat-label">THU</div><div class="stat-label">FRI</div><div class="stat-label">SAT</div><div class="stat-label">SUN</div>${cells}</div><p class="muted">Los días sin servicio importado son desconocidos, no días libres confirmados. Verifica siempre el roster oficial.</p>`)}${panel("ADD DUTY MANUALLY",`<div class="form"><input id="dutyDate" type="date"><input id="dutyCode" placeholder="Flight / OFF / PSBY"><input id="dutyRoute" placeholder="DOH–LHR"><input id="dutyTime" placeholder="Report time"></div><div class="form"><button class="btn primary" id="addDuty">Save duty</button><button class="btn ghost" id="generate">Generate planning draft</button></div>`)}
+ <div class="grid two" style="margin-top:14px">${panel("MONTHLY ROSTER",`<div class="panel-head"><button class="btn ghost" id="prevMonth">←</button><b style="text-transform:capitalize">${esc(label)}</b><button class="btn ghost" id="nextMonth">→</button></div><div class="calendar"><div class="stat-label">MON</div><div class="stat-label">TUE</div><div class="stat-label">WED</div><div class="stat-label">THU</div><div class="stat-label">FRI</div><div class="stat-label">SAT</div><div class="stat-label">SUN</div>${cells}</div><p class="muted">Los días sin servicio importado son desconocidos, no días libres confirmados. Verifica siempre el roster oficial.</p>`)}${panel("ADD DUTY MANUALLY",`<div class="form"><input id="dutyDate" type="date"><input id="dutyCode" placeholder="Flight / OFF / PSBY"><input id="dutyRoute" placeholder="DOH–LHR"><input id="dutyTime" placeholder="Report time"></div><div class="form"><button class="btn primary" id="addDuty">Save duty</button><button class="btn ghost" id="generate">Build duty plan</button></div>`)}
  ${panel("IMPORTED DUTIES",monthDuties.length?monthDuties.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>`<div class="row"><b>${dateText(x.date)} · ${esc(x.code)}</b><span>${esc(x.route||x.kind||"")}${x.time?" · RPT "+esc(x.time):""}</span></div>`).join(""):`<div class="empty">No hay servicios importados para este mes.</div>`)}
- ${panel("AUTOPILOT PLAN",proposals.length?proposals.map(x=>`<div class="row"><span><b>${esc(x.title)}</b><small>${esc(x.detail||"")}</small></span><span>${dateText(x.date)}</span></div>`).join(""):`<div class="empty">Genera un borrador para revisar disponibilidad, recuperación y compromisos.</div>`)}</div>`;
+ ${panel("DUTY & RECOVERY SUGGESTIONS",proposals.length?proposals.map(x=>`<div class="row"><span><b>${esc(x.title)}</b><small>${esc(x.detail||"")}</small></span><span>${dateText(x.date)}</span></div>`).join(""):`<div class="empty">Genera un borrador para revisar disponibilidad, recuperación y compromisos.</div>`)}</div>`;
 }
 function flightTime(value){const minutes=Math.max(0,Math.round(Number(value||0)*60));return Math.floor(minutes/60).toLocaleString("en-US")+":"+String(minutes%60).padStart(2,"0")}
 function aircraftInfo(value){
  const raw=String(value||"Unknown aircraft").trim(),s=raw.toUpperCase().replace(/[^A-Z0-9]/g,"");
- if(/A321/.test(s))return {name:"Airbus A321",family:"Airbus A320 family",code:"A321",kind:"jet",path:"M100 8 L106 37 L178 65 L178 76 L108 65 L110 112 L132 128 L132 135 L100 126 L68 135 L68 128 L90 112 L92 65 L22 76 L22 65 L94 37 Z"};
- if(/A320|A319|A318/.test(s))return {name:s.match(/A319|A318/)?.[0]||"Airbus A320",family:"Airbus A320 family",code:s.match(/A319|A318/)?.[0]||"A320",kind:"jet",path:"M100 4 C95 9 94 18 93 29 L89 57 L20 91 L17 98 L22 103 L88 85 L86 119 L69 135 L69 141 L100 133 L131 141 L131 135 L114 119 L112 85 L178 103 L183 98 L180 91 L111 57 L107 29 C106 18 105 9 100 4 Z"};
- if(/DA42/.test(s))return {name:"Diamond DA42",family:"Twin-engine piston",code:"DA42",kind:"twin",path:"M100 14 L105 48 L165 70 L165 78 L108 70 L112 112 L129 128 L129 135 L100 127 L71 135 L71 128 L88 112 L92 70 L35 78 L35 70 L95 48 Z"};
- if(/PA28|PIPER|WARRIOR|ARCHER/.test(s))return {name:"Piper PA-28",family:"Single-engine piston",code:"PA28",kind:"piston",path:"M100 18 L105 52 L188 79 L188 88 L108 78 L111 112 L126 128 L126 135 L100 128 L74 135 L74 128 L89 112 L92 78 L12 88 L12 79 L95 52 Z"};
- if(/C172|CESSNA.?172|SKYHAWK/.test(s))return {name:"Cessna 172",family:"Single-engine piston",code:"C172",kind:"piston",path:"M100 18 L105 48 L190 76 L190 91 L108 78 L111 112 L128 128 L128 135 L100 128 L72 135 L72 128 L89 112 L92 78 L10 91 L10 76 L95 48 Z"};
- if(/B737|737/.test(s))return {name:"Boeing 737",family:"Boeing 737",code:"B737",kind:"jet",path:"M100 8 L106 39 L174 67 L174 78 L108 66 L111 112 L130 128 L130 135 L100 126 L70 135 L70 128 L89 112 L92 66 L26 78 L26 67 L94 39 Z"};
- return {name:raw,family:"Aircraft",code:raw.toUpperCase().slice(0,8),kind:"other",path:"M100 12 L106 46 L180 75 L180 85 L108 73 L111 112 L130 128 L130 135 L100 127 L70 135 L70 128 L89 112 L92 73 L20 85 L20 75 L94 46 Z"};
+ if(/A21N|A321NEO/.test(s))return {name:"Airbus A321neo",family:"Airbus A320neo family",code:"A21N",kind:"jet"};
+ if(/A20N|A320NEO/.test(s))return {name:"Airbus A320neo",family:"Airbus A320neo family",code:"A20N",kind:"jet"};
+ if(/A321/.test(s))return {name:"Airbus A321",family:"Airbus A320 family",code:"A321",kind:"jet"};
+ if(/A319/.test(s))return {name:"Airbus A319",family:"Airbus A320 family",code:"A319",kind:"jet"};
+ if(/A318/.test(s))return {name:"Airbus A318",family:"Airbus A320 family",code:"A318",kind:"jet"};
+ if(/A320/.test(s))return {name:"Airbus A320",family:"Airbus A320 family",code:"A320",kind:"jet"};
+ if(/DA42|DIAMOND.?DA.?42/.test(s))return {name:"Diamond DA42",family:"Twin-engine piston",code:"DA42",kind:"twin"};
+ if(/PA28|PIPER|WARRIOR|ARCHER|CHEROKEE/.test(s))return {name:"Piper PA-28",family:"Single-engine piston",code:"PA28",kind:"piston"};
+ if(/C172|CESSNA.?172|SKYHAWK/.test(s))return {name:"Cessna 172",family:"Single-engine piston",code:"C172",kind:"highwing"};
+ if(/B737|737/.test(s))return {name:"Boeing 737",family:"Boeing 737 family",code:"B737",kind:"jet"};
+ if(/A330/.test(s))return {name:"Airbus A330",family:"Wide-body jet",code:"A330",kind:"widebody"};
+ if(/A350/.test(s))return {name:"Airbus A350",family:"Wide-body jet",code:"A350",kind:"widebody"};
+ if(/B777|777/.test(s))return {name:"Boeing 777",family:"Wide-body jet",code:"B777",kind:"widebody"};
+ if(/B787|787/.test(s))return {name:"Boeing 787",family:"Wide-body jet",code:"B787",kind:"widebody"};
+ if(/ATR.?72|AT72/.test(s))return {name:"ATR 72",family:"Turboprop",code:"AT72",kind:"turboprop"};
+ if(/E190|E195/.test(s))return {name:"Embraer E-Jet",family:"Regional jet",code:s.includes("E195")?"E195":"E190",kind:"regional"};
+ return {name:raw,family:"Aircraft profile",code:raw.toUpperCase().slice(0,8),kind:"other"};
 }
-function aircraftSilhouette(value,large=false){const p=aircraftInfo(value);return `<svg class="aircraft-silhouette ${large?"aircraft-silhouette-large":""}" viewBox="0 0 200 145" role="img" aria-label="${esc(p.name)} silhouette"><path d="${p.path}" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>${p.code==="A320"||p.code==="A319"||p.code==="A318"?'<g fill="currentColor" stroke="#092333" stroke-width="1.4"><path d="M58 72 C54 76 53 88 56 98 L63 101 L69 96 L68 76 Z"/><path d="M142 72 C146 76 147 88 144 98 L137 101 L131 96 L132 76 Z"/></g><path d="M95 12 Q100 7 105 12" fill="none" stroke="#092333" stroke-width="1.2"/>':p.kind==="twin"?'<ellipse cx="47" cy="73" rx="5" ry="14" fill="none" stroke="currentColor" stroke-width="3"/><ellipse cx="153" cy="73" rx="5" ry="14" fill="none" stroke="currentColor" stroke-width="3"/>':p.kind==="piston"?'<circle cx="100" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M86 12h28" stroke="currentColor" stroke-width="2"/>':""}</svg>`}
+function aircraftSilhouette(value,large=false){
+ const p=aircraftInfo(value),jet=p.kind==="jet"||p.kind==="widebody"||p.kind==="regional";
+ const length=p.code==="A321"||p.code==="A21N"||p.code==="A330"||p.code==="A350"||p.code==="B777"||p.code==="B787"?1.12:p.code==="A318"||p.code==="A319"?.88:1;
+ const wide=p.kind==="widebody"?1.18:1;
+ const fuselage=p.kind==="widebody"?"M120 5 C115 13 114 31 113 51 L108 119 L92 119 L87 51 C86 31 85 13 80 5 Z":"M100 7 C95 13 94 27 93 43 L88 113 L72 133 L72 140 L100 132 L128 140 L128 133 L112 113 L107 43 C106 27 105 13 100 7 Z";
+ let wing="M94 55 L22 88 L18 99 L25 103 L91 83 L109 83 L175 103 L182 99 L178 88 L106 55 Z";
+ let tail="M92 112 L61 137 L61 143 L100 132 L139 143 L139 137 L108 112 Z";
+ let engines="";
+ let extras="";
+ if(jet){
+   const isLong=length>1,scale=wide;
+   wing=isLong?"M91 54 L12 91 L8 103 L18 108 L91 86 L109 86 L182 108 L192 103 L188 91 L109 54 Z":"M92 55 L23 88 L17 100 L25 105 L91 84 L109 84 L175 105 L183 100 L177 88 L108 55 Z";
+   tail=isLong?"M91 111 L55 139 L55 145 L100 132 L145 145 L145 139 L109 111 Z":"M92 112 L65 137 L65 143 L100 132 L135 143 L135 137 L108 112 Z";
+   if(p.code==="A320"||p.code==="A20N"||p.code==="A319"||p.code==="A318"||p.code==="A321"||p.code==="A21N"){
+     const engineY=isLong?80:79,rx=isLong?7:6,ry=isLong?17:15;
+     engines=`<g fill="currentColor" stroke="#082333" stroke-width="2"><path d="M55 ${engineY-ry} Q47 ${engineY-ry} 47 ${engineY} Q47 ${engineY+ry} 55 ${engineY+ry} L66 ${engineY+ry-2} L66 ${engineY-ry+2} Z"/><path d="M145 ${engineY-ry} Q153 ${engineY-ry} 153 ${engineY} Q153 ${engineY+ry} 145 ${engineY+ry} L134 ${engineY+ry-2} L134 ${engineY-ry+2} Z"/></g>`;
+     if(p.code==="A20N"||p.code==="A21N")extras='<path d="M18 99 L8 112 L13 114 L27 104 M182 99 L192 112 L187 114 L173 104" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>';
+   }else{
+     engines='<g fill="currentColor" stroke="#082333" stroke-width="2"><ellipse cx="55" cy="81" rx="8" ry="13"/><ellipse cx="145" cy="81" rx="8" ry="13"/></g>';
+   }
+   if(p.kind==="widebody")engines='<g fill="currentColor" stroke="#082333" stroke-width="2"><ellipse cx="58" cy="83" rx="9" ry="17"/><ellipse cx="142" cy="83" rx="9" ry="17"/></g>';
+   if(p.code==="B737")engines='<g fill="currentColor" stroke="#082333" stroke-width="2"><ellipse cx="58" cy="82" rx="9" ry="13"/><ellipse cx="142" cy="82" rx="9" ry="13"/></g>';
+ }else if(p.kind==="twin"){
+   wing="M94 57 L24 83 L19 94 L27 99 L91 82 L109 82 L173 99 L181 94 L176 83 L106 57 Z";
+   engines='<g fill="currentColor" stroke="#082333" stroke-width="2"><ellipse cx="52" cy="81" rx="7" ry="15"/><ellipse cx="148" cy="81" rx="7" ry="15"/></g>';
+   extras='<circle cx="100" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="3"/><path d="M86 13h28 M100 2v22" stroke="currentColor" stroke-width="2"/>';
+ }else if(p.kind==="piston"){
+   wing="M94 59 L12 91 L10 101 L20 106 L92 84 L108 84 L180 106 L190 101 L188 91 L106 59 Z";
+   extras='<circle cx="100" cy="14" r="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M84 14h32 M100 -1v30" stroke="currentColor" stroke-width="2"/>';
+ }else if(p.kind==="highwing"){
+   wing="M94 48 L7 77 L7 91 L17 96 L92 79 L108 79 L183 96 L193 91 L193 77 L106 48 Z";
+   extras='<circle cx="100" cy="14" r="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M84 14h32 M100 -1v30" stroke="currentColor" stroke-width="2"/><path d="M20 72 L180 72" stroke="#082333" stroke-width="2" opacity=".65"/>';
+ }else if(p.kind==="turboprop"){
+   wing="M94 52 L8 86 L8 99 L20 104 L92 82 L108 82 L180 104 L192 99 L192 86 L106 52 Z";
+   engines='<g fill="currentColor" stroke="#082333" stroke-width="2"><ellipse cx="51" cy="80" rx="8" ry="15"/><ellipse cx="149" cy="80" rx="8" ry="15"/></g>';
+   extras='<path d="M41 80h20 M51 69v22 M139 80h20 M149 69v22" stroke="#082333" stroke-width="2"/>';
+ }
+ const body=jet&&length>1?'<path d="M100 3 C94 12 94 28 93 46 L86 119 L70 136 L70 143 L100 134 L130 143 L130 136 L114 119 L107 46 C106 28 106 12 100 3 Z" fill="currentColor"/>':fuselage;
+ return `<svg class="aircraft-silhouette ${large?"aircraft-silhouette-large":""}" viewBox="0 0 200 150" role="img" aria-label="${esc(p.name)} top-view silhouette"><path d="${wing}" fill="currentColor"/><path d="${tail}" fill="currentColor"/>${engines}${body.startsWith("<")?body:`<path d="${body}" fill="currentColor"/>`}${extras}</svg>`;
+}
 function aviation(){
  const stats=summarizeLogbook(state.logbook,state.previousExperienceHours||0),valid=state.logbook.filter(x=>!validateSector(x).length),recent=valid.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8),routeCount=new Set(valid.map(x=>String(x.from).toUpperCase()+"-"+String(x.to).toUpperCase())).size;
  const aircraftMap=new Map(),roleMap=new Map();let landings=0,picHours=0;
