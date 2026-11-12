@@ -78,7 +78,8 @@ function nutrition(){
 }
 function family(){
  const start=state.familyWeekStart||today(),end=new Date(start+"T12:00:00");end.setDate(end.getDate()+6);
- const recurring=expandReminders(state.reminders||[],start,end.toISOString().slice(0,10));
+ const endKey=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
+ const recurring=expandReminders(state.reminders||[],start,endKey);
  const familyEvents=[...state.events,...recurring.map(x=>({...x,type:"Reminder",reminder:true,reminderId:x.reminderId}))];
  const week=familyWeek(state.duties,familyEvents,start);
  const agenda=state.events.map((x,i)=>({...x,kind:"event",index:i})).concat((state.reminders||[]).map((x,i)=>({...x,kind:"reminder",index:i}))).sort((a,b)=>(a.date||a.startDate).localeCompare(b.date||b.startDate));
