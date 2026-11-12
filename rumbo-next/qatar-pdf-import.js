@@ -18,12 +18,12 @@ export async function parseQatarRosterPDF(file){
  const month=(period?.[1]||"").match(/-([A-Za-z]{3})-/)?.[1]||"";
  const year=(period?.[1]||"").slice(-4);
  const monthNo=month?String(new Date(Date.parse(month+" 1, 2000")).getMonth()+1).padStart(2,"0"):"";
- const airportTokens=arr=>{const out=[];for(const item of arr){for(const m of item.t.toUpperCase().matchAll(/\\b([A-Z]{3,4})\\b/g)){const code=m[1];if(!excluded.has(code)&&!/^A32[01]$/.test(code)&&!/^QR$/.test(code))out.push({code,y:item.y,x:item.x})}}return out};
+ const airportTokens=arr=>{const out=[];for(const item of arr){for(const m of item.t.toUpperCase().matchAll(/\b([A-Z]{3,4})\b/g)){const code=m[1];if(!excluded.has(code)&&!/^A32[01]$/.test(code)&&!/^QR$/.test(code))out.push({code,y:item.y,x:item.x})}}return out};
  for(const g of grouped){
    const text=g.items.map(i=>i.t).join(" | ");
-   const rpt=text.match(/RPT\\s*:\\s*(\\d{2}:\\d{2})/i);
-   const status=text.match(/\\b(OFF|DOFF|PSBY|GRND)\\b/i);
-   const flightCodes=[...text.matchAll(/\\b(\\d{3,4})\\b/g)].map(m=>m[1]).filter(x=>!/^20\\d{2}$/.test(x));
+   const rpt=text.match(/RPT\s*:\s*(\d{2}:\d{2})/i);
+   const status=text.match(/\b(OFF|DOFF|PSBY|GRND)\b/i);
+   const flightCodes=[...text.matchAll(/\b(\d{3,4})\b/g)].map(m=>m[1]).filter(x=>!/^20\d{2}$/.test(x));
    const airports=airportTokens(g.items).sort((a,b)=>b.y-a.y||a.x-b.x).map(x=>x.code);
    const uniqueAirports=airports.filter((x,i)=>i===0||x!==airports[i-1]);
    const segments=[];
