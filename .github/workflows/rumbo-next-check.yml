@@ -23,6 +23,8 @@ jobs:
           node --check rumbo-next/monthly-planner.js
           node --check rumbo-next/flight-intelligence.js
           node --check rumbo-next/training-intelligence.js
+          node --check tests/rumbo-core.test.mjs
+          node --test tests/rumbo-core.test.mjs
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
       - name: Verify required app files
@@ -38,3 +40,4 @@ jobs:
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
           test -s rumbo-next/sw.js
+          test -s tests/rumbo-core.test.mjs
