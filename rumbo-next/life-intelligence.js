@@ -10,7 +10,7 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES){
  const pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
  for(let i=0;i<7;i++){
   const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),duty=duties[0],raw=duties.map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
-  const flight=/FLIGHT|DUTY|\\b\\d{3,4}\\b/.test(raw)||duties.some(x=>x.segments?.length),off=/\\b(OFF|DOFF|REST)\\b/.test(raw),standby=/PSBY|STANDBY|SBY/.test(raw),training=/GRND|TRAINING|SIM|TRNG/.test(raw);
+  const flight=/FLIGHT|DUTY|\b\\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length),off=/\b(OFF|DOFF|REST)\b/.test(raw),standby=/PSBY|STANDBY|SBY/.test(raw),training=/GRND|TRAINING|SIM|TRNG/.test(raw);
   const slots=flight?[["Breakfast",0],["Packed lunch",2],["Dinner",3]]:standby?[["Breakfast",0],["Flexible lunch",2],["Quick dinner",4]]:training?[["Breakfast",0],["Lunch",2],["Dinner",3]]:off?[["Breakfast",0],["Family lunch",2],["Family dinner",3]]:[["Breakfast",0],["Lunch",2],["Dinner",3]];
   for(const [slot,index] of slots){const r=recipes[(i*2+index+(flight?1:0))%recipes.length];week.push({date,duty:duty?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · prepare portable food and confirm timing":standby?"Standby day · keep meal timing flexible":training?"Training duty day · keep preparation simple":off?"Roster OFF · family meal planning":"No duty imported · plan remains adjustable",status:"suggested"})}
  }
