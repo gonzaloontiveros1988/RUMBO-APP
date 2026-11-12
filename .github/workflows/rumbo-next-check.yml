@@ -45,7 +45,8 @@ jobs:
           node --check rumbo-next/life-intelligence.js
       - name: Verify required app files
         run: |
-          test -s api/rumbo-ai.js\n          test -s rumbo-next/index.html
+          test -s api/rumbo-ai.js
+          test -s rumbo-next/index.html
           test -s rumbo-next/app.css
           test -s rumbo-next/app.js
           test -s rumbo-next/manifest.webmanifest
