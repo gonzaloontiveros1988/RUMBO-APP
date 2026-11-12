@@ -26,7 +26,7 @@ function rateLimited(ip) {
   }
   return false;
 }
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "";
   if (req.method === "OPTIONS") {
     if (!ALLOWED_ORIGINS.has(origin)) return res.status(403).end();
