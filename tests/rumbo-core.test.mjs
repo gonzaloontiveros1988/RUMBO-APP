@@ -92,3 +92,23 @@ test("completion is stored per occurrence without completing future monthly remi
  const r=expandReminders([{id:"bill",title:"Electricity",startDate:"2026-11-05",repeat:"monthly",completedDates:["2026-11-05"]}],"2026-11-01","2027-01-31");
  assert.deepEqual(r.map(x=>x.done),[true,false,false]);
 });
+\nimport {makeMealWeek,financeSummary} from "../rumbo-next/life-intelligence.js";\ntest("meal planner creates breakfast, lunch and dinner for each day and adapts to roster",()=>{
+ const plan=makeMealWeek("2026-11-01",[
+  {date:"2026-11-01",code:"QR123",kind:"FLIGHT"},
+  {date:"2026-11-02",code:"PSBY",kind:"PSBY"},
+  {date:"2026-11-03",code:"OFF",kind:"OFF"}
+ ]);
+ assert.equal(plan.length,21);
+ assert.equal(plan.filter(x=>x.date==="2026-11-01").length,3);
+ assert.ok(plan.filter(x=>x.date==="2026-11-01").every(x=>x.context.includes("Flight duty")));
+ assert.ok(plan.filter(x=>x.date==="2026-11-02").every(x=>x.context.includes("Standby")));
+ assert.ok(plan.filter(x=>x.date==="2026-11-03").every(x=>x.context.includes("Roster OFF")));
+});
+test("household finance totals stay separated by currency",()=>{
+ const summary=financeSummary([
+  {date:new Date().toISOString().slice(0,7)+"-01",amount:100,currency:"QAR"},
+  {date:new Date().toISOString().slice(0,7)+"-02",amount:50,currency:"EUR"}
+ ]);
+ assert.equal(summary.byCurrency.QAR,100);
+ assert.equal(summary.byCurrency.EUR,50);
+});
