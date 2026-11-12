@@ -20,7 +20,7 @@ test("roster classifier distinguishes standby, OFF and training",()=>{
  assert.equal(classifyDuty({code:"GRND"}),"TRAINING");
 });
 test("monthly plan never treats an unassigned date as confirmed OFF",()=>{
- const p=buildMonthlyPlan([{date:"2026-11-01",code:"QR123"}],2026,10);
+ const p=buildMonthlyPlan([{date:"2026-11-01",code:"QR123"},{date:"2026-11-03",code:"QR456"}],2026,10);
  assert.ok(p.some(x=>x.kind==="verify"));
  assert.ok(!p.some(x=>x.kind==="availability"&&x.date==="2026-11-02"));
  assert.equal(buildMonthCells(2026,10,[]).length%7,0);
