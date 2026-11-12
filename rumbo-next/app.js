@@ -107,7 +107,7 @@ $("#fileInput").addEventListener("change",async e=>{
       const {parseQatarRosterPDF}=await import("./qatar-pdf-import.js");
       const parsed=await parseQatarRosterPDF(f);
       rows=parsed.duties;
-      summary="Periodo: "+parsed.period+"\\nServicios detectados: "+rows.length+"\\nBlock hours: "+(parsed.stats?.blockHours||"No detectadas")+"\\nDuty hours: "+(parsed.stats?.dutyHours||"No detectadas")+"\\nHoteles: "+parsed.hotels.length+" · Formación: "+parsed.training.length;
+      summary="Periodo: "+parsed.period+"\\nServicios detectados: "+rows.length+"\\nDías con actividad: "+(parsed.summary?.days||0)+"\\nSectores detectados: "+(parsed.summary?.flightSectors||0)+"\\nOFF: "+(parsed.summary?.offDays||0)+" · Standby: "+(parsed.summary?.standbyDays||0)+" · Training: "+(parsed.summary?.trainingDays||0)+"\\nBlock hours: "+(parsed.stats?.blockHours||"No detectadas")+"\\nDuty hours: "+(parsed.stats?.dutyHours||"No detectadas")+"\\nHoteles: "+parsed.hotels.length+" · Formación: "+parsed.training.length;
       if(!rows.length){toast("PDF leído, pero no se detectaron duties con suficiente estructura. No se ha guardado nada.");console.warn(parsed);return;}
       const sample=rows.slice(0,18).map(x=>x.date+" · "+x.code+" · "+(x.route||"route pending")+" · RPT "+(x.time||"—")).join("\\n");
       if(!confirm("REVISIÓN DEL ROSTER PDF\\n\\n"+summary+"\\n\\nMuestra de registros:\\n"+sample+"\\n\\n¿Importar estos registros?"))return;
