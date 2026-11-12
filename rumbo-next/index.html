@@ -3,4 +3,22 @@
 <body><div class="app">
 <aside class="sidebar"><a class="brand" href="#"><span class="brandmark">✈</span><span><b>RUMBO</b><small>PILOT & FAMILY OS</small></span></a><div class="side-label">FLIGHT OPERATIONS</div><nav id="nav"></nav><div class="side-foot"><span class="live-dot"></span> PERSONAL COMMAND CENTER <small>PREVIEW · LOCAL DATA</small></div></aside>
 <main><header class="topbar"><div><div class="eyebrow">PERSONAL FLIGHT & LIFE COMMAND CENTER</div><div id="today" class="date"></div></div><div class="top-actions"><span class="status">● LOCAL MODE</span><button class="icon-btn" id="importBackupBtn" title="Restaurar copia">↥</button><button class="icon-btn" id="exportBtn" title="Exportar copia">⇩</button></div></header><section id="view"></section></main>
-<nav class="mobile-nav" id="mobileNav"></nav></div><input id="fileInput" type="file" accept=".csv,.ics,.txt,.pdf"><input id="backupInput" type="file" accept=".json,application/json"><input id="waderCsvInput" type="file" accept=".csv,text/csv"><div id="toast" role="status"></div><script type="module" src="app.js"></script></body></html>
+<nav class="mobile-nav" id="mobileNav"></nav></div><input id="fileInput" type="file" accept=".csv,.ics,.txt,.pdf"><input id="backupInput" type="file" accept=".json,application/json"><input id="waderCsvInput" type="file" accept=".csv,text/csv"><div id="toast" role="status"></div><script>
+(function(){
+ function showBootError(message){
+  var view=document.getElementById("view");if(!view)return;
+  view.innerHTML='<section style="margin:24px;padding:24px;border:1px solid #31546a;border-radius:14px;background:#10283a;color:#eaf4ff;font:14px system-ui"><div style="color:#56d9d0;letter-spacing:2px;font-size:11px">RUMBO RECOVERY</div><h2 style="margin:12px 0">No se ha podido iniciar RUMBO</h2><p>La aplicación ha detectado un error al cargar sus módulos. Tus datos locales no se han borrado.</p><pre id="rumboBootDetails" style="white-space:pre-wrap;overflow-wrap:anywhere;color:#ffc7a9"></pre><button id="rumboRepair" style="margin-top:12px;padding:12px 16px;background:#42cbd0;color:#08202e;border:0;border-radius:8px;font-weight:700">Actualizar aplicación</button></section>';
+  document.getElementById("rumboBootDetails").textContent=message;
+  document.getElementById("rumboRepair").onclick=async function(){
+   try{if("serviceWorker" in navigator){var regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(function(r){return r.unregister()}))}
+    if("caches" in window){var keys=await caches.keys();await Promise.all(keys.filter(function(k){return k.indexOf("rumbo-next-shell-")===0}).map(function(k){return caches.delete(k)}))}
+   }catch(e){}
+   location.reload();
+  };
+ }
+ window.addEventListener("error",function(e){showBootError(e.message||"Error de JavaScript")});
+ window.addEventListener("unhandledrejection",function(e){showBootError(e.reason&&e.reason.stack||String(e.reason||"Error al cargar un módulo"))});
+ window.setTimeout(function(){var nav=document.getElementById("nav"),view=document.getElementById("view");if(nav&&view&&!nav.children.length&&!view.children.length)showBootError("La interfaz no se ha iniciado. Se recomienda actualizar la caché de la aplicación.")},5000);
+})();
+</script>
+<script type="module" src="app.js"></script></body></html>
