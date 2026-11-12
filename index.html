@@ -2,16 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ONTIS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>RUMBO</title>
 <!-- PWA: instalable en pantalla de inicio, abre a pantalla completa y funciona offline vía service worker.
      manifest.json, sw.js e icon-*.png tienen que vivir en la misma carpeta que este index.html en GitHub Pages. -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f1720">
+<meta name="theme-color" content="#101827">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ONTIS">
+<meta name="apple-mobile-web-app-title" content="RUMBO">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <script>
@@ -666,16 +666,17 @@ if('serviceWorker' in navigator){
   .gs-flash{animation:gsFlash 1.4s ease;}
   @keyframes gsFlash{0%{box-shadow:0 0 0 2px var(--accent2);}70%{box-shadow:0 0 0 2px var(--accent2);}100%{box-shadow:none;}}
 </style>
+<link rel="stylesheet" href="assets/css/rumbo-design-system.css">
 </head>
 <body>
 
 <header>
   <div class="title">
     <span class="plane">🛩️</span>
-    <h1>ONTIS</h1>
+    <h1>RUMBO</h1>
   </div>
   <div class="header-right">
-    <button class="theme-toggle" id="globalSearchBtn" onclick="openGlobalSearch()" aria-label="Buscar en ONTIS">🔍</button>
+    <button class="theme-toggle" id="globalSearchBtn" onclick="openGlobalSearch()" aria-label="Buscar en RUMBO">🔍</button>
     <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Cambiar modo día/noche"><span id="themeIcon">🌙</span></button>
     <div class="streak-badge">🔥 <span id="streakVal">0</span> días</div>
   </div>
@@ -1369,7 +1370,7 @@ if('serviceWorker' in navigator){
       <div data-subof="sosViajes" data-submode="buzon" style="display:none;">
         <div class="card">
           <h2>💌 Buzón familiar</h2>
-          <p class="sub">Mensajes para leer cuando estés fuera o cuando aterrices — de ti o de tu pareja (si tiene ONTIS sincronizado en su móvil, los mensajes se sincronizan solos).</p>
+          <p class="sub">Mensajes para leer cuando estés fuera o cuando aterrices — de ti o de tu pareja (si tiene RUMBO sincronizado en su móvil, los mensajes se sincronizan solos).</p>
           <div class="goals-row">
             <div>
               <select id="mailboxAuthor">
@@ -3158,7 +3159,7 @@ if('serviceWorker' in navigator){
   <!-- PROGRESO -->
   <section class="view" id="view-progreso">
     <div class="card" style="background:linear-gradient(135deg,rgba(159,122,234,0.22),rgba(79,209,197,0.16));">
-      <h2>🎁 Tu semana en ONTIS</h2>
+      <h2>🎁 Tu semana en RUMBO</h2>
       <p class="sub">Un resumen rápido de los últimos 7 días — vuelo, hábitos, ánimo y ahorro, todo junto.</p>
       <div id="weeklyWrappedBox"></div>
     </div>
@@ -3184,7 +3185,7 @@ if('serviceWorker' in navigator){
     </div>
 
     <div class="card">
-      <h2>📖 Tu año en ONTIS</h2>
+      <h2>📖 Tu año en RUMBO</h2>
       <p class="sub">Un resumen del año — vuelos, destinos, ahorro, tiempo en casa — para guardar o imprimir.</p>
       <div class="goals-row">
         <div><label class="field-label" style="margin-top:0;">Año</label><input type="number" id="yearSummaryYear" class="text-input" style="width:110px;"></div>
@@ -3285,11 +3286,11 @@ if('serviceWorker' in navigator){
         <div class="rhead"><span class="rtitle">📖 Cómo automatizarlo con un Atajo de Shortcuts</span><span class="rarrow">▶</span></div>
         <div class="rbody">
           <p>Para que se rellene solo cada día, sin teclear nada:</p>
-          <p><b>1.</b> Abre la app Atajos → crea uno nuevo, llámalo por ejemplo "Salud a ONTIS".</p>
+          <p><b>1.</b> Abre la app Atajos → crea uno nuevo, llámalo por ejemplo "Salud a RUMBO".</p>
           <p><b>2.</b> Añade "Obtener detalles de salud" una vez por cada métrica que quieras (Sueño, Frecuencia cardiaca en reposo, Energía activa, Pasos, Minutos de ejercicio, Frecuencia cardiaca media) — todas para el rango "Ayer".</p>
           <p><b>3.</b> Añade "Diccionario" con las claves: <code>date</code> (la fecha de ayer en formato AAAA-MM-DD), <code>sleepHours</code>, <code>steps</code>, <code>calories</code>, <code>restingHeartRate</code>, <code>exerciseMinutes</code>, <code>activeHeartRateAvg</code> — cada una apuntando al resultado correspondiente del paso 2.</p>
           <p><b>4.</b> Mete ese diccionario dentro de corchetes <code>[ ]</code> (un array con un solo elemento) — puedes usar "Combinar texto" para envolverlo.</p>
-          <p><b>5.</b> Termina con "Guardar archivo" (ej. salud.json) y luego, cuando quieras actualizar ONTIS, entra ahí y pulsa "Importar archivo JSON" arriba — puedes reimportar tantas veces como quieras, cada día sustituye solo el suyo.</p>
+          <p><b>5.</b> Termina con "Guardar archivo" (ej. salud.json) y luego, cuando quieras actualizar RUMBO, entra ahí y pulsa "Importar archivo JSON" arriba — puedes reimportar tantas veces como quieras, cada día sustituye solo el suyo.</p>
           <p><b>6.</b> Opcional: en Atajos → Automatización → "Una hora del día" cada mañana, para que se genere solo. Los nombres exactos de las acciones pueden variar un poco según tu versión de iOS — si algo no encaja, la forma más fácil es usar el formulario "Añadir un día a mano" de arriba en su lugar.</p>
           <p style="margin-top:8px;">Formato final esperado (por si prefieres montarlo tú de otra forma): <code>[{"date":"2026-07-14","sleepHours":6.5,"steps":8200,"calories":320,"restingHeartRate":58,"exerciseMinutes":30,"activeHeartRateAvg":128}, ...]</code></p>
         </div>
@@ -3316,7 +3317,7 @@ if('serviceWorker' in navigator){
 
     <div class="card">
       <h2>🔔 Avisos locales</h2>
-      <p class="sub">Importante: esto NO es un push real de servidor — iOS no lo permite sin una infraestructura de pago que esta app no tiene. Lo que sí hace: cuando abres ONTIS (o la dejas abierta en segundo plano un rato), comprueba backups pendientes, vigencias a punto de caducar y fatiga alta, y te avisa con una notificación si toca. No te avisará con el móvil bloqueado y la app cerrada del todo.</p>
+      <p class="sub">Importante: esto NO es un push real de servidor — iOS no lo permite sin una infraestructura de pago que esta app no tiene. Lo que sí hace: cuando abres RUMBO (o la dejas abierta en segundo plano un rato), comprueba backups pendientes, vigencias a punto de caducar y fatiga alta, y te avisa con una notificación si toca. No te avisará con el móvil bloqueado y la app cerrada del todo.</p>
       <div id="notifStatusBox"></div>
       <button class="chip" onclick="requestNotifPermission()" style="margin-top:8px;">🔔 Activar avisos en este dispositivo</button>
     </div>
@@ -3741,7 +3742,7 @@ function generateShareLink(){
   box.innerHTML = `<input type="text" class="text-input" readonly value="${url}" onclick="this.select()" style="font-size:12px;">
     <div class="row-btns" style="margin-top:6px;">
       <button class="chip" onclick="navigator.clipboard && navigator.clipboard.writeText('${url}'); showToast('🔗 Enlace copiado')">📋 Copiar</button>
-      ${navigator.share ? `<button class="chip" onclick='navigator.share({title:"ONTIS — sígueme el viaje", url:"${url}"})'>📤 Compartir</button>` : ''}
+      ${navigator.share ? `<button class="chip" onclick='navigator.share({title:"RUMBO — sígueme el viaje", url:"${url}"})'>📤 Compartir</button>` : ''}
     </div>
     <p class="sub" style="margin-top:6px;">Recuerda: <b>compartir.html</b> tiene que estar subido junto a index.html en tu GitHub Pages para que este enlace funcione.</p>`;
 }
@@ -3810,7 +3811,7 @@ function runLocalNotificationChecks(){
   const last = state.lastBackupExportAt ? new Date(state.lastBackupExportAt) : null;
   const daysSince = last ? Math.floor((new Date() - last) / 86400000) : null;
   if(daysSince==null || daysSince>=7){
-    maybeNotify('backup', 'ONTIS — copia de seguridad', 'Llevas' + (daysSince!=null?(' '+daysSince+' días'):' tiempo') + ' sin descargar una copia. Tarda 2 segundos.', 48);
+    maybeNotify('backup', 'RUMBO — copia de seguridad', 'Llevas' + (daysSince!=null?(' '+daysSince+' días'):' tiempo') + ' sin descargar una copia. Tarda 2 segundos.', 48);
   }
   // Vigencias a punto de caducar (7 días)
   const todayKey = localDateKey(new Date());
@@ -3820,25 +3821,25 @@ function runLocalNotificationChecks(){
     return days>=0 && days<=7;
   });
   if(soon.length>0){
-    maybeNotify('docExpiry', 'ONTIS — vigencia a punto de caducar', soon.map(d=>d.name).join(', '), 24);
+    maybeNotify('docExpiry', 'RUMBO — vigencia a punto de caducar', soon.map(d=>d.name).join(', '), 24);
   }
   // Fatiga alta sostenida
   const cutoffKey = localDateKey(new Date(Date.now() - 7*24*60*60*1000));
   const last7 = (state.fatigueLog||[]).filter(f=>f.date>=cutoffKey);
   if(last7.length>=3){
     const avg = last7.reduce((s,f)=>s+f.score,0)/last7.length;
-    if(avg>=5 && !vacationPaused) maybeNotify('fatigue', 'ONTIS — fatiga elevada', 'Tu media de fatiga esta semana es alta (' + avg.toFixed(1) + '/7). Prioriza recuperación.', 48);
+    if(avg>=5 && !vacationPaused) maybeNotify('fatigue', 'RUMBO — fatiga elevada', 'Tu media de fatiga esta semana es alta (' + avg.toFixed(1) + '/7). Prioriza recuperación.', 48);
   }
   // Gasto por encima de la dieta este mes
   const overCities = computeOverPerDiemCitiesThisMonth();
   if(overCities.length>0){
-    maybeNotify('perdiem', 'ONTIS — gasto por encima de dieta', 'Este mes te has pasado de la dieta en: ' + overCities.join(', ') + '.', 24);
+    maybeNotify('perdiem', 'RUMBO — gasto por encima de dieta', 'Este mes te has pasado de la dieta en: ' + overCities.join(', ') + '.', 24);
   }
   // Checklist del cole pendiente
   ensureSchoolInit();
   const uncheckedToday = (state.schoolChecklist||[]).filter(i=>i.checkedDate!==todayKey);
   if(uncheckedToday.length>0){
-    maybeNotify('coleChecklist', 'ONTIS — checklist del cole', 'Pendiente: ' + uncheckedToday.map(i=>i.text).join(', ') + '.', 20);
+    maybeNotify('coleChecklist', 'RUMBO — checklist del cole', 'Pendiente: ' + uncheckedToday.map(i=>i.text).join(', ') + '.', 20);
   }
   // Eventos del cole según su antelación de aviso configurada (por defecto 1 día antes)
   ensureSchoolInit();
@@ -3851,21 +3852,21 @@ function runLocalNotificationChecks(){
     return daysUntil === remindDays;
   });
   if(dueEvents.length>0){
-    maybeNotify('coleEvent', 'ONTIS — evento del cole próximamente', dueEvents.map(e=>e.title+' ('+e.date+')').join(', ') + '.', 20);
+    maybeNotify('coleEvent', 'RUMBO — evento del cole próximamente', dueEvents.map(e=>e.title+' ('+e.date+')').join(', ') + '.', 20);
   }
   // Choques con el roster: evento del cole o visita de la asistenta que caen en un día con vuelo cargado
   const clashEvents = (state.schoolEvents||[]).filter(e=>e.date>=todayKey && flightOnDate(e.date));
   if(clashEvents.length>0 && !vacationPaused){
-    maybeNotify('coleFlightClash', 'ONTIS — evento del cole coincide con un vuelo', clashEvents.map(e=>e.title+' el '+e.date).join(', ') + ' — avisa en casa con tiempo.', 24);
+    maybeNotify('coleFlightClash', 'RUMBO — evento del cole coincide con un vuelo', clashEvents.map(e=>e.title+' el '+e.date).join(', ') + ' — avisa en casa con tiempo.', 24);
   }
   // Visita de la asistenta mañana
   ensureMaidInit();
   if(isMaidDay(tomorrowKey)){
-    maybeNotify('maidVisit', 'ONTIS — mañana viene la asistenta', 'Recuerda dejar la casa lista para mañana.', 20);
+    maybeNotify('maidVisit', 'RUMBO — mañana viene la asistenta', 'Recuerda dejar la casa lista para mañana.', 20);
   }
   const nextMaidVisitKey = getNextMaidVisit();
   if(nextMaidVisitKey && flightOnDate(nextMaidVisitKey) && !vacationPaused){
-    maybeNotify('maidFlightClash', 'ONTIS — la asistenta viene un día que vuelas', 'Próxima visita ' + nextMaidVisitKey + ' — organiza las llaves con tiempo.', 24);
+    maybeNotify('maidFlightClash', 'RUMBO — la asistenta viene un día que vuelas', 'Próxima visita ' + nextMaidVisitKey + ' — organiza las llaves con tiempo.', 24);
   }
   // Vacunas/revisiones de los niños a punto de tocar (14 días)
   const soonKidHealth = (state.kidsHealth||[]).filter(k=>{
@@ -3873,14 +3874,14 @@ function runLocalNotificationChecks(){
     return days>=0 && days<=14;
   });
   if(soonKidHealth.length>0){
-    maybeNotify('kidHealth', 'ONTIS — vacuna/revisión de los niños próxima', soonKidHealth.map(k=>k.item+(k.child?' ('+k.child+')':'')+' el '+k.date).join(', ') + '.', 48);
+    maybeNotify('kidHealth', 'RUMBO — vacuna/revisión de los niños próxima', soonKidHealth.map(k=>k.item+(k.child?' ('+k.child+')':'')+' el '+k.date).join(', ') + '.', 48);
   }
   const soonKidDocs = (state.kidsDocuments||[]).filter(k=>{
     const days = Math.round((new Date(k.date+'T00:00:00') - new Date(todayKey+'T00:00:00')) / 86400000);
     return days>=0 && days<=60;
   });
   if(soonKidDocs.length>0){
-    maybeNotify('kidDocs', 'ONTIS — documento de los niños por caducar', soonKidDocs.map(k=>k.item+(k.child?' ('+k.child+')':'')+' el '+k.date).join(', ') + '.', 72);
+    maybeNotify('kidDocs', 'RUMBO — documento de los niños por caducar', soonKidDocs.map(k=>k.item+(k.child?' ('+k.child+')':'')+' el '+k.date).join(', ') + '.', 72);
   }
   // Mañana no vas a estar para llevarlos o recogerlos del cole (según tu roster + margen real de firma/coche)
   const tomorrowAvailability = checkSchoolAvailability(tomorrowKey);
@@ -3888,7 +3889,7 @@ function runLocalNotificationChecks(){
     const bits = [];
     if(!tomorrowAvailability.dropoffAvailable) bits.push('llevarlos a la entrada (07:00)');
     if(!tomorrowAvailability.pickupAvailable) bits.push('recogerlos a la salida (14:30)');
-    maybeNotify('schoolPickupTaxi', 'ONTIS — mañana no llegas al cole', 'Según tu roster, mañana no vas a poder ' + bits.join(' ni ') + '. Organiza un taxi u otra solución con tiempo.', 20);
+    maybeNotify('schoolPickupTaxi', 'RUMBO — mañana no llegas al cole', 'Según tu roster, mañana no vas a poder ' + bits.join(' ni ') + '. Organiza un taxi u otra solución con tiempo.', 20);
   }
 }
 function computeOverPerDiemCitiesThisMonth(){
@@ -6512,7 +6513,7 @@ function downloadFamilyRecipesPdf(){
   if(!area) return;
   const list = FAMILY_RECIPES.filter(r=>familyRecipeMatches(r, familyRecipeFilters));
   if(!list.length){ alert('No hay recetas que encajen con los filtros activos.'); return; }
-  let out = `<h1>👨‍👩‍👧 Recetario familiar — ONTIS</h1><p style="font-size:12px;color:#555;">${list.length} receta${list.length===1?'':'s'} · generado el ${localDateKey(new Date())}</p>`;
+  let out = `<h1>👨‍👩‍👧 Recetario familiar — RUMBO</h1><p style="font-size:12px;color:#555;">${list.length} receta${list.length===1?'':'s'} · generado el ${localDateKey(new Date())}</p>`;
   list.forEach(r=>{
     const nut = estimateMealNutrition(r.ingredients);
     const perServing = { kcal: Math.round(nut.kcal/r.servingsBase), protein: Math.round(nut.protein/r.servingsBase) };
@@ -8679,7 +8680,7 @@ function generateRosterIcs(){
   const fmtDate = dateStr => dateStr.replace(/-/g,'');
   const esc = s => String(s||'').replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\n/g,'\\n');
   const now = fmt(new Date());
-  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//ONTIS//ES\r\nCALSCALE:GREGORIAN\r\n';
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//RUMBO//ES\r\nCALSCALE:GREGORIAN\r\n';
   flights.forEach((f,i)=>{
     const dep = flightDepDateTime(f);
     const arr = flightArrDateTime(f) || dep;
@@ -12343,13 +12344,13 @@ async function shareLogbookExport(){
   try{
     const file = new File([csv], filename, {type:'text/csv'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({ files:[file], title:'Mi logbook', text:'Mi logbook exportado desde ONTIS' });
+      await navigator.share({ files:[file], title:'Mi logbook', text:'Mi logbook exportado desde RUMBO' });
       return;
     }
   }catch(e){ console.warn('Share con archivo no disponible', e); }
   if(navigator.share){
     try{
-      await navigator.share({ title:'Mi logbook', text:'Exportado desde ONTIS. Usa el botón "Exportar logbook (CSV)" en la app para el archivo completo.' });
+      await navigator.share({ title:'Mi logbook', text:'Exportado desde RUMBO. Usa el botón "Exportar logbook (CSV)" en la app para el archivo completo.' });
       return;
     }catch(e){ console.warn('Share de texto falló', e); }
   }
@@ -12445,7 +12446,7 @@ function exportLogbookPdf(){
   ).join('');
   const win = window.open('', '_blank');
   win.document.write(`
-    <html><head><title>Logbook · ONTIS</title>
+    <html><head><title>Logbook · RUMBO</title>
     <style>
       body{font-family:Arial,sans-serif;padding:24px;color:#111;}
       h1{margin-bottom:0;} .m{color:#555;margin-top:4px;}
@@ -12455,7 +12456,7 @@ function exportLogbookPdf(){
       h2{font-size:14px;margin-top:24px;}
       @media print{ body{padding:8px;} }
     </style></head><body>
-    <h1>Logbook · ONTIS</h1>
+    <h1>Logbook · RUMBO</h1>
     <p class="m">Generado el ${new Date().toLocaleDateString('es-ES')} · ${entries.length} vuelo(s)</p>
     <h2>Totales</h2>
     <table>
@@ -12471,7 +12472,7 @@ function exportLogbookPdf(){
       <tr><th>Fecha</th><th>Matrícula</th><th>Tipo</th><th>Ruta</th><th>Salida UTC</th><th>Llegada UTC</th><th>Bloque (h)</th><th>Ater. D</th><th>Ater. N</th><th>Función</th></tr>
       ${rows}
     </table>
-    <p class="m" style="margin-top:20px;">Generado desde tus propios datos guardados en ONTIS — revisa contra tu roster/logbook oficial antes de usarlo para trámites.</p>
+    <p class="m" style="margin-top:20px;">Generado desde tus propios datos guardados en RUMBO — revisa contra tu roster/logbook oficial antes de usarlo para trámites.</p>
     </body></html>
   `);
   win.document.close();
@@ -16691,7 +16692,7 @@ function renderSummaryBox(){
   <div class="insight-item"><span class="iic">🧾</span><span>Gastado: <b>${expensesTxt}</b></span></div>`;
 }
 
-/* ---------- Resumen anual exportable ("Tu año en ONTIS") ---------- */
+/* ---------- Resumen anual exportable ("Tu año en RUMBO") ---------- */
 function exportYearSummaryPdf(){
   const yearEl = document.getElementById('yearSummaryYear');
   const year = Number(yearEl.value) || new Date().getFullYear();
@@ -16727,7 +16728,7 @@ function exportYearSummaryPdf(){
 
   const win = window.open('', '_blank');
   win.document.write(`
-    <html><head><title>Tu año ${year} · ONTIS</title>
+    <html><head><title>Tu año ${year} · RUMBO</title>
     <style>
       body{font-family:Arial,sans-serif;padding:24px;color:#111;}
       h1{margin-bottom:0;} .m{color:#555;margin-top:4px;}
@@ -16740,7 +16741,7 @@ function exportYearSummaryPdf(){
       .stat b{display:block;font-size:20px;}
       @media print{ body{padding:8px;} }
     </style></head><body>
-    <h1>✈️ Tu año ${year} en ONTIS</h1>
+    <h1>✈️ Tu año ${year} en RUMBO</h1>
     <p class="m">Generado el ${new Date().toLocaleDateString('es-ES')}${isPastYear?'':' · año en curso, datos hasta hoy'}</p>
     <div class="stats">
       <div class="stat"><b>${flightHours.toFixed(0)}h</b>horas de vuelo</div>
@@ -17140,11 +17141,11 @@ function exportReport(){
   const managedWaves = state.entries.filter(e=>e.outcome==='Pasó el antojo').length;
   const win = window.open('', '_blank');
   win.document.write(`
-    <html><head><title>Informe · ONTIS</title>
+    <html><head><title>Informe · RUMBO</title>
     <style>body{font-family:Arial,sans-serif;padding:30px;color:#111;} h1{margin-bottom:0;} .m{color:#555;margin-top:0;}
     table{width:100%;border-collapse:collapse;margin-top:16px;} td,th{border:1px solid #ccc;padding:8px;text-align:left;font-size:13px;}
     </style></head><body>
-    <h1>Informe · ONTIS</h1>
+    <h1>Informe · RUMBO</h1>
     <p class="m">Generado el ${new Date().toLocaleDateString('es-ES')}</p>
     <table>
       <tr><th>Nivel</th><td>${level} · ${getRank(level)}</td></tr>
