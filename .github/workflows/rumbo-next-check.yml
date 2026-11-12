@@ -16,10 +16,10 @@ jobs:
         with:
           node-version: 22
       - name: Check application JavaScript
-        run: node --check rumbo-next/app.js
+        run: node --check rumbo-next/app.js\n          node --check rumbo-next/roster-import.js\n          node --check rumbo-next/qatar-pdf-import.js
       - name: Verify required app files
         run: |
           test -s rumbo-next/index.html
           test -s rumbo-next/app.css
           test -s rumbo-next/app.js
-          test -s rumbo-next/manifest.webmanifest
+          test -s rumbo-next/manifest.webmanifest\n          test -s rumbo-next/qatar-pdf-import.js\n          test -s rumbo-next/sw.js
