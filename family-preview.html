@@ -37,7 +37,7 @@ h1,h2,h3,p{margin-top:0}h1{font:600 clamp(34px,4vw,54px)/1.08 'Playfair Display'
  <div><div class="nav-label">TU ESPACIO</div><nav class="nav">
   <button class="active" data-page="home"><span class="ico">⌂</span><span class="label">Inicio</span></button>
   <button data-page="family"><span class="ico">◷</span><span class="label">Familia</span></button>
-  <button data-page="home"><span class="ico">⌂</span><span class="label">Hogar</span></button>
+  <button data-page="hogar"><span class="ico">⌂</span><span class="label">Hogar</span></button>
   <button data-page="travel"><span class="ico">◎</span><span class="label">Travel Map</span></button>
   <button data-page="aviation"><span class="ico">✈</span><span class="label">Aviación</span></button>
  </nav></div>
@@ -61,9 +61,32 @@ h1,h2,h3,p{margin-top:0}h1{font:600 clamp(34px,4vw,54px)/1.08 'Playfair Display'
    </div></div>
   </div>
   <div class="grid three" style="margin-top:17px">
-   <div class="panel"><div class="panel-title"><h2>Esta noche</h2><span>🍽️</span></div><div style="font:600 23px 'Playfair Display',serif">Salmón al horno</div><p class="small muted">Con patatas y verduras · Menú de ejemplo</p><button class="btn ghost" data-go="home">Abrir menú semanal</button></div>
-   <div class="panel"><div class="panel-title"><h2>Lista de compra</h2><span>🛒</span></div><div style="font:600 25px 'Playfair Display',serif">6 productos</div><p class="small muted">2 añadidos hoy · Lista compartida (demo)</p><button class="btn ghost" data-go="home">Ver lista</button></div>
+   <div class="panel"><div class="panel-title"><h2>Esta noche</h2><span>🍽️</span></div><div style="font:600 23px 'Playfair Display',serif">Salmón al horno</div><p class="small muted">Con patatas y verduras · Menú de ejemplo</p><button class="btn ghost" data-go="hogar">Abrir menú semanal</button></div>
+   <div class="panel"><div class="panel-title"><h2>Lista de compra</h2><span>🛒</span></div><div style="font:600 25px 'Playfair Display',serif">6 productos</div><p class="small muted">2 añadidos hoy · Lista compartida (demo)</p><button class="btn ghost" data-go="hogar">Ver lista</button></div>
    <div class="panel"><div class="panel-title"><h2>Próximo viaje</h2><span>✦</span></div><div style="font:600 23px 'Playfair Display',serif">Japón</div><p class="small muted">En vuestra lista de destinos soñados</p><button class="btn ghost" data-go="travel">Explorar mapa</button></div>
+  </div>
+ </section>
+ <section class="page" id="page-hogar">
+  <div class="section-head"><div><div class="eyebrow">HOME & MEAL PLANNER</div><h1>La casa, en orden.</h1><p>Menú semanal, recetas e ingredientes conectados con la compra familiar.</p></div><div class="btn-row"><button class="btn ghost">Recetas guardadas</button><button class="btn">＋ Crear menú</button></div></div>
+  <div class="panel"><div class="panel-title"><h2>Menú de la semana</h2><span class="pill">Plan familiar · Demo</span></div><div class="meal-grid" id="mealGrid">
+   <div class="meal-day"><h3>Lunes</h3><div class="meal"><span>COMIDA</span><strong>Pollo al limón con arroz</strong><button data-ingredients="Pollo, arroz, limón, verduras">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Tortilla y ensalada</strong><button data-ingredients="Huevos, patatas, lechuga, tomate">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Martes</h3><div class="meal"><span>COMIDA</span><strong>Pasta boloñesa</strong><button data-ingredients="Pasta, carne picada, tomate, cebolla">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Crema de verduras</strong><button data-ingredients="Calabacín, zanahoria, patata, caldo">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Miércoles</h3><div class="meal"><span>COMIDA</span><strong>Salmón y patatas</strong><button data-ingredients="Salmón, patatas, brócoli, limón">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Quesadillas de pollo</strong><button data-ingredients="Tortillas, pollo, queso, aguacate">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Jueves</h3><div class="meal"><span>COMIDA</span><strong>Lentejas caseras</strong><button data-ingredients="Lentejas, zanahoria, cebolla, patata">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Wraps mediterráneos</strong><button data-ingredients="Pan pita, hummus, pepino, tomate">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Viernes</h3><div class="meal"><span>COMIDA</span><strong>Arroz con verduras</strong><button data-ingredients="Arroz, guisantes, pimiento, zanahoria">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Pizza casera</strong><button data-ingredients="Masa pizza, mozzarella, tomate, champiñones">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Sábado</h3><div class="meal"><span>COMIDA</span><strong>Comida familiar libre</strong><button data-ingredients="Pan, fruta, bebida">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Hamburguesas caseras</strong><button data-ingredients="Carne, pan hamburguesa, lechuga, tomate">＋ Ingredientes</button></div></div>
+   <div class="meal-day"><h3>Domingo</h3><div class="meal"><span>COMIDA</span><strong>Pollo al horno</strong><button data-ingredients="Pollo, patatas, cebolla, romero">＋ Ingredientes</button></div><div class="meal"><span>CENA</span><strong>Ensalada completa</strong><button data-ingredients="Lechuga, huevo, atún, tomate">＋ Ingredientes</button></div></div>
+  </div></div>
+  <div class="grid two" style="margin-top:17px">
+   <div class="panel"><div class="panel-title"><h2>Lista de la compra compartida</h2><span class="pill" id="shoppingCount">0 productos</span></div><div id="shoppingList">
+    <label class="shopping-item"><input type="checkbox"><span>Leche</span></label><label class="shopping-item"><input type="checkbox"><span>Fruta variada</span></label><label class="shopping-item"><input type="checkbox"><span>Huevos</span></label><label class="shopping-item"><input type="checkbox"><span>Pan integral</span></label><label class="shopping-item"><input type="checkbox"><span>Yogures</span></label>
+   </div><form class="add-row" id="shoppingForm"><input id="shoppingInput" placeholder="Añadir producto a la lista…" aria-label="Nuevo producto"><button class="btn" type="submit">Añadir</button></form><p class="small muted" style="margin:12px 0 0">En la versión conectada, los cambios aparecerán en tiempo real en los dispositivos de todos los miembros.</p></div>
+   <div class="panel"><div class="panel-title"><h2>Ideas para inspirarte</h2><span class="small muted">Recetario</span></div>
+    <div class="recipe"><div class="recipe-art">🥘</div><div><strong>Comidas en 20 minutos</strong><small>12 recetas · rápidas para días de colegio</small></div></div>
+    <div class="recipe"><div class="recipe-art">🥗</div><div><strong>Menús equilibrados</strong><small>Ideas variadas para toda la familia</small></div></div>
+    <div class="recipe"><div class="recipe-art">🍝</div><div><strong>Favoritos de los niños</strong><small>Platos sencillos y fáciles de adaptar</small></div></div>
+    <div class="recipe"><div class="recipe-art">🧊</div><div><strong>Batch cooking</strong><small>Preparación anticipada para toda la semana</small></div></div>
+   </div>
   </div>
  </section>
  <section class="page" id="page-family">
@@ -115,7 +138,14 @@ document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=
 const days=[{d:'Jue',n:12,a:'Vuelo · Colegio',free:false},{d:'Vie',n:13,a:'Colegio · Actividad',free:false},{d:'Sáb',n:14,a:'Sin compromisos',free:true},{d:'Dom',n:15,a:'Vuelo · Familia',free:false},{d:'Lun',n:16,a:'Colegio',free:false},{d:'Mar',n:17,a:'Colegio · Actividad',free:false},{d:'Mié',n:18,a:'Todos en casa',free:true}];
 function renderWeek(id){document.getElementById(id).innerHTML=days.map(x=>'<div class="day '+(x.free?'free':'busy')+'"><div class="dow">'+x.d+'</div><div class="num">'+x.n+'</div><div class="who">'+x.a+'</div>'+(x.free?'<div class="free-tag">LIBRES JUNTOS</div>':'')+'</div>').join('')}
 renderWeek('homeWeek');renderWeek('familyWeek');
-const countries=[{name:'España',visits:8,kind:'visited',coords:[40.4,-3.7],note:'Familia y raíces',icon:'🇪🇸'},{name:'Francia',visits:4,kind:'visited',coords:[48.8,2.3],note:'Ciudades y escapadas',icon:'🇫🇷'},{name:'Italia',visits:2,kind:'visited',coords:[41.9,12.5],note:'Cultura y gastronomía',icon:'🇮🇹'},{name:'Reino Unido',visits:3,kind:'visited',coords:[51.5,-.1],note:'Viajes y conexiones',icon:'🇬🇧'},{name:'Qatar',visits:1,kind:'visited',coords:[25.3,51.5],note:'Nuestro hogar actual',icon:'🇶🇦'},{name:'Japón',visits:0,kind:'wish',coords:[35.7,139.7],note:'Tokio, Kioto y cultura',icon:'🇯🇵'},{name:'Noruega',visits:0,kind:'wish',coords:[60.4,8.5],note:'Fiordos y naturaleza',icon:'🇳🇴'},{name:'Indonesia',visits:0,kind:'wish',coords:[-8.4,115.2],note:'Bali y sus paisajes',icon:'🇮🇩'}];
+const shoppingList=document.getElementById('shoppingList');
+function updateShoppingCount(){const n=shoppingList.querySelectorAll('.shopping-item').length;const done=shoppingList.querySelectorAll('input:checked').length;document.getElementById('shoppingCount').textContent=(n-done)+' pendientes · '+n+' total'}
+function addShoppingItem(name){const label=document.createElement('label');label.className='shopping-item';const input=document.createElement('input');input.type='checkbox';const span=document.createElement('span');span.textContent=name;label.append(input,span);shoppingList.append(label);updateShoppingCount()}
+shoppingList.addEventListener('change',e=>{if(e.target.matches('input')){e.target.closest('.shopping-item').classList.toggle('done',e.target.checked);updateShoppingCount()}});
+document.getElementById('shoppingForm').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('shoppingInput');const name=input.value.trim();if(name){addShoppingItem(name);input.value=''}});
+document.querySelectorAll('[data-ingredients]').forEach(b=>b.addEventListener('click',()=>{b.dataset.ingredients.split(',').map(x=>x.trim()).forEach(addShoppingItem);b.textContent='✓ Añadidos';b.disabled=true}));
+updateShoppingCount();
+\nconst countries=[{name:'España',visits:8,kind:'visited',coords:[40.4,-3.7],note:'Familia y raíces',icon:'🇪🇸'},{name:'Francia',visits:4,kind:'visited',coords:[48.8,2.3],note:'Ciudades y escapadas',icon:'🇫🇷'},{name:'Italia',visits:2,kind:'visited',coords:[41.9,12.5],note:'Cultura y gastronomía',icon:'🇮🇹'},{name:'Reino Unido',visits:3,kind:'visited',coords:[51.5,-.1],note:'Viajes y conexiones',icon:'🇬🇧'},{name:'Qatar',visits:1,kind:'visited',coords:[25.3,51.5],note:'Nuestro hogar actual',icon:'🇶🇦'},{name:'Japón',visits:0,kind:'wish',coords:[35.7,139.7],note:'Tokio, Kioto y cultura',icon:'🇯🇵'},{name:'Noruega',visits:0,kind:'wish',coords:[60.4,8.5],note:'Fiordos y naturaleza',icon:'🇳🇴'},{name:'Indonesia',visits:0,kind:'wish',coords:[-8.4,115.2],note:'Bali y sus paisajes',icon:'🇮🇩'}];
 let map=null,markers=[],filter='all';
 function initMap(){if(map||!window.L)return;map=L.map('travelMap',{scrollWheelZoom:false}).setView([28,25],2);L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);renderMarkers();setTimeout(()=>map.invalidateSize(),100)}
 function renderMarkers(){if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];countries.filter(c=>filter==='all'||c.kind===filter).forEach(c=>{const color=c.kind==='visited'?'#52786b':'#c58b5b';const marker=L.circleMarker(c.coords,{radius:8,fillColor:color,color:'#fff',weight:2,fillOpacity:1}).addTo(map);marker.bindPopup('<strong>'+c.icon+' '+c.name+'</strong><br>'+(c.kind==='visited'?c.visits+' visitas registradas (demo)': 'Destino por descubrir')+'<br><small>'+c.note+'</small>');markers.push(marker)})}
