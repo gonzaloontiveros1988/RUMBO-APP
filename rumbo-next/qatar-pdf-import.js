@@ -14,23 +14,32 @@ export async function parseQatarRosterPDF(file){
  const cols=header.map(h=>({date:h.t, x:h.x, day:Number(h.t.match(/^\d+/)[0])}));
  const grouped=cols.map((c,index)=>{const next=cols[index+1]?.x??Infinity;const col=items.filter(i=>i.x>=c.x-3&&i.x<next-3&&i.y<=(header[0].y+10)&&i.y>120);return {header:c,items:col.sort((a,b)=>b.y-a.y)}});
  const duties=[];
+ const excluded=new Set(["RPT","REQ","OFF","DOFF","PSBY","GRND","PA","SW","SIM","TRG","TRNG","GT","ST","SBY","DH","BH","A321","A320","QR","FO","CAP","PIC","SIC","UTC","LOCAL"]);
+ const month=(period?.[1]||"").match(/-([A-Za-z]{3})-/)?.[1]||"";
+ const year=(period?.[1]||"").slice(-4);
+ const monthNo=month?String(new Date(Date.parse(month+" 1, 2000")).getMonth()+1).padStart(2,"0"):"";
+ const airportTokens=arr=>{const out=[];for(const item of arr){for(const m of item.t.toUpperCase().matchAll(/\\b([A-Z]{3,4})\\b/g)){const code=m[1];if(!excluded.has(code)&&!/^A32[01]$/.test(code)&&!/^QR$/.test(code))out.push({code,y:item.y,x:item.x})}}return out};
  for(const g of grouped){
    const text=g.items.map(i=>i.t).join(" | ");
-   const rpt=text.match(/RPT\s*:\s*(\d{2}:\d{2})/i);
-   const status=text.match(/\b(OFF|DOFF|PSBY|GRND)\b/);
-   const flightCodes=[...text.matchAll(/(?:^|\|\s*)(\d{3,4}|321DR|A321)(?=\s*(?:\||$))/g)].map(m=>m[1]);
-   const airports=[...text.matchAll(/\b(DOH|ALA|BAH|VIE|OTP|BEG)\b/g)].map(m=>m[1]);
-   const route=airports.length>=2?airports.slice(0,2).join("–"):"";
-   const month=(period?.[1]||"").match(/-([A-Za-z]{3})-/)?.[1]||"";
-   const year=(period?.[1]||"").slice(-4);
-   const date=year?year+"-"+String(new Date(Date.parse(month+" 1, 2000")).getMonth()+1).padStart(2,"0")+"-"+String(g.header.day).padStart(2,"0"):"";
-   if(!rpt&&!status&&!flightCodes.length)continue;
-   duties.push({date,code:status?.[1]||flightCodes.join("/")||"DUTY",route,time:rpt?.[1]||"",kind:status?.[1]||"FLIGHT",source:"Qatar Airways PDF",raw:text});
+   const rpt=text.match(/RPT\\s*:\\s*(\\d{2}:\\d{2})/i);
+   const status=text.match(/\\b(OFF|DOFF|PSBY|GRND)\\b/i);
+   const flightCodes=[...text.matchAll(/\\b(\\d{3,4})\\b/g)].map(m=>m[1]).filter(x=>!/^20\\d{2}$/.test(x));
+   const airports=airportTokens(g.items).sort((a,b)=>b.y-a.y||a.x-b.x).map(x=>x.code);
+   const uniqueAirports=airports.filter((x,i)=>i===0||x!==airports[i-1]);
+   const segments=[];
+   for(let i=0;i+1<uniqueAirports.length;i+=2)segments.push({from:uniqueAirports[i],to:uniqueAirports[i+1],flightNumber:flightCodes[Math.floor(i/2)]||""});
+   const route=segments.length?segments.map(x=>x.from+"–"+x.to).join(" / "):"";
+   const date=year&&monthNo?year+"-"+monthNo+"-"+String(g.header.day).padStart(2,"0"):"";
+   if(!rpt&&!status&&!flightCodes.length&&!segments.length)continue;
+   const kind=status?.[1]?.toUpperCase()||(segments.length?"FLIGHT":"DUTY");
+   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:rpt?.[1]||"",kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
  }
  const all=items.map(i=>i.t).join(" ");
  const statBlock=all.match(/STATISTICS([\s\S]*?)HOTEL DETAILS/);
  const stats=statBlock?{blockHours:(statBlock[1].match(/VALUE\s+(\d{2}:\d{2})/)||[])[1]||"",dutyHours:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+(\d{2}:\d{2})/)||[])[1]||"",groundTrainingDays:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+\d{2}:\d{2}\s+(\d+)/)||[])[1]||"",flightDays:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+\d{2}:\d{2}\s+\d+\s+(\d+)/)||[])[1]||""}:null;
  const hotels=[];for(const m of all.matchAll(/(\d{2}-[A-Z]{3}-\d{4})\s+(ALA|VIE|OTP|BEG)\s+(.{4,100}?)(?=\s+\+?\d[\d ]{7,}|$)/g))hotels.push({date:m[1],location:m[2],hotel:norm(m[3])});
  const training=[];if(pdf.numPages>1){const p=await pdf.getPage(2),t=await p.getTextContent();const txt=t.items.map(i=>norm(i.str)).filter(Boolean).join(" ");for(const m of txt.matchAll(/(\d{2}-[A-Z]{3}-\d{4})\s+(DOH)\s+QR-INTEGRATED TRAINING CENTRE ITC\s+.*?\s+(A321neo Door Training|Classroom 12)\s+Business Attire/gi))training.push({date:m[1],location:m[2],activity:m[3]})}
- return {period:period?period[1]+" – "+period[2]:"Period not detected",crew:name?.[1]||"",duties,stats,hotels,training,pageCount:pdf.numPages,parser:"Qatar Airways Crew Schedule Report"};
+ const uniqueDutyDates=[...new Set(duties.map(x=>x.date).filter(Boolean))];
+ const summary={days:uniqueDutyDates.length,flightDays:duties.filter(x=>x.kind==="FLIGHT").length,offDays:duties.filter(x=>x.kind==="OFF"||x.kind==="DOFF").length,standbyDays:duties.filter(x=>x.kind==="PSBY").length,trainingDays:duties.filter(x=>x.kind==="GRND").length,flightSectors:duties.reduce((n,x)=>n+x.segments.length,0)};
+ return {period:period?period[1]+" – "+period[2]:"Period not detected",crew:name?.[1]||"",duties,stats,summary,hotels,training,pageCount:pdf.numPages,parser:"Qatar Airways Crew Schedule Report"};
 }
