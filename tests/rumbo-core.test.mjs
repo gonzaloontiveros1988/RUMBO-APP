@@ -1,3 +1,4 @@
+import {flightMapData} from "../rumbo-next/flight-map.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence.js";
@@ -38,4 +39,9 @@ test("workout validation rejects empty and oversized sessions",()=>{
 test("CSV parser handles quoted comma fields and European date",()=>{
  const rows=parseRosterText('Date,Flight,Route\n01/11/2026,QR123,"DOH, LHR"');
  assert.equal(rows.length,1);assert.equal(rows[0].date,"2026-11-01");assert.equal(rows[0].code,"QR123");
+});
+
+test("flight map accepts ICAO logbook codes and converts them to mapped IATA airports",()=>{
+ const m=flightMapData([{from:"OTHH",to:"EGLL",hours:6.5}]);
+ assert.equal(m.sectors,1);assert.equal(m.airportCount,2);assert.equal(m.countryCount,2);
 });
