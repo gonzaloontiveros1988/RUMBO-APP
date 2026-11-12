@@ -8,7 +8,8 @@ export async function loadAirportDirectory(){
   const payload=await response.json();
   for(const airport of payload.airports||[]){
    if(!airport.iata||!Number.isFinite(Number(airport.latitude))||!Number.isFinite(Number(airport.longitude)))continue;
-   AIRPORTS[airport.iata]=[Number(airport.latitude),Number(airport.longitude),airport.country||"Unknown"];
+   const country=airport.country?new Intl.DisplayNames(["en"],{type:"region"}).of(airport.country):"Unknown";
+   AIRPORTS[airport.iata]=[Number(airport.latitude),Number(airport.longitude),country||airport.country||"Unknown"];
    if(airport.icao)ICAO_TO_IATA[airport.icao]=airport.iata;
   }
   airportDirectoryLoaded=true;
