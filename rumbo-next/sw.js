@@ -6,7 +6,7 @@ self.addEventListener("message",event=>{if(event.data==="RUMBO_SKIP_WAITING")sel
 self.addEventListener("fetch",event=>{
  const request=event.request,url=new URL(request.url);
  if(request.method!=="GET"||url.origin!==self.location.origin)return;
- const isAppAsset=/\\.(?:html|js|css|webmanifest)$/.test(url.pathname);
+ const isAppAsset=/\.(?:html|js|css|webmanifest)$/.test(url.pathname);
  if(isAppAsset){
   event.respondWith(fetch(new Request(request,{cache:"no-store"})).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(request,copy))}return response}).catch(()=>caches.match(request).then(cached=>cached||caches.match("./index.html"))));
   return;
