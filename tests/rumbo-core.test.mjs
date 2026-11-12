@@ -71,3 +71,19 @@ test("Wader CSV reports date range and potential duplicate candidates",()=>{
  assert.equal(parsed.summary.dateFrom,"2026-11-01");
  assert.equal(parsed.summary.dateTo,"2026-11-01");
 });
+
+import {expandReminders,reminderLabel} from "../rumbo-next/reminders.js";
+test("monthly family reminders repeat on the same day and clamp at month end",()=>{
+ const r=expandReminders([{id:"bill",title:"Pay electricity",startDate:"2026-11-05",repeat:"monthly"}],"2026-11-01","2027-02-28");
+ assert.deepEqual(r.map(x=>x.date),["2026-11-05","2026-12-05","2027-01-05","2027-02-05"]);
+});
+test("weekly, yearly and one-off reminders expand only in the selected date range",()=>{
+ const reminders=[
+  {id:"school",title:"Backpack",startDate:"2026-11-07",repeat:"weekly"},
+  {id:"birthday",title:"Birthday",startDate:"2026-11-12",repeat:"yearly"},
+  {id:"once",title:"Appointment",startDate:"2026-11-10",repeat:"none"}
+ ];
+ const r=expandReminders(reminders,"2026-11-07","2026-11-21");
+ assert.deepEqual(r.map(x=>x.date),["2026-11-07","2026-11-10","2026-11-12","2026-11-14","2026-11-19","2026-11-21"]);
+ assert.equal(reminderLabel("monthly"),"Cada mes");
+});
