@@ -3,6 +3,13 @@
 const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 async function pdfjs(){if(window.pdfjsLib)return window.pdfjsLib;await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=PDFJS;s.onload=resolve;s.onerror=()=>reject(new Error("No se pudo cargar el lector PDF. Comprueba la conexión."));document.head.appendChild(s)});window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return window.pdfjsLib}
 const norm=s=>String(s||"").replace(/\s+/g," ").trim();
+export function extractDutyTimes(text){
+ const raw=norm(text).toUpperCase();
+ const report=raw.match(/\bRPT\s*:?\s*(\d{2}:\d{2})\b/);
+ const end=raw.match(/\b(?:DUTY\s*END|END\s*DUTY|RELEASE|REL|FIN|OFF)\s*:?\s*(\d{2}:\d{2})\b/);
+ const labelledStart=raw.match(/\b(?:DUTY\s*START|START\s*DUTY|SIGN\s*ON)\s*:?\s*(\d{2}:\d{2})\b/);
+ return {reportTime:report?.[1]||labelledStart?.[1]||"",endTime:end?.[1]||""};
+}
 function getVal(items,re){const x=items.find(t=>re.test(t));return x||""}
 export async function parseQatarRosterPDF(file){
  const lib=await pdfjs(),buf=await file.arrayBuffer(),pdf=await lib.getDocument({data:buf}).promise;
@@ -21,7 +28,7 @@ export async function parseQatarRosterPDF(file){
  const airportTokens=arr=>{const out=[];for(const item of arr){for(const m of item.t.toUpperCase().matchAll(/\b([A-Z]{3,4})\b/g)){const code=m[1];if(!excluded.has(code)&&!/^A32[01]$/.test(code)&&!/^QR$/.test(code))out.push({code,y:item.y,x:item.x})}}return out};
  for(const g of grouped){
    const text=g.items.map(i=>i.t).join(" | ");
-   const rpt=text.match(/RPT\s*:\s*(\d{2}:\d{2})/i);
+   const times=extractDutyTimes(text);
    const status=text.match(/\b(OFF|DOFF|PSBY|GRND)\b/i);
    const flightCodes=[...text.matchAll(/\b(\d{3,4})\b/g)].map(m=>m[1]).filter(x=>!/^20\d{2}$/.test(x));
    const airports=airportTokens(g.items).sort((a,b)=>b.y-a.y||a.x-b.x).map(x=>x.code);
@@ -30,9 +37,9 @@ export async function parseQatarRosterPDF(file){
    for(let i=0;i+1<uniqueAirports.length;i+=2)segments.push({from:uniqueAirports[i],to:uniqueAirports[i+1],flightNumber:flightCodes[Math.floor(i/2)]||""});
    const route=segments.length?segments.map(x=>x.from+"–"+x.to).join(" / "):"";
    const date=year&&monthNo?year+"-"+monthNo+"-"+String(g.header.day).padStart(2,"0"):"";
-   if(!rpt&&!status&&!flightCodes.length&&!segments.length)continue;
+   if(!times.reportTime&&!times.endTime&&!status&&!flightCodes.length&&!segments.length)continue;
    const kind=status?.[1]?.toUpperCase()||(segments.length?"FLIGHT":"DUTY");
-   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:rpt?.[1]||"",kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
+   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:times.reportTime,endTime:times.endTime,reportTime:times.reportTime,kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
  }
  const all=items.map(i=>i.t).join(" ");
  const statBlock=all.match(/STATISTICS([\s\S]*?)HOTEL DETAILS/);
