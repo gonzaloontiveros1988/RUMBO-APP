@@ -45,3 +45,29 @@ test("flight map accepts ICAO logbook codes and converts them to mapped IATA air
  const m=flightMapData([{from:"OTHH",to:"EGLL",hours:6.5}]);
  assert.equal(m.sectors,1);assert.equal(m.airportCount,2);assert.equal(m.countryCount,2);
 });
+
+import {parseWaderCsv} from "../rumbo-next/wader-import.js";
+
+test("Wader CSV separates dated flights, simulator sessions and previous experience",()=>{
+ const csv=[
+ "isPreviousExperience,isSimulator,flightDate,flightNumber,depAirport,arrAirport,aircraftType,function,totalTime,picTime,dualTime,crossCountryTime,ifrTime,nightTime,sicTime,picusTime,dayTakeoffs,nightTakeoffs,dayLandings,nightLandings,aircraftTailnumber",
+ "false,false,2026-11-08,QR101,DOH,LHR,A320,Captain,390,390,0,390,360,45,0,0,1,0,1,0,A7-ABC",
+ "false,true,2026-11-09,SIM01,DOH,,A320,FO,120,0,120,0,60,0,120,0,0,0,0,0,",
+ "true,false,,, , ,A320,Previous experience,75480,60000,15480,40000,30000,8000,15480,0,0,0,0,0,"
+ ].join("\n");
+ const parsed=parseWaderCsv(csv);
+ assert.equal(parsed.flights.length,1);
+ assert.equal(parsed.simulators.length,1);
+ assert.equal(parsed.summary.recordedFlightHours,6.5);
+ assert.equal(parsed.summary.previousExperienceHours,1258);
+ assert.equal(parsed.summary.allTimeHours,1264.5);
+ assert.equal(parsed.flights[0].from,"DOH");
+ assert.equal(parsed.flights[0].to,"LHR");
+});
+test("Wader CSV reports date range and potential duplicate candidates",()=>{
+ const csv=["isPreviousExperience,isSimulator,flightDate,flightNumber,depAirport,arrAirport,aircraftType,function,totalTime","false,false,2026-11-01,QR1,DOH,LHR,A320,Captain,60","false,false,2026-11-01,QR1,DOH,LHR,A320,Captain,60"].join("\n");
+ const parsed=parseWaderCsv(csv);
+ assert.equal(parsed.summary.duplicateCandidates,1);
+ assert.equal(parsed.summary.dateFrom,"2026-11-01");
+ assert.equal(parsed.summary.dateTo,"2026-11-01");
+});
