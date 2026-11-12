@@ -114,3 +114,18 @@ test("household finance totals stay separated by currency",()=>{
  assert.equal(summary.byCurrency.QAR,100);
  assert.equal(summary.byCurrency.EUR,50);
 });
+
+import {extractDutyTimes} from "../rumbo-next/qatar-pdf-import.js";
+test("Qatar roster time extraction keeps report and explicit release times separate",()=>{
+ const times=extractDutyTimes("RPT: 05:40 DUTY END: 15:25");
+ assert.equal(times.reportTime,"05:40");
+ assert.equal(times.endTime,"15:25");
+ const partial=extractDutyTimes("RPT: 06:10 PSBY");
+ assert.equal(partial.reportTime,"06:10");
+ assert.equal(partial.endTime,"");
+});
+test("CSV roster parser preserves duty end time when supplied",()=>{
+ const rows=parseRosterText("Date,Flight,Report Time,End Time,Route\n12/11/2026,QR123,05:40,14:15,DOH-LHR");
+ assert.equal(rows[0].reportTime,"05:40");
+ assert.equal(rows[0].endTime,"14:15");
+});
