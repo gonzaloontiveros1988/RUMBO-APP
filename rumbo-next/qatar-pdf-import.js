@@ -3,6 +3,7 @@
 const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 async function pdfjs(){if(window.pdfjsLib)return window.pdfjsLib;await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=PDFJS;s.onload=resolve;s.onerror=()=>reject(new Error("No se pudo cargar el lector PDF. Comprueba la conexión."));document.head.appendChild(s)});window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return window.pdfjsLib}
 const norm=s=>String(s||"").replace(/\s+/g," ").trim();
+const qatarIsoDate=raw=>{const m=String(raw||"").match(/^(\\d{2})-([A-Z]{3})-(\\d{4})$/i),months={JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"};return m&&months[m[2].toUpperCase()]?m[3]+"-"+months[m[2].toUpperCase()]+"-"+m[1]:""};
 export function extractDutyTimes(text){
  const raw=norm(text).toUpperCase();
  const report=raw.match(/\bRPT\s*:?\s*(\d{2}:\d{2})\b/);
@@ -45,7 +46,7 @@ export async function parseQatarRosterPDF(file){
  const statBlock=all.match(/STATISTICS([\s\S]*?)HOTEL DETAILS/);
  const stats=statBlock?{blockHours:(statBlock[1].match(/VALUE\s+(\d{2}:\d{2})/)||[])[1]||"",dutyHours:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+(\d{2}:\d{2})/)||[])[1]||"",groundTrainingDays:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+\d{2}:\d{2}\s+(\d+)/)||[])[1]||"",flightDays:(statBlock[1].match(/VALUE\s+\d{2}:\d{2}\s+\d{2}:\d{2}\s+\d+\s+(\d+)/)||[])[1]||""}:null;
  const hotels=[];for(const m of all.matchAll(/(\d{2}-[A-Z]{3}-\d{4})\s+(ALA|VIE|OTP|BEG)\s+(.{4,100}?)(?=\s+\+?\d[\d ]{7,}|$)/g))hotels.push({date:m[1],location:m[2],hotel:norm(m[3])});
- const training=[];if(pdf.numPages>1){const p=await pdf.getPage(2),t=await p.getTextContent();const txt=t.items.map(i=>norm(i.str)).filter(Boolean).join(" ");for(const m of txt.matchAll(/(\d{2}-[A-Z]{3}-\d{4})\s+(DOH)\s+QR-INTEGRATED TRAINING CENTRE ITC\s+.*?\s+(A321neo Door Training|Classroom 12)\s+Business Attire/gi))training.push({date:m[1],location:m[2],activity:m[3]})}
+ const training=[];if(pdf.numPages>1){const p=await pdf.getPage(2),t=await p.getTextContent();const txt=t.items.map(i=>norm(i.str)).filter(Boolean).join(" ");for(const m of txt.matchAll(/(\d{2}-[A-Z]{3}-\d{4})\s+(DOH)\s+QR-INTEGRATED TRAINING CENTRE ITC\s+.*?\s+(A321neo Door Training|Classroom 12)\s+Business Attire/gi))training.push({date:qatarIsoDate(m[1]),location:m[2],activity:m[3]})}
  const uniqueDutyDates=[...new Set(duties.map(x=>x.date).filter(Boolean))];
  const summary={days:uniqueDutyDates.length,flightDays:duties.filter(x=>x.kind==="FLIGHT").length,offDays:duties.filter(x=>x.kind==="OFF"||x.kind==="DOFF").length,standbyDays:duties.filter(x=>x.kind==="PSBY").length,trainingDays:duties.filter(x=>x.kind==="GRND").length,flightSectors:duties.reduce((n,x)=>n+x.segments.length,0)};
  return {period:period?period[1]+" – "+period[2]:"Period not detected",crew:name?.[1]||"",duties,stats,summary,hotels,training,pageCount:pdf.numPages,parser:"Qatar Airways Crew Schedule Report"};
