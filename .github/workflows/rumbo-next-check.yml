@@ -5,6 +5,7 @@ on:
       - redesign/rumbo-os-v4
     paths:
       - 'rumbo-next/**'
+      - 'tests/**'
       - '.github/workflows/rumbo-next-check.yml'
   workflow_dispatch:
 jobs:
