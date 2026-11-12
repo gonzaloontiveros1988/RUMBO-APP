@@ -3,7 +3,7 @@
 const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 async function pdfjs(){if(window.pdfjsLib)return window.pdfjsLib;await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=PDFJS;s.onload=resolve;s.onerror=()=>reject(new Error("No se pudo cargar el lector PDF. Comprueba la conexión."));document.head.appendChild(s)});window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return window.pdfjsLib}
 const norm=s=>String(s||"").replace(/\s+/g," ").trim();
-const qatarIsoDate=raw=>{const m=String(raw||"").match(/^(\\d{2})-([A-Z]{3})-(\\d{4})$/i),months={JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"};return m&&months[m[2].toUpperCase()]?m[3]+"-"+months[m[2].toUpperCase()]+"-"+m[1]:""};
+const qatarIsoDate=raw=>{const m=String(raw||"").match(/^(\d{2})-([A-Z]{3})-(\d{4})$/i),months={JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"};return m&&months[m[2].toUpperCase()]?m[3]+"-"+months[m[2].toUpperCase()]+"-"+m[1]:""};
 export function extractDutyTimes(text){
  const raw=norm(text).toUpperCase();
  const report=raw.match(/\bRPT\s*:?\s*(\d{2}:\d{2})\b/);
