@@ -10,9 +10,9 @@ export function validateSector(s){
  if(s.landings!==""&&s.landings!=null&&(!Number.isInteger(Number(s.landings))||Number(s.landings)<0))errors.push("Landings must be a non-negative integer.");
  return errors;
 }
-export function summarizeLogbook(entries){
+export function summarizeLogbook(entries,previousExperienceHours=0){
  const valid=entries.filter(x=>!validateSector(x).length);
- const hours=valid.reduce((n,x)=>n+Number(x.hours),0);
+ const recordedHours=valid.reduce((n,x)=>n+Number(x.hours),0);const hours=recordedHours+Number(previousExperienceHours||0);
  const airports=new Set(valid.flatMap(x=>[normalizeIcao(x.from),normalizeIcao(x.to)]));
  const routes=new Map(),byMonth=new Map(),byYear=new Map(),byAirport=new Map();
  for(const x of valid){
@@ -25,7 +25,7 @@ export function summarizeLogbook(entries){
  const monthly=[...byMonth].sort((a,b)=>a[0].localeCompare(b[0])).slice(-12).map(([month,hours])=>({month,hours:Number(hours.toFixed(1))}));
  const yearly=[...byYear].sort((a,b)=>a[0].localeCompare(b[0])).map(([year,hours])=>({year,hours:Number(hours.toFixed(1))}));
  const airportsRank=[...byAirport].sort((a,b)=>b[1]-a[1]).map(([icao,sectors])=>({icao,sectors}));
- return {sectors:valid.length,hours:Number(hours.toFixed(1)),airports:airports.size,topRoutes,monthly,yearly,airportsRank,invalid:entries.length-valid.length};
+ return {sectors:valid.length,hours:Number(hours.toFixed(1)),recordedHours:Number(recordedHours.toFixed(1)),previousExperienceHours:Number(Number(previousExperienceHours||0).toFixed(1)),airports:airports.size,topRoutes,monthly,yearly,airportsRank,invalid:entries.length-valid.length};
 }
 export function logbookCsv(entries){
  const cols=["date","from","to","hours","flightNumber","aircraft","role","landings","notes"];
