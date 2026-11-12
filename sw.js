@@ -1,4 +1,4 @@
-/* Service worker de ONTIS — cachea la app entera (es un solo archivo) para que abra al instante
+/* Service worker de RUMBO — cachea la app entera (es un solo archivo) para que abra al instante
    y funcione sin conexión, incluso recién instalada desde el icono de pantalla de inicio.
    Estrategia: "stale-while-revalidate" — sirve la copia en caché al momento, y en paralelo
    pide la versión nueva por red para tenerla lista la próxima vez que se abra.
