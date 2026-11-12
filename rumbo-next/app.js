@@ -78,6 +78,23 @@ function nutrition(){
  ${panel("BATCH COOKING",`<div class="callout"><b>PREP AHEAD</b><p>Use the weekly menu to identify recipes suitable for preparing in batches. Food storage and safe holding times must follow local food-safety guidance; RUMBO does not assume a dish remains safe indefinitely.</p></div>`)}
  </div>`;
 }
+const sekSchoolCalendar2026_27=[
+{date:"2026-08-16",title:"Staff joining date",kind:"School"},
+{date:"2026-08-30",title:"First day for students",kind:"School"},
+{date:"2026-10-22",title:"Learning Conferences",kind:"School"},
+...schoolDateRange("2026-10-25","2026-10-29","Academic Break"),
+{date:"2026-11-19",title:"Professional Learning day · no students",kind:"School"},
+...schoolDateRange("2026-12-20","2026-12-31","Academic Break"),
+{date:"2027-01-03",title:"Academic Break",kind:"School"},
+{date:"2027-01-28",title:"Academic Break",kind:"School"},
+{date:"2027-02-09",title:"National Sports day",kind:"School"},
+...schoolDateRange("2027-03-04","2027-03-15","Eid al-Fitr · TBC"),
+{date:"2027-03-31",title:"Professional Learning day · no students",kind:"School"},
+{date:"2027-04-01",title:"Academic Break",kind:"School"},
+...schoolDateRange("2027-05-16","2027-05-20","Eid al-Adha · TBC"),
+{date:"2027-06-23",title:"Last day for students",kind:"School"}
+];
+function schoolDateRange(start,end,title){const out=[];for(let d=new Date(start+"T12:00:00"),last=new Date(end+"T12:00:00");d<=last;d.setDate(d.getDate()+1))out.push({date:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),title,kind:"School"});return out}
 const sandraSchoolYear={student:"Sandra",className:"Pre 3A",schoolYear:"2026–2027",days:["Sunday","Monday","Tuesday","Wednesday","Thursday"],slots:[
 ["7:05–7:20","Welcome","Welcome","Welcome","Welcome","Welcome"],
 ["7:20–8:05","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack","Homeroom · Fruit snack"],
@@ -95,12 +112,15 @@ function family(){
  const start=state.familyWeekStart||today(),end=new Date(start+"T12:00:00");end.setDate(end.getDate()+6);
  const endKey=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
  const recurring=expandReminders(state.reminders||[],start,endKey);
- const familyEvents=[...state.events,...recurring.map(x=>({...x,type:"Reminder",reminder:true,reminderId:x.reminderId}))];
+ const familyEvents=[...state.events,...sekSchoolCalendar2026_27,...recurring.map(x=>({...x,type:"Reminder",reminder:true,reminderId:x.reminderId}))];
  const week=familyWeek(state.duties,familyEvents,start);
  const agenda=state.events.map((x,i)=>({...x,kind:"event",index:i})).concat((state.reminders||[]).map((x,i)=>({...x,kind:"reminder",index:i}))).sort((a,b)=>(a.date||a.startDate).localeCompare(b.date||b.startDate));
  return head("FAMILY INTELLIGENCE","Family Week","Recordatorios sencillos, eventos familiares y días disponibles.")+
  `<div class="grid two">${panel("QUICK REMINDER",`<div class="form"><input id="reminderTitle" placeholder="Ej. Pagar la luz, mochila del colegio…" maxlength="90"><label class="muted" for="reminderDate">Fecha del primer recordatorio</label><input id="reminderDate" type="date" value="${today()}"><label class="muted" for="reminderRepeat">Repetir</label><select id="reminderRepeat"><option value="none">Una sola vez</option><option value="monthly">Todos los meses</option><option value="weekly">Todas las semanas</option><option value="yearly">Todos los años</option></select><button class="btn primary" id="addReminder">＋ Añadir recordatorio</button></div><p class="muted">Ejemplo: «Pagar la luz» · día 5 · todos los meses. Se añadirá automáticamente al calendario.</p>`)}
  ${panel("ADD FAMILY EVENT",`<div class="form"><input id="eventDate" type="date"><input id="eventTitle" placeholder="Colegio, actividad, cita…"><select id="eventType"><option>Family</option><option>School</option><option>Appointment</option><option>Travel</option></select><button class="btn ghost" id="addEvent">Add event</button></div>`)}
+ ${panel("SEK SCHOOL CALENDAR · 2026/27",`<div class="list">${[
+["16 Aug 2026","Staff joining date"],["30 Aug 2026","First day for students"],["22 Oct 2026","Learning Conferences"],["25–29 Oct 2026","Academic Break"],["19 Nov 2026","Professional Learning day · no students"],["20–31 Dec 2026","Academic Break"],["3 Jan 2027","Academic Break"],["28 Jan 2027","Academic Break"],["9 Feb 2027","National Sports day"],["4–15 Mar 2027","Eid al-Fitr · TBC"],["31 Mar 2027","Professional Learning day · no students"],["1 Apr 2027","Academic Break"],["16–20 May 2027","Eid al-Adha · TBC"],["23 Jun 2027","Last day for students"]
+].map(([date,title])=>`<div class="row"><b>${date}</b><span>${title}</span></div>`).join("")}</div><p class="muted">180 teaching days. Eid dates are provisional (TBC). The school calendar says it may change subject to Ministry of Education and Higher Education updates. Its September heading is printed as “September 2025”; no September event is specified in the document.</p>`)}
  ${panel("SCHOOL TIMETABLE · 2026/27",`<div class="row"><span><b>${sandraSchoolYear.student} · ${sandraSchoolYear.className}</b><small>Weekly recurring timetable · Sunday to Thursday</small></span><span class="pill">2026–2027</span></div><div style="overflow-x:auto"><table class="school-table" style="width:100%;border-collapse:collapse;min-width:680px"><thead><tr><th style="text-align:left;padding:8px">Time</th>${sandraSchoolYear.days.map(d=>`<th style="padding:8px;text-align:left">${d}</th>`).join("")}</tr></thead><tbody>${sandraSchoolYear.slots.map(row=>`<tr><th style="text-align:left;padding:8px;white-space:nowrap">${row[0]}</th>${row.slice(1).map(v=>`<td style="padding:8px;border-top:1px solid var(--line,rgba(255,255,255,.1))">${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><p class="muted">Tuesday early dismissal is at 12:50. School holidays and exceptional dates are not included because they were not shown in the timetable supplied.</p>`)}
  ${panel("WEEK NAVIGATION",`<div class="form"><button class="btn ghost" id="familyPrev">← Previous</button><input id="familyStart" type="date" value="${esc(start)}"><button class="btn ghost" id="familyNext">Next →</button></div><p class="muted">Los recordatorios repetidos aparecen en cada fecha correspondiente.</p>`)}
  ${panel("FAMILY CALENDAR",`<div class="family-week">${week.map(d=>`<div class="family-day"><b>${dateText(d.date)}</b><span class="pill">${d.duty.length?"ROSTER":"UNCONFIRMED"}</span><small>${esc(d.availability)}</small>${d.duty.map(x=>`<div class="family-event duty-event">${esc(x.code)} · ${esc(x.time||"Duty")}</div>`).join("")}${d.events.map(x=>x.reminder?`<div class="family-event reminder-event ${x.done?"reminder-done":""}"><span>${x.done?"✓":"↻"} ${esc(x.title)}</span><button class="reminder-check" data-reminder-complete="${esc(x.reminderId)}" data-reminder-date="${esc(x.date)}" aria-label="${x.done?"Marcar pendiente":"Marcar completado"}">${x.done?"Deshacer":"Hecho"}</button></div>`:`<div class="family-event">${esc(x.title)} <small>${esc(x.type||"Family")}</small></div>`).join("")}</div>`).join("")}</div>`)}
