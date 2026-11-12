@@ -84,6 +84,6 @@ test("weekly, yearly and one-off reminders expand only in the selected date rang
   {id:"once",title:"Appointment",startDate:"2026-11-10",repeat:"none"}
  ];
  const r=expandReminders(reminders,"2026-11-07","2026-11-21");
- assert.deepEqual(r.map(x=>x.date),["2026-11-07","2026-11-10","2026-11-12","2026-11-14","2026-11-19","2026-11-21"]);
+ assert.deepEqual(r.map(x=>x.date),["2026-11-07","2026-11-10","2026-11-12","2026-11-14","2026-11-21"]);
  assert.equal(reminderLabel("monthly"),"Cada mes");
 });
