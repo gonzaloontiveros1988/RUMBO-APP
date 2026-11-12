@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate modules before publishing
+        run: |
+          node --check rumbo-next/app.js
+          node --test tests/rumbo-core.test.mjs
       - name: Prepare isolated preview
         run: |
           mkdir -p _site
