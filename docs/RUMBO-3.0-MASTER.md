@@ -178,3 +178,12 @@ La inspección del HTML original de 3.066.277 caracteres confirma que RUMBO ya c
 
 ### Decisión de migración
 No sustituir `index.html` en bloque. Primero inventariar funciones, claves de estado, eventos y módulos; después construir adaptadores que lean/escriban el modelo existente de forma controlada; luego migrar módulo a módulo con exportación, copia previa, pruebas de ida/vuelta y rollback. Mantener la aplicación legacy accesible hasta superar la validación de equivalencia.
+
+### Estructura real de navegación y estado
+La aplicación original contiene siete vistas raíz identificadas estáticamente: `view-inicio`, `view-timer`, `view-aviacion`, `view-rosterlog`, `view-economia`, `view-actividades` y `view-progreso`. Las funciones de salud, dieta, recetas, compra, familia y colegio están distribuidas como submodos y paneles dentro de estas vistas, no como módulos raíz separados.
+
+Se han identificado 45 claves raíz en `DEFAULT_STATE`, además de estructuras anidadas y arrays. Entre ellas: vuelos, fatiga, documentos, gastos, salario, pensión, dieta, lista de deseos, visitas, cartera de efectivo, gastos fijos, objetivos, datos escolares, cumpleaños, medicación infantil, copias automáticas y datos de progreso. Esta lista no sustituye a un esquema formal: hay que inventariar subcampos y versiones antes de migrar.
+
+Funciones de importación/exportación detectadas incluyen roster PDF, logbook CSV/PDF y formatos de logbook de terceros, importación de datos de Salud, calendario escolar, PDF escolar, importación de extractos CSV, exportación de resumen anual y exportación/importación de backup JSON, además de restauración de backups automáticos.
+
+**Implicación:** el rediseño debe mapear las siete vistas existentes y sus submodos a la nueva navegación sin perder la profundidad funcional. No basta con rehacer solo Inicio y Aviación.
