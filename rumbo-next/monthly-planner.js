@@ -3,19 +3,20 @@
 const pad=n=>String(n).padStart(2,"0");
 export const isoDate=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 export function classifyDuty(duty){
- const raw=[duty.code,duty.kind,duty.status,duty.raw].filter(Boolean).join(" ").toUpperCase();
- if(/\b(OFF|DOFF|DAY OFF|REST)\b/.test(raw))return "OFF";
- if(/\b(PSBY|STANDBY|STAND-BY|SBY)\b/.test(raw))return "STANDBY";
- if(/\b(GRND|GROUND|TRAINING|SIM|SIMULATOR|TRNG)\b/.test(raw))return "TRAINING";
- if(/\b(LEAVE|VAC|ANNUAL LEAVE)\b/.test(raw))return "LEAVE";
- return "FLIGHT";
+ const raw=[duty.code,duty.kind,duty.status,duty.raw,duty.type].filter(Boolean).join(" ").toUpperCase();
+ if(/\\b(PSBY|STANDBY|STAND-BY|SBY)\\b/.test(raw))return "STANDBY";
+ if(/\\b(OFF|DOFF|DAY OFF|REST)\\b/.test(raw))return "OFF";
+ if(/\\b(GRND|GROUND|TRAINING|SIM|SIMULATOR|TRNG|TRG)\\b/.test(raw))return "TRAINING";
+ if(/\\b(LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\\b/.test(raw))return "LEAVE";
+ if(/\\b(FLIGHT|DUTY)\\b/.test(raw)||/\\b(?:QR)?\\d{3,4}\\b/.test(raw)||duty.segments?.length||duty.flightNumbers?.length||duty.flightNumber)return "FLIGHT";
+ return "OTHER";
 }
 export function summarizeRoster(duties,year,month){
  const inMonth=duties.filter(d=>{const x=new Date(d.date+"T12:00:00");return x.getFullYear()===year&&x.getMonth()===month});
- const counts={FLIGHT:0,OFF:0,STANDBY:0,TRAINING:0,LEAVE:0};
- for(const d of inMonth)counts[classifyDuty(d)]++;
- const days=new Set(inMonth.map(d=>d.date));
- return {total:inMonth.length,coveredDays:days.size,counts};
+ const priority={FLIGHT:6,TRAINING:5,STANDBY:4,LEAVE:3,OFF:2,OTHER:1},byDate=new Map();
+ for(const d of inMonth){const type=classifyDuty(d),old=byDate.get(d.date);if(!old||(priority[type]||0)>(priority[old]||0))byDate.set(d.date,type)}
+ const counts={FLIGHT:0,OFF:0,STANDBY:0,TRAINING:0,LEAVE:0,OTHER:0};for(const type of byDate.values())counts[type]++;
+ return {total:inMonth.length,entries:inMonth.length,coveredDays:byDate.size,days:byDate.size,counts,...counts};
 }
 export function buildMonthlyPlan(duties,year,month){
  const inMonth=duties.filter(d=>{const x=new Date(d.date+"T12:00:00");return x.getFullYear()===year&&x.getMonth()===month}).sort((a,b)=>a.date.localeCompare(b.date));
