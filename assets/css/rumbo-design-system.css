@@ -413,3 +413,121 @@ canvas,svg,img{max-width:100%;}
 @media(prefers-reduced-motion:reduce){
   .view{animation:none;}
 }
+
+
+/* RUMBO — visual refresh pass 02: stronger product identity and module hierarchy */
+:root{
+  --rumbo-ink:#07111f;
+  --rumbo-surface:rgba(19,32,49,.92);
+  --rumbo-border:rgba(133,169,193,.16);
+  --rumbo-teal:#62ddd0;
+  --rumbo-amber:#f0bd72;
+}
+:root.light{
+  --rumbo-ink:#edf3f8;
+  --rumbo-surface:rgba(255,255,255,.96);
+  --rumbo-border:rgba(40,73,94,.13);
+  --rumbo-teal:#087f83;
+  --rumbo-amber:#a66b24;
+}
+body{
+  background-image:
+    radial-gradient(ellipse at 82% 2%,rgba(71,150,160,.11),transparent 30%),
+    radial-gradient(ellipse at 4% 34%,rgba(55,103,145,.10),transparent 34%),
+    var(--body-bg);
+}
+header{
+  border-bottom-color:var(--rumbo-border);
+  box-shadow:0 10px 34px rgba(0,0,0,.10);
+}
+header .title .plane{
+  background:linear-gradient(145deg,rgba(98,221,208,.22),rgba(98,221,208,.055));
+  border-color:rgba(98,221,208,.28);
+  box-shadow:0 0 26px rgba(98,221,208,.08),inset 0 1px 0 rgba(255,255,255,.08);
+}
+header .title h1{
+  background:linear-gradient(100deg,var(--text),var(--rumbo-teal));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-card{
+  min-height:220px;
+  border-color:rgba(98,221,208,.24);
+  background:
+    radial-gradient(ellipse at 92% 10%,rgba(98,221,208,.16),transparent 36%),
+    radial-gradient(ellipse at 4% 100%,rgba(240,189,114,.09),transparent 38%),
+    linear-gradient(130deg,#152a3e 0%,#102033 58%,#12313a 100%);
+}
+:root.light .hero-card{
+  background:
+    radial-gradient(ellipse at 92% 10%,rgba(8,127,131,.09),transparent 36%),
+    linear-gradient(130deg,#fff 0%,#edf7f6 100%);
+}
+.hero-card .hero-top{align-items:center;}
+.hero-greet{line-height:1.12;max-width:18ch;}
+.hero-card .mascot{
+  width:64px;height:64px;display:grid;place-items:center;
+  border-radius:20px;border:1px solid rgba(98,221,208,.22);
+  background:rgba(98,221,208,.08);
+  box-shadow:0 12px 30px rgba(0,0,0,.16);
+}
+.card{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(155deg,var(--card),color-mix(in srgb,var(--card) 90%,var(--accent) 10%));
+}
+.card h2{
+  padding-bottom:10px;
+  border-bottom:1px solid var(--rumbo-border);
+  margin-bottom:13px;
+}
+.card h2::first-letter{color:var(--rumbo-teal);}
+.quick-btn{
+  min-height:86px;
+  align-items:flex-start;
+  text-align:left;
+  padding:15px;
+  border-radius:17px;
+  background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 55%),var(--card);
+}
+.quick-btn .qic{
+  width:34px;height:34px;display:grid;place-items:center;
+  border-radius:11px;font-size:19px;
+}
+.quick-btn.selected,.quick-btn:focus-visible{
+  border-color:var(--rumbo-teal);
+  background:linear-gradient(145deg,rgba(98,221,208,.13),var(--card));
+}
+.stat{
+  background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 65%),var(--card);
+  border:1px solid var(--rumbo-border);
+}
+.stat .num{font-size:clamp(20px,2vw,27px);font-weight:820;}
+nav.bottom button.active{
+  color:var(--rumbo-teal);
+  box-shadow:inset 0 0 0 1px rgba(98,221,208,.10);
+}
+nav.bottom button.active .ic{filter:drop-shadow(0 0 8px rgba(98,221,208,.30));}
+.subnav .chip{border-radius:10px;}
+input,select,textarea{
+  background:color-mix(in srgb,var(--card) 92%,var(--bg) 8%);
+  border:1px solid var(--rumbo-border);
+}
+.big-btn{background:linear-gradient(125deg,#7ce8dc,#45c4bb);color:#092522;}
+.save-btn{background:linear-gradient(125deg,#f5d092,#dfa95d);color:#2c1d0c;}
+@media(min-width:900px){
+  nav.bottom{background:var(--rumbo-glass);border-color:var(--rumbo-border);}
+  nav.bottom button{min-height:74px;}
+  #view-inicio.active>.hero-card{min-height:250px;}
+  #view-inicio.active>.card{min-height:170px;}
+  .view:not(#view-inicio)>.card{max-width:100%;}
+}
+@media(max-width:639px){
+  .hero-card{min-height:unset;}
+  .hero-card .hero-top{gap:12px;}
+  .quick-btn{min-height:78px;padding:12px;}
+}
+@media(hover:hover){
+  .card:hover{border-color:rgba(98,221,208,.20);box-shadow:var(--shadow-card-hover);}
+  .quick-btn:hover{transform:translateY(-2px);border-color:rgba(98,221,208,.30);}
+  nav.bottom button:hover{background:rgba(98,221,208,.07);color:var(--text);}
+}
