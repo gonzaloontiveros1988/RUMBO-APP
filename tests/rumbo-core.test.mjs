@@ -92,7 +92,9 @@ test("completion is stored per occurrence without completing future monthly remi
  const r=expandReminders([{id:"bill",title:"Electricity",startDate:"2026-11-05",repeat:"monthly",completedDates:["2026-11-05"]}],"2026-11-01","2027-01-31");
  assert.deepEqual(r.map(x=>x.done),[true,false,false]);
 });
-\nimport {makeMealWeek,financeSummary} from "../rumbo-next/life-intelligence.js";\ntest("meal planner creates breakfast, lunch and dinner for each day and adapts to roster",()=>{
+
+import {makeMealWeek,financeSummary} from "../rumbo-next/life-intelligence.js";
+test("meal planner creates breakfast, lunch and dinner for each day and adapts to roster",()=>{
  const plan=makeMealWeek("2026-11-01",[
   {date:"2026-11-01",code:"QR123",kind:"FLIGHT"},
   {date:"2026-11-02",code:"PSBY",kind:"PSBY"},
