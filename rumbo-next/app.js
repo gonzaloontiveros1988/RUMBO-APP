@@ -35,3 +35,4 @@ $("#fileInput").addEventListener("change",async e=>{
 });
 $("#exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify({schema:"rumbo3-local-v1",exportedAt:new Date().toISOString(),state},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rumbo-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Copia local exportada.")};
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
