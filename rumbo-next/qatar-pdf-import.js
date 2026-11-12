@@ -14,7 +14,7 @@ export async function parseQatarRosterPDF(file){
  const cols=header.map(h=>({date:h.t, x:h.x, day:Number(h.t.match(/^\d+/)[0])}));
  const grouped=cols.map((c,index)=>{const next=cols[index+1]?.x??Infinity;const col=items.filter(i=>i.x>=c.x-3&&i.x<next-3&&i.y<=(header[0].y+10)&&i.y>120);return {header:c,items:col.sort((a,b)=>b.y-a.y)}});
  const duties=[];
- const excluded=new Set(["RPT","REQ","OFF","DOFF","PSBY","GRND","PA","SW","SIM","TRG","TRNG","GT","ST","SBY","DH","BH","A321","A320","QR","FO","CAP","PIC","SIC","UTC","LOCAL"]);
+ const excluded=new Set(["RPT","REQ","OFF","DOFF","PSBY","GRND","PA","SW","SIM","TRG","TRNG","GT","ST","SBY","DH","BH","A321","A320","QR","FO","CAP","PIC","SIC","UTC","LOCAL","SUN","MON","TUE","WED","THU","FRI","SAT","JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]);
  const month=(period?.[1]||"").match(/-([A-Za-z]{3})-/)?.[1]||"";
  const year=(period?.[1]||"").slice(-4);
  const monthNo=month?String(new Date(Date.parse(month+" 1, 2000")).getMonth()+1).padStart(2,"0"):"";
