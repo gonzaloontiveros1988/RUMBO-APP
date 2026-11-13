@@ -37,19 +37,30 @@ export function workoutStats(workouts){
 
 export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const start=startDate||new Date().toISOString().slice(0,10),out=[],history=(workouts||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
- const recentTypes=history.slice(0,4).map(x=>x.type),lastDate=history[0]?.date;
+ const goal=profile.goal||"general",setting=profile.setting||"gym",limit=Number(profile.availableMinutes)||40,targetDays=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
+ const fatigue=Number(profile.fatigue)||3,sleep=Number(profile.sleepHours)||7,readiness=profile.readiness||"Moderate";
  const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[];
  for(let i=0;i<14;i++){
-  const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date);
-  if(dayDuties.length)continue;
-  const prev=dayDuties.length>0,logged=history.find(x=>x.date===date);if(logged)continue;
-  const daysSince=lastDate?Math.floor((new Date(date+"T12:00:00")-new Date(lastDate+"T12:00:00"))/86400000):99;
-  let id="hotel-20",reason="Light mobility option; confirm sleep, fatigue and readiness before starting.";
-  if(daysSince>=2&&!recentTypes.slice(0,2).includes("Strength")&&profile.goal==="strength"){id="strength-a";reason="Strength candidate after a gap in logged sessions; adjust load to current readiness."}
-  else if(daysSince>=2&&!recentTypes.slice(0,2).includes("Cardio")&&profile.goal==="cardio"){id="cardio-30";reason="Easy aerobic candidate; keep effort conversational and adjust to recovery."}
-  else if(daysSince>=2&&i%3===1){id="hotel-25";reason="Short bodyweight option; reduce or skip if recovery is incomplete."}
-  const routine=ROUTINES.find(x=>x.id===id);
-  out.push({date,routineId:id,title:routine.name,minutes:routine.minutes,type:routine.type,status:"candidate",reason,readinessRequired:true});
+  const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
+  if(dayDuties.length||recentDays.has(date))continue;
+  const dutyText=[...dayDuties,...previousDuty].map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
+  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\d{3,4}/.test([x.code,x.kind,x.status].join(" ").toUpperCase())||x.segments?.length);
+  const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
+  let id,reason;
+  if(tooFatigued){id="recovery-15";reason="Recovery-first option based on the fatigue / sleep check. Skip completely if you feel unwell or unsafe to exercise."}
+  else if(postFlight||fatigue===3||readiness==="Moderate"){id="mobility-15";reason="Low-load mobility after a roster duty or moderate readiness. No heavy lifting is scheduled."}
+  else if(setting==="hotel"){id=goal==="endurance"?"cardio-30":"hotel-25";reason="Hotel-friendly bodyweight or simple aerobic session; no gym equipment required."}
+  else if(setting==="home"){id=goal==="endurance"?"cardio-30":goal==="mobility"?"mobility-15":"hotel-25";reason="Home session using bodyweight / the equipment you listed."}
+  else if(goal==="strength"){id=scheduled.length%2===0?"strength-a":"strength-b";reason="Strength-focused session on a roster-unassigned date; keep reps in reserve and progress gradually."}
+  else if(goal==="endurance"||goal==="fat-loss"){id="cardio-30";reason="Moderate aerobic conditioning matched to your current objective."}
+  else if(goal==="mobility"){id="mobility-15";reason="Mobility and movement-quality session."}
+  else{id=scheduled.length%2===0?"strength-a":"cardio-30";reason="Balanced general-fitness session."}
+  const routine=ROUTINES.find(x=>x.id===id);if(!routine)continue;
+  const scale=limit<25?0.6:limit<35?0.8:limit<45?1:1;
+  const minutes=Math.min(limit,routine.minutes);
+  scheduled.push({date,routineId:id,title:routine.name,minutes,type:routine.type,status:"candidate",reason,setting:setting==="mixed"?(postFlight?"hotel": "gym"):setting,readinessRequired:true,blocks:routine.blocks,equipment:profile.equipment||"",intensity:tooFatigued||postFlight?"low":"moderate"});
+  if(scheduled.length>=targetDays*2)break;
  }
- return out;
+ return scheduled;
 }
