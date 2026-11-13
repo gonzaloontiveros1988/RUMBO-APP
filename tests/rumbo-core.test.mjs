@@ -124,6 +124,15 @@ test("Qatar roster time extraction keeps report and explicit release times separ
  assert.equal(partial.reportTime,"06:10");
  assert.equal(partial.endTime,"");
 });
+test("Qatar roster takes first and last event times, including training and next-day arrivals",()=>{
+ const flight=extractDutyTimes("RPT: 16:50 DOH 18:05 ALA 01:30(+1)");
+ assert.equal(flight.reportTime,"16:50");
+ assert.equal(flight.endTime,"01:30");
+ assert.equal(flight.endDayOffset,1);
+ const training=extractDutyTimes("RPT:10:30 A321 DOH 10:30 10:35 RPT:10:35 321DR DOH 10:35 11:35");
+ assert.equal(training.reportTime,"10:30");
+ assert.equal(training.endTime,"11:35");
+});
 test("CSV roster parser preserves duty end time when supplied",()=>{
  const rows=parseRosterText("Date,Flight,Report Time,End Time,Route\n12/11/2026,QR123,05:40,14:15,DOH-LHR");
  assert.equal(rows[0].reportTime,"05:40");
