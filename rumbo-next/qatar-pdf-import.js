@@ -6,10 +6,28 @@ const norm=s=>String(s||"").replace(/\s+/g," ").trim();
 const qatarIsoDate=raw=>{const m=String(raw||"").match(/^(\d{2})-([A-Z]{3})-(\d{4})$/i),months={JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"};return m&&months[m[2].toUpperCase()]?m[3]+"-"+months[m[2].toUpperCase()]+"-"+m[1]:""};
 export function extractDutyTimes(text){
  const raw=norm(text).toUpperCase();
+ // Qatar's monthly grid places RPT at the top of each day's column,
+ // followed by the individual sector / training event times. DH and BH
+ // are duration totals at the bottom of the grid, not clock times.
  const report=raw.match(/\bRPT\s*:?\s*(\d{2}:\d{2})\b/);
- const end=raw.match(/\b(?:DUTY\s*END|END\s*DUTY|RELEASE|REL|FIN|OFF)\s*:?\s*(\d{2}:\d{2})\b/);
  const labelledStart=raw.match(/\b(?:DUTY\s*START|START\s*DUTY|SIGN\s*ON)\s*:?\s*(\d{2}:\d{2})\b/);
- return {reportTime:report?.[1]||labelledStart?.[1]||"",endTime:end?.[1]||""};
+ const clockTimes=[];
+ for(const m of raw.matchAll(/\b(\d{2}):(\d{2})(\(\+1\))?\b/g)){
+   const before=raw.slice(Math.max(0,m.index-5),m.index);
+   if(/(?:DH|BH)\s*:\s*$/.test(before))continue;
+   clockTimes.push({time:m[1]+":"+m[2],dayOffset:m[3]?1:0,index:m.index});
+ }
+ const start=report?.[1]||labelledStart?.[1]||clockTimes[0]?.time||"";
+ // Ignore the RPT label itself: the final clock time in the column is
+ // the last scheduled arrival / training event. Preserve (+1) arrivals.
+ const end=clockTimes.length?clockTimes[clockTimes.length-1]:null;
+ return {
+   reportTime:start,
+   endTime:end?.time||"",
+   endDayOffset:end?.dayOffset||0,
+   firstTime:clockTimes[0]?.time||"",
+   lastTime:end?.time||""
+ };
 }
 function getVal(items,re){const x=items.find(t=>re.test(t));return x||""}
 export async function parseQatarRosterPDF(file){
@@ -40,7 +58,7 @@ export async function parseQatarRosterPDF(file){
    const date=year&&monthNo?year+"-"+monthNo+"-"+String(g.header.day).padStart(2,"0"):"";
    if(!times.reportTime&&!times.endTime&&!status&&!flightCodes.length&&!segments.length)continue;
    const kind=status?.[1]?.toUpperCase()||(segments.length?"FLIGHT":"DUTY");
-   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:times.reportTime,endTime:times.endTime,reportTime:times.reportTime,kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
+   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:times.reportTime,endTime:times.endTime,endDayOffset:times.endDayOffset||0,reportTime:times.reportTime,kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
  }
  const all=items.map(i=>i.t).join(" ");
  const statBlock=all.match(/STATISTICS([\s\S]*?)HOTEL DETAILS/);
