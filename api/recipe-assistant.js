@@ -1,5 +1,5 @@
 const MODEL = "alibaba/qwen3.5-flash";
-const MAX_QUERY = 180;
+const MAX_QUERY = 180;\nconst buckets = new Map();\nfunction limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
 function send(res,status,body){res.setHeader("Content-Type","application/json; charset=utf-8");res.setHeader("Cache-Control","no-store");return res.status(status).json(body)}
 function clean(s=""){return String(s).replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#x27;|&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s+/g," ").trim()}
 function decodeRedirect(href){try{const u=new URL(href,"https://duckduckgo.com");return u.searchParams.get("uddg")||u.href}catch{return href}}
@@ -44,7 +44,7 @@ module.exports = async function handler(req,res){
  if(req.method!=="POST")return send(res,405,{error:"Método no permitido."});
  const host=String(req.headers.host||"");
  if(!host.endsWith(".vercel.app")&&!host.endsWith(".github.io"))return send(res,403,{error:"Origen no autorizado."});
- const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
+ const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});\n const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
  const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch";
  if(query.length<3)return send(res,400,{error:"Escribe qué plato o ingrediente quieres buscar."});
  if(!process.env.VERCEL_OIDC_TOKEN)return send(res,503,{error:"La autenticación de RUMBO AI no está disponible en este despliegue."});
@@ -53,7 +53,7 @@ module.exports = async function handler(req,res){
   const sourceContext=await Promise.all(webResults.map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
   const system="Eres el asistente culinario de RUMBO. Devuelve exclusivamente JSON válido, sin Markdown. No inventes fuentes, enlaces ni datos de páginas. Usa el contexto web solo para la receta de origen web; crea además una receta original independiente. Ingredientes en cantidades para las raciones solicitadas, kcal/protein/carbs/fat aproximados por ingrediente. Recuerda que nutrición es estimada. Incluye pasos claros y seguros, temperaturas internas solo si son fiables. Categorías Breakfast, Lunch o Dinner.";
   const prompt={query,requestedServings:servings,preferredCategory:category,webResults:sourceContext,requiredOutput:{recipes:[{name:"",category:"Breakfast|Lunch|Dinner",minutes:30,servings,ingredients:[{name:"",quantity:"",kcal:0,protein:0,carbs:0,fat:0}],steps:[""]}],webRecipeIndex:0,aiRecipeIndex:1}};
-  const response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+process.env.VERCEL_OIDC_TOKEN,"Content-Type":"application/json"},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(prompt)}],temperature:.25,max_tokens:2200})});
+  const response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+process.env.VERCEL_OIDC_TOKEN,"Content-Type":"application/json"},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(prompt)}],temperature:.25,max_tokens:3200})});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error?.message||"RUMBO AI no pudo preparar las recetas.");
   const parsed=parseJson(data?.choices?.[0]?.message?.content),raw=Array.isArray(parsed.recipes)?parsed.recipes:[];
   const candidates=[];
