@@ -27,7 +27,7 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
   let breakfast=pick(breakfasts,i),lunch=pick(lunches,i+(flight?2:0)),dinner=pick(dinners,i+1);
   if(flight)lunch=pick(lunches,i+3);
   const slots=[["Breakfast",breakfast],[flight?"Packed lunch":off?"Comida familiar":"Lunch",lunch],[off?"Cena familiar":"Dinner",dinner]];
-  for(const [slot,r] of slots){if(!r)continue;week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Día de vuelo · comida portable":standby?"Día de standby · horarios flexibles":training?"Día de formación · preparación sencilla":off?"Día libre · menú mediterráneo familiar":"Menú mediterráneo · adaptable a tu jornada",status:"suggested"})}
+  for(const [slot,r] of slots){if(!r)continue;week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · comida portable":standby?"Día de standby · horarios flexibles":training?"Día de formación · preparación sencilla":off?"Día libre · menú mediterráneo familiar":"Menú mediterráneo · adaptable a tu jornada",status:"suggested"})}
  }
  return week;
 }
