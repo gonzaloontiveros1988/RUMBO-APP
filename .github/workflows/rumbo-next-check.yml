@@ -1,8 +1,18 @@
 name: RUMBO 3.0 validation
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'rumbo-next/**'
+      - 'api/**'
+      - 'tests/**'
+      - '.github/workflows/rumbo-next-check.yml'
   push:
     branches:
+      - main
       - redesign/rumbo-os-v4
+      - publish/rumbo-os-v4-github
     paths:
       - 'rumbo-next/**'
       - 'tests/**'
