@@ -383,3 +383,20 @@ body[data-rumbo-theme="day"] .item,body[data-rumbo-theme="day"] .day{background:
 body[data-rumbo-theme="day"] .route-map{background:rgba(223,242,246,.4)}
 @media(max-width:850px){.rumbo-scene-bg .rumbo-scene-horizon{object-fit:cover}.rumbo-scene-bg .rumbo-scene-landmark{opacity:.06}.panel{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
 @media(max-width:650px){.rumbo-scene-bg .rumbo-scene-horizon{object-position:62% center}.rumbo-scene-bg .rumbo-scene-landmark{opacity:.045}.rumbo-scene-overlay{opacity:.11}.panel{background:linear-gradient(135deg,rgba(10,34,51,.72),rgba(8,27,43,.66))}body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(238,249,250,.75),rgba(213,235,240,.65))}}
+
+
+/* RUMBO photographic destination scenes */
+.rumbo-photo-scene{position:absolute;inset:0;overflow:hidden;isolation:isolate;background:#071a2a}
+.rumbo-photo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 54%;transform:scale(1.015);filter:saturate(1.08) contrast(1.02)}
+.rumbo-photo-grade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,19,31,.06) 0%,rgba(4,19,31,.02) 42%,rgba(4,19,31,.48) 100%),linear-gradient(90deg,rgba(4,19,31,.16),transparent 52%,rgba(4,19,31,.08));pointer-events:none}
+.rumbo-photo-horizon{position:absolute;left:0;right:0;bottom:0;height:23%;background:linear-gradient(180deg,transparent,rgba(8,40,54,.16) 40%,rgba(7,25,39,.28));mix-blend-mode:multiply;pointer-events:none}
+.rumbo-photo-caption{position:absolute;right:22px;bottom:18px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.65);font:600 11px/1.2 ui-monospace,monospace;letter-spacing:.18em}
+.rumbo-photo-caption small{font:500 8px/1.2 ui-monospace,monospace;letter-spacing:.08em;opacity:.72}
+body[data-rumbo-theme="day"] .rumbo-photo-grade{background:linear-gradient(180deg,rgba(245,252,255,.02),rgba(6,31,45,.03) 48%,rgba(5,27,42,.28)),linear-gradient(90deg,rgba(229,247,250,.08),transparent 55%)}
+body[data-rumbo-theme="day"] .rumbo-photo-horizon{background:linear-gradient(180deg,transparent,rgba(31,116,139,.10),rgba(15,65,83,.16))}
+body[data-rumbo-theme="night"] .rumbo-photo-grade{background:linear-gradient(180deg,rgba(2,10,22,.18),rgba(3,13,25,.08) 38%,rgba(2,10,20,.48)),linear-gradient(90deg,rgba(2,10,22,.16),transparent 55%)}
+body[data-rumbo-country="QA"] .rumbo-photo-image{object-position:center 57%}
+body[data-rumbo-country="FR"] .rumbo-photo-image{object-position:center 47%}
+.panel{background:linear-gradient(135deg,rgba(10,34,51,.57),rgba(8,27,43,.48));backdrop-filter:blur(13px) saturate(1.24);-webkit-backdrop-filter:blur(13px) saturate(1.24);border-color:rgba(170,222,231,.27);box-shadow:0 14px 42px rgba(0,0,0,.16)}
+body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(242,250,251,.64),rgba(223,240,243,.52));border-color:rgba(92,151,165,.30);backdrop-filter:blur(13px) saturate(1.2);-webkit-backdrop-filter:blur(13px) saturate(1.2)}
+@media(max-width:650px){.rumbo-photo-image{object-position:center 50%}.rumbo-photo-caption{right:14px;bottom:12px}.panel{backdrop-filter:blur(10px) saturate(1.18);-webkit-backdrop-filter:blur(10px) saturate(1.18)}}
