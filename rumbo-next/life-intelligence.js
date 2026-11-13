@@ -36,24 +36,37 @@ RECIPES.push(
 {id:"dinner-tuna-stuffed-potatoes",name:"Patatas asadas rellenas de atún y yogur",category:"Dinner",minutes:35,servings:4,image:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=85",ingredients:[["Patatas grandes","4 unidades (800 g)",616,16,136,0.8],["Atún al natural","2 latas",186,40,0,1.5],["Yogur natural","120 g",73,6.4,4,3.2],["Maíz","80 g",77,2.7,17,1.2],["Cebollino","al gusto",2,0.1,0.4,0]],steps:["Hornea las patatas a 200 °C hasta que estén tiernas.","Mezcla el atún con yogur, maíz y cebollino.","Abre las patatas y reparte el relleno."]},
 {id:"dinner-lentil-bolognese",name:"Boloñesa de lentejas con espaguetis",category:"Dinner",minutes:30,servings:4,image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=900&q=85",ingredients:[["Lentejas cocidas","400 g",464,36,80,1.6],["Espaguetis secos","280 g",980,35,196,4],["Tomate triturado","350 g",105,5.3,17.5,1.8],["Zanahoria","1 mediana",33,0.8,7.6,0.2],["Aceite de oliva","1 cucharada",126,0,0,14]],steps:["Cuece la pasta según las indicaciones del envase.","Sofríe zanahoria y tomate y añade las lentejas.","Cocina 10 minutos y sirve la salsa sobre la pasta."]}
 );
-export function recipeNutrition(recipe){const totals=recipe.ingredients.reduce((a,x)=>({kcal:a.kcal+x[2],protein:a.protein+x[3],carbs:a.carbs+x[4],fat:a.fat+x[5]}),{kcal:0,protein:0,carbs:0,fat:0});return {total:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v)])),perServing:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v/recipe.servings)])),ingredients:recipe.ingredients.map(x=>({name:x[0],quantity:x[1],kcal:x[2],protein:x[3],carbs:x[4],fat:x[5]}))}}
+export function recipeNutrition(recipe){
+ const ingredients=(recipe?.ingredients||[]).map(x=>({name:x[0],quantity:x[1],kcal:Number(x[2])||0,protein:Number(x[3])||0,carbs:Number(x[4])||0,fat:Number(x[5])||0}));
+ const nutritionAvailable=ingredients.some(x=>x.kcal>0||x.protein>0||x.carbs>0||x.fat>0);
+ const totals=ingredients.reduce((a,x)=>({kcal:a.kcal+x.kcal,protein:a.protein+x.protein,carbs:a.carbs+x.carbs,fat:a.fat+x.fat}),{kcal:0,protein:0,carbs:0,fat:0});
+ const servings=Math.max(1,Number(recipe?.servings)||1);
+ return {nutritionAvailable,total:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v)])),perServing:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v/servings)])),ingredients};
+}
 export function nutritionTargets(profile={}){const weight=Number(profile.weightKg),height=Number(profile.heightCm),age=Number(profile.age),sex=profile.sex||"unspecified",activity=Number(profile.activityFactor)||1.4;if(!(weight>0&&height>0&&age>0))return {status:"needs-profile",note:"Add age, height, weight and activity level before estimating personal calorie targets."};const bmr=10*weight+6.25*height-5*age+(sex==="male"?5:sex==="female"?-161:-78),maintenance=Math.round(bmr*activity),goal=profile.goal||"maintain",target=Math.round(maintenance+(goal==="lose"?-300:goal==="gain"?200:0));return {status:"estimate",bmr:Math.round(bmr),maintenance,target,proteinG:Math.round(weight*(goal==="gain"?1.8:1.6)),note:"Planning estimate only; not medical or dietetic advice."}}
 export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
  const start=new Date(startDate+"T12:00:00"),week=[],pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
  const breakfasts=recipes.filter(r=>r.category==="Breakfast"),lunches=recipes.filter(r=>r.category==="Lunch"),dinners=recipes.filter(r=>r.category==="Dinner");
  const pick=(list,index)=>list.length?list[((index%list.length)+list.length)%list.length]:null;
+ const pantryTokens=(preferences.pantry||[]).flatMap(x=>String(x.name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/)).filter(x=>x.length>3).map(x=>x.replace(/s$/,""));
+ const pantryPick=(list,index)=>{if(!pantryTokens.length)return pick(list,index);const ranked=list.map(r=>({r,score:r.ingredients.reduce((n,x)=>{const tokens=String(x[0]||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/).filter(t=>t.length>3).map(t=>t.replace(/s$/,""));return n+(tokens.some(t=>pantryTokens.includes(t))?1:0)},0)}));const best=Math.max(0,...ranked.map(x=>x.score)),choices=ranked.filter(x=>x.score===best);return choices.length?choices[((index%choices.length)+choices.length)%choices.length].r:pick(list,index)};
  for(let i=0;i<7;i++){
   const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),raw=duties.map(x=>[x.code,x.kind,x.status,x.type].join(" ")).join(" ").toUpperCase();
   const flight=/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length||x.flightNumbers?.length);
   const off=/\b(OFF|DOFF|REST|DAY OFF)\b/.test(raw),standby=/PSBY|STANDBY|STAND-BY|SBY/.test(raw),training=/GRND|GROUND|TRAINING|SIM|TRNG/.test(raw);
-  let breakfast=pick(breakfasts,i),lunch=pick(lunches,i+(flight?2:0)),dinner=pick(dinners,i+1);
-  if(flight)lunch=pick(lunches,i+3);
+  let breakfast=pantryPick(breakfasts,i),lunch=pantryPick(lunches,i+(flight?2:0)),dinner=pantryPick(dinners,i+1);
+  if(flight)lunch=pantryPick(lunches,i+3);
   const slots=[["Breakfast",breakfast],[flight?"Packed lunch":off?"Comida familiar":"Lunch",lunch],[off?"Cena familiar":"Dinner",dinner]];
   for(const [slot,r] of slots){if(!r)continue;week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · comida portable":standby?"Standby day · horarios flexibles":training?"Día de formación · preparación sencilla":off?"Roster OFF · día libre y menú mediterráneo familiar":"Menú mediterráneo · adaptable a tu jornada",status:"suggested"})}
  }
  return week;
 }
-export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){const have=new Set(pantry.map(x=>x.name.toLowerCase()));const sums=new Map();for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){if(have.has(name.toLowerCase()))continue;const old=sums.get(name)||[];old.push(qty);sums.set(name,old)}}return [...sums].map(([name,quantities])=>({name,qty:[...new Set(quantities)].join(" + "),done:false,source:"meal-plan"}))}
+export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){
+ const tokens=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/).filter(x=>x.length>3).map(x=>x.replace(/s$/,""));
+ const have=pantry.flatMap(x=>tokens(x.name)),sums=new Map();
+ for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){if(tokens(name).some(t=>have.includes(t)))continue;const old=sums.get(name)||[];old.push(qty);sums.set(name,old)}}
+ return [...sums].map(([name,quantities])=>({name,qty:[...new Set(quantities)].join(" + "),done:false,source:"meal-plan"}));
+}
 export function mealCostEstimate(items,prices={}){return items.reduce((sum,x)=>sum+(Number(prices[x.name])||0),0)}
 export function familyWeek(duties,events,startDate){const start=new Date(startDate+"T12:00:00");return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),duty=duties.filter(x=>x.date===date),dayEvents=events.filter(x=>x.date===date);return {date,duty,events:dayEvents,availability:duty.length?"Roster activity — confirm duty details":"No imported duty — availability unconfirmed"}})}
 const localIsoDate=()=>{const d=new Date(),parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Qatar",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d),v=Object.fromEntries(parts.map(x=>[x.type,x.value]));return v.year+"-"+v.month+"-"+v.day};

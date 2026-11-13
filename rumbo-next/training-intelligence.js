@@ -42,14 +42,14 @@ export function workoutStats(workouts){
 export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const start=startDate||new Date().toISOString().slice(0,10),out=[],history=(workouts||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
  const goal=profile.goal||"general",setting=profile.setting||"gym",limit=Math.max(15,Number(profile.availableMinutes)||40),targetDays=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
- const fatigue=Math.max(1,Math.min(5,Number(profile.fatigue)||3)),sleep=Number(profile.sleepHours)||7,readiness=profile.readiness||"Moderate";
+ const fatigue=Math.max(1,Math.min(5,Number(profile.fatigue)||3)),sleep=Number.isFinite(Number(profile.sleepHours))&&profile.sleepHours!==""?Number(profile.sleepHours):7,readiness=profile.readiness||"Moderate";
  const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
  const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[],strengthCycle=["strength-a","strength-b","strength-c","strength-d","strength-e"];
  const dutyKind=(x)=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
   if(dayDuties.length||recentDays.has(date))continue;
-  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\d{3,4}/.test(dutyKind(x))||x.segments?.length);
+  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(dutyKind(x))||x.segments?.length);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
   let id,reason,intensity="moderate";
   if(tooFatigued){id="recovery-15";intensity="very-low";reason="Recovery-first option because your self-reported fatigue or sleep suggests reducing training stress. Skip if unwell."}
