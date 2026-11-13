@@ -2,7 +2,9 @@ const MODEL = "alibaba/qwen3.5-flash";
 const ALLOWED_ORIGINS = new Set([
   "https://gonzaloontiveros1988.github.io",
   "https://rumbo-app-sandy.vercel.app",
-  "https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app"
+  "https://rumbo-app-gonzaloor1988-8991.vercel.app",
+  "https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app",
+  "https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"
 ]);
 const buckets = new Map();
 function send(res, status, body, origin) {
@@ -42,7 +44,8 @@ module.exports = async function handler(req, res) {
   if (length > 24_000) return send(res, 413, { error: "Request too large" }, origin);
   const ip = String(req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (rateLimited(ip)) return send(res, 429, { error: "Rate limit reached. Wait one minute and try again." }, origin);
-  if (!process.env.VERCEL_OIDC_TOKEN) return send(res, 503, { error: "AI Gateway authentication is not available in this deployment yet." }, origin);
+  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  if (!gatewayToken) return send(res, 503, { error: "RUMBO AI no está configurada en Vercel. Añade AI_GATEWAY_API_KEY como variable secreta en el proyecto y vuelve a desplegar." }, origin);
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { return send(res, 400, { error: "Invalid JSON" }, origin); } }
   const question = String(body?.question || "").trim().slice(0, 1600);
@@ -62,7 +65,7 @@ module.exports = async function handler(req, res) {
     const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + process.env.VERCEL_OIDC_TOKEN,
+        "Authorization": "Bearer " + gatewayToken,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
