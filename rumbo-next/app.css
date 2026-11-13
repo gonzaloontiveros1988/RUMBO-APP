@@ -467,3 +467,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .rumbo-scene-controls label:has(#rumboCity){min-width:160px}
 .rumbo-scene-controls select{max-width:220px}
 @media(max-width:650px){.rumbo-city-caption{right:14px;bottom:12px;font-size:8px;letter-spacing:1px}.rumbo-scene-controls{max-width:100%;flex-wrap:wrap}.rumbo-scene-controls label:has(#rumboCity){min-width:120px}.rumbo-scene-controls select{max-width:150px}}
+
+/* Map base tiles: preserve Leaflet images and show an explicit offline state. */
+.world-map.map-tiles-unavailable{background:#d9e4e8}
+.world-map .map-tile-notice{position:absolute;left:12px;bottom:12px;z-index:800;max-width:320px;padding:8px 12px;background:rgba(8,29,42,.88);border-radius:8px;color:#fff;font:12px Manrope,system-ui,sans-serif;pointer-events:none}
