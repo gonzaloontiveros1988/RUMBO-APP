@@ -30,14 +30,15 @@ export function buildAssistantContext(state){
  const upcomingEvents=events.filter(x=>x.date>=today&&x.date<=future(45)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,25).map(x=>({date:x.date,title:x.title||"",type:x.type||"",startTime:x.startTime||"",endTime:x.endTime||""}));
  const validLogbook=logbook.filter(x=>x.date&&x.from&&x.to&&Number(x.hours)>0),recentFlights=validLogbook.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,18).map(x=>({date:x.date,from:x.from,to:x.to,hours:Number(x.hours),flightNumber:x.flightNumber||"",aircraft:x.aircraft||"",role:x.role||""}));
  const airportSet=new Set(validLogbook.flatMap(x=>[x.from,x.to])),recordedHours=validLogbook.reduce((n,x)=>n+Number(x.hours||0),0);
- const currentMonth=today.slice(0,7),monthExpenses=expenses.filter(x=>x.date?.startsWith(currentMonth)).slice(-35).map(x=>({date:x.date,category:x.category||x.type||"",amount:Number(x.amount||0),currency:x.currency||""}));
- const recentWorkouts=workouts.slice(-15).map(x=>({date:x.date,type:x.type||"",minutes:Number(x.minutes||0),title:x.title||""}));
+ const currentMonth=today.slice(0,7),monthExpenses=expenses.filter(x=>x.date?.startsWith(currentMonth)).slice(-35).map(x=>({date:x.date,category:x.category||x.type||"",name:x.name||"",amount:Number(x.amount||0),currency:x.currency||"",source:x.source||"manual"}));
+ const recentWorkouts=workouts.slice(-20).map(x=>({date:x.date,type:x.type||"",minutes:Number(x.minutes||0),title:x.title||"",notes:x.notes||""}));
+ const recipeData=meals.slice(0,21).map(x=>({date:x.date,slot:x.slot,meal:x.meal,recipeId:x.recipeId,minutes:x.minutes,context:x.context}));
  return {
   generatedForDate:today,
   roster:{totalEntries:duties.length,upcoming:upcomingDuties},
   aviation:{sectors:validLogbook.length,recordedHours:Number(recordedHours.toFixed(1)),airports:airportSet.size,recentFlights},
-  training:{sessions:workouts.length,recentSessions:recentWorkouts,planned:(state.trainingPlan||[]).slice(0,15)},
-  nutrition:{mealSuggestions:meals.length,mealPlan:meals.slice(0,21).map(x=>({date:x.date,slot:x.slot,meal:x.meal,minutes:x.minutes,context:x.context})),shoppingOpen:(state.shopping||[]).filter(x=>!x.done).slice(0,25).map(x=>({name:x.name,qty:x.qty||""})),pantry:(state.pantry||[]).slice(0,20).map(x=>({name:x.name,qty:x.qty||""}))},
+  training:{sessions:workouts.length,recentSessions:recentWorkouts,planned:(state.trainingPlan||[]).slice(0,15),fitnessProfile:state.fitnessProfile||{}},
+  nutrition:{profile:state.nutritionProfile||{},mealSuggestions:meals.length,mealPlan:recipeData,recipes:RECIPES.map(r=>({name:r.name,perServing:recipeNutrition(r).perServing,ingredients:recipeNutrition(r).ingredients})),shoppingOpen:(state.shopping||[]).filter(x=>!x.done).slice(0,25).map(x=>({name:x.name,qty:x.qty||""})),pantry:(state.pantry||[]).slice(0,20).map(x=>({name:x.name,qty:x.qty||""}))},
   family:{upcomingEvents,schoolItems:(state.schoolEvents||[]).filter(x=>x.date>=today&&x.date<=future(45)).slice(0,20).map(x=>({date:x.date,title:x.title||"",type:x.type||""}))},
   finance:{month:currentMonth,expensesThisMonth:monthExpenses,expenseCountThisMonth:monthExpenses.length,budgets:state.budgets||{}}
  };
