@@ -400,3 +400,13 @@ body[data-rumbo-country="FR"] .rumbo-photo-image{object-position:center 47%}
 .panel{background:linear-gradient(135deg,rgba(10,34,51,.57),rgba(8,27,43,.48));backdrop-filter:blur(13px) saturate(1.24);-webkit-backdrop-filter:blur(13px) saturate(1.24);border-color:rgba(170,222,231,.27);box-shadow:0 14px 42px rgba(0,0,0,.16)}
 body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(242,250,251,.64),rgba(223,240,243,.52));border-color:rgba(92,151,165,.30);backdrop-filter:blur(13px) saturate(1.2);-webkit-backdrop-filter:blur(13px) saturate(1.2)}
 @media(max-width:650px){.rumbo-photo-image{object-position:center 50%}.rumbo-photo-caption{right:14px;bottom:12px}.panel{backdrop-filter:blur(10px) saturate(1.18);-webkit-backdrop-filter:blur(10px) saturate(1.18)}}
+
+/* Keep one fixed hotel-window viewpoint; switch only its lighting mood. */
+.rumbo-photo-scene.is-night .rumbo-photo-image{filter:brightness(.43) saturate(.82) contrast(1.12) hue-rotate(172deg)}
+.rumbo-photo-scene.is-night:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.36;mix-blend-mode:screen;background:
+ radial-gradient(ellipse at 52% 54%,rgba(255,183,91,.18),transparent 34%),
+ radial-gradient(ellipse at 74% 62%,rgba(255,196,112,.16),transparent 28%),
+ repeating-linear-gradient(90deg,transparent 0 3.4%,rgba(255,205,128,.12) 3.45% 3.62%,transparent 3.7% 5.8%),
+ repeating-linear-gradient(0deg,transparent 0 8.5%,rgba(255,211,144,.10) 8.6% 8.9%,transparent 9% 13%)}
+.rumbo-photo-scene.is-night .rumbo-photo-horizon{background:linear-gradient(180deg,transparent,rgba(8,30,55,.38),rgba(5,19,39,.58))}
+.rumbo-photo-scene.is-night .rumbo-photo-caption small{content:"SAME VIEW · NIGHT LIGHTING"}
