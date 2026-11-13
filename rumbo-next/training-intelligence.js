@@ -45,7 +45,7 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
   if(dayDuties.length||recentDays.has(date))continue;
   const dutyText=[...dayDuties,...previousDuty].map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
-  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\d{3,4}/.test([x.code,x.kind,x.status].join(" ").toUpperCase())||x.segments?.length);
+  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\d{3,4}/.test([x.code,x.kind,x.status].join(" ").toUpperCase())||x.segments?.length);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
   let id,reason;
   if(tooFatigued){id="recovery-15";reason="Recovery-first option based on the fatigue / sleep check. Skip completely if you feel unwell or unsafe to exercise."}
