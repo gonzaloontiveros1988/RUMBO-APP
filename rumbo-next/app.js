@@ -77,7 +77,7 @@ function sceneSvg(country,day){
  const p=photos[country];
  if(!p||!(day?p.day:p.night))return sceneSvgVector(country,day);
  const src=day?p.day:p.night,credit=day?(p.creditDay||"Day scene · city landmark"):(p.creditNight||"Night scene · illuminated landmark");
- return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+'">'+
+ return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+(!day&&p.night&&country!=="QA"?' has-native-night':'')+'">'+
   '<img class="rumbo-photo-image" src="'+src+'" alt="'+p.label+'" fetchpriority="low" style="object-position:'+(p.position||"center 54%")+'">'+
   '<div class="rumbo-photo-grade"></div>'+
   '<div class="rumbo-photo-lights" aria-hidden="true"></div>'+
