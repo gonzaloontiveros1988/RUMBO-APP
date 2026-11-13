@@ -49,7 +49,7 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
   if(dayDuties.length||recentDays.has(date))continue;
-  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\b(?:QR)?\\d{3,4}\\b/.test(dutyKind(x))||x.segments?.length);
+  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(dutyKind(x))||x.segments?.length);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
   let id,reason,intensity="moderate";
   if(tooFatigued){id="recovery-15";intensity="very-low";reason="Recovery-first option because your self-reported fatigue or sleep suggests reducing training stress. Skip if unwell."}
