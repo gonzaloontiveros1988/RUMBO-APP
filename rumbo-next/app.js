@@ -51,7 +51,7 @@ function applyRumboScene(){
  const country=visualPrefs.country==="auto"?localCountry():visualPrefs.country;
  const light=visualPrefs.light==="auto"?(hour>=6&&hour<18?"day":"night"):visualPrefs.light;
  document.body.dataset.rumboTheme=light;document.body.dataset.rumboCountry=country;
- const bg=document.getElementById("rumbo-scene-bg");if(bg){bg.innerHTML=sceneSvg(country,light==="day");bg.setAttribute("aria-label",sceneNames[country]||"Country skyline");}
+ const bg=document.getElementById("rumbo-scene-bg");if(bg){bg.innerHTML=sceneSvg(country,light==="day");bg.setAttribute("aria-label",sceneNames[country]||"Country skyline");const landmark=bg.querySelector(".rumbo-scene-landmark"),overlay=document.getElementById("rumbo-scene-overlay");if(overlay&&landmark){overlay.innerHTML=landmark.outerHTML;landmark.remove()}}
  const countrySelect=document.getElementById("rumboCountry"),lightSelect=document.getElementById("rumboLightMode");
  if(countrySelect)countrySelect.value=visualPrefs.country;if(lightSelect)lightSelect.value=visualPrefs.light;
  document.documentElement.style.colorScheme=light==="day"?"light":"dark";
