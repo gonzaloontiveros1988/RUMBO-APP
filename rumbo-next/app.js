@@ -100,8 +100,8 @@ function applyRumboScene(){
 }
 async function loadCityScene(city,day){
  const bg=document.getElementById("rumbo-scene-bg");if(!bg)return;
- const request=++citySceneRequest,key=city+"|"+(day?"day":"night");let data=citySceneCache.get(key);
- if(!data){try{const response=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(city),{headers:{accept:"application/json"},cache:"force-cache"});if(!response.ok)throw new Error("City image unavailable");const json=await response.json();data={image:json.originalimage?.source||json.thumbnail?.source||"",description:json.description||json.title||city};citySceneCache.set(key,data)}catch(e){data={image:"",description:city};citySceneCache.set(key,data)}}
+ const request=++citySceneRequest,key=city+"|"+(day?"day":"night"),page=cityCatalogue().find(x=>x.city===city)?.page||city;let data=citySceneCache.get(key);
+ if(!data){try{const response=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(page),{headers:{accept:"application/json"},cache:"force-cache"});if(!response.ok)throw new Error("City image unavailable");const json=await response.json();data={image:json.originalimage?.source||json.thumbnail?.source||"",description:json.description||json.title||city};citySceneCache.set(key,data)}catch(e){data={image:"",description:city};citySceneCache.set(key,data)}}
  if(request!==citySceneRequest)return;
  if(data.image){bg.innerHTML='<div class="rumbo-city-scene"><img class="rumbo-city-photo" src="'+data.image+'" alt="'+city+' city background" loading="eager"><div class="rumbo-city-grade"></div><div class="rumbo-city-caption">'+city.toUpperCase()+' · '+data.description.toUpperCase()+'</div></div>';bg.setAttribute("aria-label",city+" city scene")}
 }
