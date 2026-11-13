@@ -2,6 +2,8 @@
 export const ROUTINES=[
  {id:"strength-a",name:"Strength · Full body A",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Squat pattern · 3×8","Horizontal push · 3×8","Horizontal pull · 3×10","Hip hinge · 3×8","Core stability · 3 rounds"]},
  {id:"strength-b",name:"Strength · Full body B",type:"Strength",minutes:40,setting:"Gym",level:"Intermediate",blocks:["Split squat · 3×8 each side","Vertical push · 3×8","Vertical pull · 3×8","Glute bridge · 3×12","Carry · 3 rounds"]},
+ {id:"strength-c",name:"Strength · Full body C",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Romanian deadlift · 3×8","Incline dumbbell press · 3×10","Seated cable row · 3×10","Step-up · 3×10 each side","Pallof press · 3×12"]},
+ {id:"hotel-strength",name:"Travel · Strength circuit",type:"Hotel session",minutes:30,setting:"Hotel",level:"All levels",blocks:["Tempo squat · 3×12","Push-up variation · 3×8–12","Single-leg hip hinge · 3×8 each side","Backpack row · 3×12","Dead bug · 3×10"]},
  {id:"hotel-20",name:"Hotel · Mobility reset",type:"Mobility",minutes:20,setting:"Hotel",level:"All levels",blocks:["Gentle spinal mobility · 4 min","Hip mobility · 4 min","Thoracic rotations · 3 min","Shoulder mobility · 3 min","Easy walk or breathing · 6 min"]},
  {id:"hotel-25",name:"Hotel · Bodyweight circuit",type:"Hotel session",minutes:25,setting:"Hotel",level:"All levels",blocks:["Bodyweight squat · 3×10","Incline push-up · 3×8","Reverse lunge · 3×8","Bird dog · 3×8","Easy cooldown · 5 min"]},
  {id:"cardio-30",name:"Cardio · Easy aerobic",type:"Cardio",minutes:30,setting:"Any",level:"Adjustable",blocks:["Easy conversational-pace aerobic activity · 25 min","Cool down · 5 min"]},
@@ -37,29 +39,36 @@ export function workoutStats(workouts){
 
 export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const start=startDate||new Date().toISOString().slice(0,10),out=[],history=(workouts||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
- const goal=profile.goal||"general",setting=profile.setting||"gym",limit=Number(profile.availableMinutes)||40,targetDays=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
- const fatigue=Number(profile.fatigue)||3,sleep=Number(profile.sleepHours)||7,readiness=profile.readiness||"Moderate";
+ const goal=profile.goal||"general",setting=profile.setting||"gym",limit=Math.max(15,Number(profile.availableMinutes)||40),targetDays=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
+ const fatigue=Math.max(1,Math.min(5,Number(profile.fatigue)||3)),sleep=Number(profile.sleepHours)||7,readiness=profile.readiness||"Moderate";
  const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
- const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[];
+ const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[],strengthCycle=["strength-a","strength-b","strength-c"];
+ const dutyKind=(x)=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
   if(dayDuties.length||recentDays.has(date))continue;
-  const dutyText=[...dayDuties,...previousDuty].map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
-  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\d{3,4}/.test([x.code,x.kind,x.status].join(" ").toUpperCase())||x.segments?.length);
+  const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\d{3,4}/.test(dutyKind(x))||x.segments?.length);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
-  let id,reason;
-  if(tooFatigued){id="recovery-15";reason="Recovery-first option based on the fatigue / sleep check. Skip completely if you feel unwell or unsafe to exercise."}
-  else if(postFlight||fatigue===3||readiness==="Moderate"){id="mobility-15";reason="Low-load mobility after a roster duty or moderate readiness. No heavy lifting is scheduled."}
-  else if(setting==="hotel"){id=goal==="endurance"?"cardio-30":"hotel-25";reason="Hotel-friendly bodyweight or simple aerobic session; no gym equipment required."}
-  else if(setting==="home"){id=goal==="endurance"?"cardio-30":goal==="mobility"?"mobility-15":"hotel-25";reason="Home session using bodyweight / the equipment you listed."}
-  else if(goal==="strength"){id=scheduled.length%2===0?"strength-a":"strength-b";reason="Strength-focused session on a roster-unassigned date; keep reps in reserve and progress gradually."}
-  else if(goal==="endurance"||goal==="fat-loss"){id="cardio-30";reason="Moderate aerobic conditioning matched to your current objective."}
+  let id,reason,intensity="moderate";
+  if(tooFatigued){id="recovery-15";intensity="very-low";reason="Recovery-first option because your self-reported fatigue or sleep suggests reducing training stress. Skip if unwell."}
+  else if(postFlight){id="mobility-15";intensity="low";reason="Low-load mobility after a rostered flight duty. Resume normal progression only when recovered."}
+  else if(setting==="hotel"){id=goal==="endurance"?"cardio-30":"hotel-strength";reason="Travel-compatible session without requiring a full gym."}
+  else if(setting==="home"){id=goal==="endurance"||goal==="fat-loss"?"cardio-30":goal==="mobility"?"mobility-15":"hotel-25";reason="Home session selected for the available equipment and stated objective."}
+  else if(setting==="mixed"&&scheduled.length%3===2){id="hotel-strength";reason="Travel-friendly strength variation in the mixed-location rotation."}
+  else if(readiness==="Moderate"||fatigue===3||sleep<6.5){
+   if(goal==="endurance"||goal==="fat-loss"){id=scheduled.length%2===0?"cardio-30":"mobility-15";reason="Moderate-load conditioning with recovery spacing."}
+   else if(goal==="mobility"){id="mobility-15";reason="Mobility-focused session matching your selected objective."}
+   else{id=strengthCycle[scheduled.filter(x=>x.type==="Strength").length%strengthCycle.length];reason="Controlled strength session: keep 2–3 repetitions in reserve and avoid maximal efforts."}
+   intensity="moderate";
+  }
+  else if(goal==="strength"){id=strengthCycle[scheduled.filter(x=>x.type==="Strength").length%strengthCycle.length];reason="Progressive strength session selected from the next rotation in your program."}
+  else if(goal==="endurance"||goal==="fat-loss"){id=scheduled.length%3===2?"mobility-15":"cardio-30";reason="Aerobic conditioning balanced with lower-load recovery sessions."}
   else if(goal==="mobility"){id="mobility-15";reason="Mobility and movement-quality session."}
-  else{id=scheduled.length%2===0?"strength-a":"cardio-30";reason="Balanced general-fitness session."}
+  else{id=scheduled.length%3===1?"cardio-30":strengthCycle[scheduled.filter(x=>x.type==="Strength").length%strengthCycle.length];reason="Balanced general-fitness session with alternating strength and cardiovascular work."}
+  if(setting==="mixed"&&scheduled.length%3===1&&id.startsWith("strength"))id="strength-b";
   const routine=ROUTINES.find(x=>x.id===id);if(!routine)continue;
-  const scale=limit<25?0.6:limit<35?0.8:limit<45?1:1;
   const minutes=Math.min(limit,routine.minutes);
-  scheduled.push({date,routineId:id,title:routine.name,minutes,type:routine.type,status:"candidate",reason,setting:setting==="mixed"?(postFlight?"hotel": "gym"):setting,readinessRequired:true,blocks:routine.blocks,equipment:profile.equipment||"",intensity:tooFatigued||postFlight?"low":"moderate"});
+  scheduled.push({date,routineId:id,title:routine.name,minutes,type:routine.type,status:"candidate",reason,setting:setting==="mixed"?(id.startsWith("hotel")?"hotel":"gym"):setting,readinessRequired:true,blocks:routine.blocks,equipment:profile.equipment||"",intensity,cycleIndex:scheduled.length+1,programWeek:Math.floor(i/7)+1});
   if(scheduled.length>=targetDays*2)break;
  }
  return scheduled;
