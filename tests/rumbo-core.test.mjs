@@ -177,7 +177,7 @@ test("load progression holds under high effort and suggests a small increase aft
  assert.equal(suggestNextLoad(controlled,"bench-press").status,"increase");
 });
 
-import {recipeNutrition,shoppingFromMeals,makeMealWeek} from "../rumbo-next/life-intelligence.js";
+import {recipeNutrition,shoppingFromMeals} from "../rumbo-next/life-intelligence.js";
 test("recipe nutrition flags provider fallback values as unavailable instead of presenting zero macros",()=>{
  const result=recipeNutrition({servings:2,ingredients:[["Chicken","100 g",0,0,0,0]]});
  assert.equal(result.nutritionAvailable,false);
