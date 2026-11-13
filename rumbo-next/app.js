@@ -3,11 +3,12 @@ import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAs
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats} from "./training-intelligence.js";
 import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.js";
 import {parseWaderCsv} from "./wader-import.js";
+import {cityCatalogue} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
 const KEY="rumbo3_local_v1";let state=load();let active="home";let pendingPdf=null;let flightMapInstance=null;
-const VISUAL_KEY="rumbo_visual_preferences_v1";
+const VISUAL_KEY="rumbo_visual_preferences_v1";const CITY_KEY="rumbo_city_scene_v1";let citySceneCache=new Map();let citySceneRequest=0;
 const visualPrefs=(()=>{try{return {...{country:"auto",light:"auto"},...JSON.parse(localStorage.getItem(VISUAL_KEY)||"{}")}}catch{return {country:"auto",light:"auto"}}})();
 const timezoneCountries={"Asia/Qatar":"QA","Asia/Riyadh":"QA","Asia/Bahrain":"QA","Asia/Kuwait":"QA","Asia/Muscat":"AE","Asia/Dubai":"AE","Asia/Abu_Dhabi":"AE","Europe/Madrid":"ES","Atlantic/Canary":"ES","Europe/Paris":"FR","Europe/London":"GB","Europe/Belfast":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Chicago":"US","America/Denver":"US","Asia/Tokyo":"JP","Asia/Singapore":"SG","Europe/Istanbul":"TR","Europe/Rome":"IT","Europe/Berlin":"DE"};
 const sceneNames={QA:"DOHA · WEST BAY",AE:"DUBAI · BURJ KHALIFA",ES:"MADRID · ROYAL PALACE",FR:"PARIS · EIFFEL TOWER",GB:"LONDON · TOWER BRIDGE",US:"NEW YORK · MANHATTAN",JP:"TOKYO · TOKYO TOWER",SG:"SINGAPORE · MARINA BAY",TR:"ISTANBUL · BOSPHORUS",IT:"ROME · COLOSSEUM",DE:"BERLIN · BRANDENBURG GATE"};
@@ -92,12 +93,21 @@ function applyRumboScene(){
  const light=visualPrefs.light==="auto"?(hour>=6&&hour<18?"day":"night"):visualPrefs.light;
  document.body.dataset.rumboTheme=light;document.body.dataset.rumboCountry=country;
  const bg=document.getElementById("rumbo-scene-bg");if(bg){bg.innerHTML=sceneSvg(country,light==="day");bg.setAttribute("aria-label",sceneNames[country]||"Country skyline");const landmark=bg.querySelector(".rumbo-scene-landmark"),overlay=document.getElementById("rumbo-scene-overlay");if(overlay&&landmark){overlay.innerHTML=landmark.outerHTML;landmark.remove()}}
- const countrySelect=document.getElementById("rumboCountry"),lightSelect=document.getElementById("rumboLightMode");
+ const countrySelect=document.getElementById("rumboCountry"),lightSelect=document.getElementById("rumboLightMode"),citySelect=document.getElementById("rumboCity");
  if(countrySelect)countrySelect.value=visualPrefs.country;if(lightSelect)lightSelect.value=visualPrefs.light;
+ if(citySelect){const selected=localStorage.getItem(CITY_KEY)||"auto";citySelect.value=selected;loadCityScene(selected==="auto"?"Doha":selected,light==="day")}
  document.documentElement.style.colorScheme=light==="day"?"light":"dark";
 }
+async function loadCityScene(city,day){
+ const bg=document.getElementById("rumbo-scene-bg");if(!bg)return;
+ const request=++citySceneRequest,key=city+"|"+(day?"day":"night");let data=citySceneCache.get(key);
+ if(!data){try{const response=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(city),{headers:{accept:"application/json"},cache:"force-cache"});if(!response.ok)throw new Error("City image unavailable");const json=await response.json();data={image:json.originalimage?.source||json.thumbnail?.source||"",description:json.description||json.title||city};citySceneCache.set(key,data)}catch(e){data={image:"",description:city};citySceneCache.set(key,data)}}
+ if(request!==citySceneRequest)return;
+ if(data.image){bg.innerHTML='<div class="rumbo-city-scene"><img class="rumbo-city-photo" src="'+data.image+'" alt="'+city+' city background" loading="eager"><div class="rumbo-city-grade"></div><div class="rumbo-city-caption">'+city.toUpperCase()+' · '+data.description.toUpperCase()+'</div></div>';bg.setAttribute("aria-label",city+" city scene")}
+}
 function initRumboScene(){
- const country=document.getElementById("rumboCountry"),light=document.getElementById("rumboLightMode");
+ const country=document.getElementById("rumboCountry"),light=document.getElementById("rumboLightMode"),city=document.getElementById("rumboCity");
+ if(city){const entries=cityCatalogue();city.innerHTML='<option value="auto">Auto · Doha</option>'+entries.map(x=>'<option value="'+x.city.replace(/"/g,"&quot;")+'">'+x.city+' · '+x.country+'</option>').join("");city.value=localStorage.getItem(CITY_KEY)||"auto";city.onchange=()=>{localStorage.setItem(CITY_KEY,city.value);applyRumboScene()}}
  if(country)country.onchange=()=>{visualPrefs.country=country.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
  if(light)light.onchange=()=>{visualPrefs.light=light.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
  applyRumboScene();setInterval(()=>{if(visualPrefs.light==="auto"||visualPrefs.country==="auto")applyRumboScene()},60000);
