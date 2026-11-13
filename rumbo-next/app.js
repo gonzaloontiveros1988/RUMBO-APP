@@ -12,7 +12,7 @@ const visualPrefs=(()=>{try{return {...{country:"auto",light:"auto"},...JSON.par
 const timezoneCountries={"Asia/Qatar":"QA","Asia/Riyadh":"QA","Asia/Bahrain":"QA","Asia/Kuwait":"QA","Asia/Muscat":"AE","Asia/Dubai":"AE","Asia/Abu_Dhabi":"AE","Europe/Madrid":"ES","Atlantic/Canary":"ES","Europe/Paris":"FR","Europe/London":"GB","Europe/Belfast":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Chicago":"US","America/Denver":"US","Asia/Tokyo":"JP","Asia/Singapore":"SG","Europe/Istanbul":"TR","Europe/Rome":"IT","Europe/Berlin":"DE"};
 const sceneNames={QA:"DOHA · QATAR",AE:"UNITED ARAB EMIRATES",ES:"SPAIN",FR:"FRANCE",GB:"UNITED KINGDOM",US:"UNITED STATES",JP:"JAPAN",SG:"SINGAPORE",TR:"TÜRKIYE",IT:"ITALY",DE:"GERMANY"};
 function localCountry(){return timezoneCountries[Intl.DateTimeFormat().resolvedOptions().timeZone]||"QA"}
-function sceneSvg(country,day){
+function sceneSvgVector(country,day){
  const night=!day,skyTop=day?"#a8d9e8":"#071a30",skyBottom=day?"#f4d8b0":"#183c58";
  const seaTop=day?"#4a9eae":"#082b43",seaBottom=day?"#9bcbd0":"#174e67";
  const glow=day?"#fff0c9":"#ffd58a",line=day?"#236f82":"#69dbe0",building=day?"#426b79":"#102d42";
@@ -49,6 +49,29 @@ function sceneSvg(country,day){
  const sky='<svg class="rumbo-scene-horizon" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rumboSky" x2="0" y2="1"><stop stop-color="'+skyTop+'"/><stop offset="1" stop-color="'+skyBottom+'"/></linearGradient><linearGradient id="rumboSea" x2="0" y2="1"><stop stop-color="'+seaTop+'"/><stop offset="1" stop-color="'+seaBottom+'"/></linearGradient><filter id="rumboBlur"><feGaussianBlur stdDeviation="13"/></filter><clipPath id="rumboSeaClip"><rect x="0" y="660" width="1440" height="240"/></clipPath></defs><rect width="1440" height="900" fill="url(#rumboSky)"/><circle cx="1120" cy="190" r="'+(day?76:48)+'" fill="'+glow+'" opacity="'+(day?".62":".86")+'" filter="url(#rumboBlur)"/><circle cx="1120" cy="190" r="'+(day?43:27)+'" fill="'+glow+'" opacity=".92"/>'+stars+'<path d="M0 530Q220 505 410 525T800 520T1180 525T1440 515V900H0Z" fill="#0b3045" opacity=".18"/>'+art+windows+'<path d="M0 660Q240 645 480 660T960 655T1440 660V900H0Z" fill="url(#rumboSea)"/><g clip-path="url(#rumboSeaClip)" opacity="'+(day?".30":".42")+'" filter="url(#rumboBlur)"><g transform="translate(0 1320) scale(1 -1)">'+art+'</g><ellipse cx="1120" cy="730" rx="240" ry="34" fill="'+glow+'" opacity=".25"/><path d="M500 675q220 25 440 0t500 0M0 745q280-18 560 0t880 0M0 820q300-12 600 0t840 0" fill="none" stroke="'+(day?"#c5f0ef":"#73d6e0")+'" stroke-width="8" opacity=".22"/></g><path d="M0 660Q240 645 480 660T960 655T1440 660" fill="none" stroke="'+line+'" stroke-width="3" opacity=".55"/><text x="48" y="850" fill="'+(day?"#e9ffff":"#bceef0")+'" font-family="monospace" font-size="16" letter-spacing="5" opacity=".75">'+label+'</text></svg>';
  const overlay='<svg class="rumbo-scene-landmark" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="'+line+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".62">'+outline+'</g></svg>';
  return sky+overlay;
+}
+function sceneSvg(country,day){
+ const photos={
+  QA:{
+   day:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
+   night:"https://images.unsplash.com/photo-1669815007479-494b3b51c2c3?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Hongbin · Unsplash",label:"DOHA · WEST BAY"
+  },
+  FR:{
+   day:"https://images.unsplash.com/photo-1610981109245-c3f748c98ad2?auto=format&fit=crop&w=2400&q=85",
+   night:"https://images.unsplash.com/photo-1768288985713-95ab37b6baed?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Fabio Fistarol · Unsplash",creditNight:"Danish Prakash · Unsplash",label:"PARIS · TOUR EIFFEL"
+  }
+ };
+ const p=photos[country];
+ if(!p)return sceneSvgVector(country,day);
+ const src=day?p.day:p.night,credit=day?p.creditDay:p.creditNight;
+ return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+'">'+
+  '<img class="rumbo-photo-image" src="'+src+'" alt="'+p.label+'" fetchpriority="low">'+
+  '<div class="rumbo-photo-grade"></div>'+
+  '<div class="rumbo-photo-horizon"></div>'+
+  '<div class="rumbo-photo-caption"><span>'+p.label+'</span><small>PHOTO · '+credit+'</small></div>'+
+ '</div>';
 }
 function applyRumboScene(){
  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
