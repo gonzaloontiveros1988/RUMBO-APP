@@ -1,6 +1,6 @@
 const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
-const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app"]);
+const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
 
 const buckets = new Map();
 function limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
@@ -39,6 +39,11 @@ function parseJson(text){
  if(start<0||end<start)throw new Error("La IA no devolvió una receta estructurada.");
  return JSON.parse(raw.slice(start,end+1));
 }
+function normalizeStructuredPage(page,index,requestedServings,requestedCategory){
+ const name=String(page?.name||"").trim().slice(0,100),ingredients=Array.isArray(page?.ingredients)?page.ingredients.filter(Boolean).slice(0,24):[],steps=Array.isArray(page?.instructions)?page.instructions.filter(Boolean).slice(0,12):[];
+ if(!name||ingredients.length<2||steps.length<2)return null;
+ return {id:"web-fallback-"+Date.now()+"-"+index,name,category:requestedCategory,minutes:30,servings:requestedServings,image:typeof page.image==="string"?page.image:"",imageVerified:!!page.image,ingredients:ingredients.map(x=>[String(x).slice(0,100),"Cantidad según fuente",0,0,0,0]),steps:steps.map(x=>String(x).slice(0,400)),origin:"web",sourceUrl:page.url||"",sourceTitle:page.title||name,sourceSnippet:"Receta extraída de los datos estructurados publicados por la página. Información nutricional no disponible."};
+}
 function normalizeRecipe(r,index,source,requestedServings,requestedCategory){
  const name=String(r.name||"").trim().slice(0,100),ingredients=Array.isArray(r.ingredients)?r.ingredients.slice(0,24):[],steps=Array.isArray(r.steps)?r.steps.slice(0,12):[];
  if(!name||ingredients.length<2||steps.length<2)throw new Error("La receta recibida está incompleta.");
@@ -54,13 +59,18 @@ module.exports = async function handler(req,res){
  const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
  const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch";
  if(query.length<3)return send(res,400,{error:"Escribe qué plato o ingrediente quieres buscar."});
- if(!process.env.VERCEL_OIDC_TOKEN)return send(res,503,{error:"La autenticación de RUMBO AI no está disponible en este despliegue."});
  try{
   const webResults=await searchWeb(query).catch(()=>[]);
   const sourceContext=await Promise.all(webResults.slice(0,3).map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
+  const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
+  if(!gatewayToken){
+   const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
+   if(!fallback.length)return send(res,503,{error:"La búsqueda web ha respondido, pero este despliegue no tiene AI Gateway configurado y las páginas encontradas no ofrecen una receta estructurada. Configura AI_GATEWAY_API_KEY en Vercel para activar también la creación de recetas originales.",stage:"recipe-fallback"});
+   return send(res,200,{recipes:fallback.slice(0,2),webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:"structured-recipe-fallback",notice:"Modo de compatibilidad: se han recuperado recetas publicadas. La creación de recetas originales con IA está temporalmente desactivada porque falta AI_GATEWAY_API_KEY / VERCEL_OIDC_TOKEN. Las calorías y macros no están disponibles para estas fuentes; no se han inventado."});
+  }
   const system="Eres el asistente culinario de RUMBO. Devuelve exclusivamente JSON válido, sin Markdown. No inventes fuentes, enlaces ni datos de páginas. Usa el contexto web solo para la receta de origen web; crea además una receta original independiente. Devuelve imageSearchTerm en inglés con el nombre concreto del plato para localizar una fotografía. Ingredientes en cantidades para las raciones solicitadas, kcal/protein/carbs/fat aproximados por ingrediente. Recuerda que nutrición es estimada. Incluye pasos claros y seguros, temperaturas internas solo si son fiables. Categorías Breakfast, Lunch o Dinner.";
   const prompt={query,requestedServings:servings,preferredCategory:category,webResults:sourceContext,requiredOutput:{recipes:[{name:"",imageSearchTerm:"English dish name",category:"Breakfast|Lunch|Dinner",minutes:30,servings,ingredients:[{name:"",quantity:"",kcal:0,protein:0,carbs:0,fat:0}],steps:[""]}],webRecipeIndex:0,aiRecipeIndex:1}};
-  const response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+process.env.VERCEL_OIDC_TOKEN,"Content-Type":"application/json"},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(prompt)}],temperature:.25,max_tokens:3200})});
+  const response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+gatewayToken,"Content-Type":"application/json"},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(prompt)}],temperature:.25,max_tokens:3200})});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error?.message||"RUMBO AI no pudo preparar las recetas.");
   const parsed=parseJson(data?.choices?.[0]?.message?.content),raw=Array.isArray(parsed.recipes)?parsed.recipes:[];
   const candidates=[];
