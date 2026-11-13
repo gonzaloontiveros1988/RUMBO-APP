@@ -17,7 +17,7 @@ async function commonsImage(query){
   const r=await fetch(url,{headers:{"User-Agent":"RUMBORecipeAssistant/1.0 (recipe image matching)"}});
   if(!r.ok)return null;const data=await r.json(),pages=Object.values(data?.query?.pages||{});
   const words=query.toLowerCase().split(/\W+/).filter(x=>x.length>3);
-  const ranked=pages.map(p=>{const title=String(p.title||"").toLowerCase(),score=words.filter(w=>title.includes(w)).length;return {score,url:p.imageinfo?.[0]?.thumburl||p.imageinfo?.[0]?.url,description:p.title}}).filter(x=>x.url&&x.score>=1).sort((a,b)=>b.score-a.score);
+  const ranked=pages.map(p=>{const title=String(p.title||"").toLowerCase(),score=words.filter(w=>title.includes(w)).length;return {score,url:p.imageinfo?.[0]?.thumburl||p.imageinfo?.[0]?.url,description:p.title}}).filter(x=>x.url&&x.score>=Math.min(2,words.length)).sort((a,b)=>b.score-a.score);
   return ranked[0]||null;
  }catch{return null}
 }
