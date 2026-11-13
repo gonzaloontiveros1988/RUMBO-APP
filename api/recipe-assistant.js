@@ -1,5 +1,7 @@
 const MODEL = "alibaba/qwen3.5-flash";
-const MAX_QUERY = 180;\nconst buckets = new Map();\nfunction limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
+const MAX_QUERY = 180;
+const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app"]);
+\nconst buckets = new Map();\nfunction limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
 function send(res,status,body){res.setHeader("Content-Type","application/json; charset=utf-8");res.setHeader("Cache-Control","no-store");return res.status(status).json(body)}
 function clean(s=""){return String(s).replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#x27;|&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s+/g," ").trim()}
 function decodeRedirect(href){try{const u=new URL(href,"https://duckduckgo.com");return u.searchParams.get("uddg")||u.href}catch{return href}}
@@ -41,9 +43,11 @@ function normalizeRecipe(r,index,source,requestedServings,requestedCategory){
  return {id:"web-ai-"+Date.now()+"-"+index,name,category:requestedCategory,minutes:Math.max(5,Math.min(240,Number(r.minutes)||30)),servings:requestedServings,image:source.pageRecipe?.image||"",imageVerified:!!source.pageRecipe?.image,imageSearchTerm:String(r.imageSearchTerm||r.name||"").slice(0,120),ingredients:ingredients.map(x=>[String(x.name||"Ingrediente").slice(0,70),String(x.quantity||"al gusto").slice(0,70),Number(x.kcal)||0,Number(x.protein)||0,Number(x.carbs)||0,Number(x.fat)||0]),steps:steps.map(x=>String(x).slice(0,400)),origin:source.type,sourceUrl:source.url||"",sourceTitle:source.title||"",sourceSnippet:source.snippet||""};
 }
 module.exports = async function handler(req,res){
+ const origin=String(req.headers.origin||"");
+ if(req.method==="OPTIONS"){if(!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin");res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");res.setHeader("Access-Control-Allow-Headers","Content-Type");return res.status(204).end()}
  if(req.method!=="POST")return send(res,405,{error:"Método no permitido."});
- const host=String(req.headers.host||"");
- if(!host.endsWith(".vercel.app")&&!host.endsWith(".github.io"))return send(res,403,{error:"Origen no autorizado."});
+ if(origin&&!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});
+ if(origin){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin")}
  const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});\n const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
  const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch";
  if(query.length<3)return send(res,400,{error:"Escribe qué plato o ingrediente quieres buscar."});
