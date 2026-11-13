@@ -12,7 +12,7 @@ export function extractDutyTimes(text){
  const report=raw.match(/\bRPT\s*:?\s*(\d{2}:\d{2})\b/);
  const labelledStart=raw.match(/\b(?:DUTY\s*START|START\s*DUTY|SIGN\s*ON)\s*:?\s*(\d{2}:\d{2})\b/);
  const clockTimes=[];
- for(const m of raw.matchAll(/\b(\d{2}):(\d{2})(\(\+1\))?\b/g)){
+ for(const m of raw.matchAll(/\b(\d{2}):(\d{2})(\(\+1\))?/g)){
    const before=raw.slice(Math.max(0,m.index-5),m.index);
    if(/(?:DH|BH)\s*:\s*$/.test(before))continue;
    clockTimes.push({time:m[1]+":"+m[2],dayOffset:m[3]?1:0,index:m.index});
