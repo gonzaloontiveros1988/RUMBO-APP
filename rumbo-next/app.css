@@ -435,3 +435,23 @@ body[data-rumbo-theme="day"] .rumbo-scene-bg{opacity:.34}
  .panel{backdrop-filter:blur(6px) saturate(1.12);-webkit-backdrop-filter:blur(6px) saturate(1.12)}
  body[data-rumbo-theme="day"] .panel{backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1)}
 }
+
+/* RUMBO scene visibility refinement: full-viewport waterfront, no decorative wireframe */
+.rumbo-scene-bg{z-index:0;opacity:.86}
+.rumbo-scene-bg .rumbo-scene-horizon{position:absolute;inset:0;width:100%;height:100%;min-height:100%;opacity:1;filter:none}
+.rumbo-scene-bg .rumbo-scene-landmark{display:none!important}
+body[data-rumbo-theme="day"] .rumbo-scene-bg{opacity:.78}
+body[data-rumbo-theme="night"] .rumbo-scene-bg{opacity:.92}
+.panel,.aviation-stat-card,.aircraft-card,.family-calendar-panel,.family-calendar-wrap,.callout,.dash-day,.family-detail-card{
+ background:linear-gradient(145deg,rgba(10,34,51,.36),rgba(8,27,43,.25));
+ backdrop-filter:blur(5px) saturate(1.18);-webkit-backdrop-filter:blur(5px) saturate(1.18)
+}
+body[data-rumbo-theme="day"] .panel,body[data-rumbo-theme="day"] .aviation-stat-card,body[data-rumbo-theme="day"] .aircraft-card,body[data-rumbo-theme="day"] .family-calendar-panel,body[data-rumbo-theme="day"] .family-calendar-wrap,body[data-rumbo-theme="day"] .callout,body[data-rumbo-theme="day"] .dash-day,body[data-rumbo-theme="day"] .family-detail-card{
+ background:linear-gradient(145deg,rgba(240,250,252,.48),rgba(218,239,243,.36));
+ backdrop-filter:blur(5px) saturate(1.18);-webkit-backdrop-filter:blur(5px) saturate(1.18)
+}
+body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-stat-card,body[data-rumbo-theme="night"] .aircraft-card,body[data-rumbo-theme="night"] .family-calendar-panel,body[data-rumbo-theme="night"] .family-calendar-wrap,body[data-rumbo-theme="night"] .callout,body[data-rumbo-theme="night"] .dash-day,body[data-rumbo-theme="night"] .family-detail-card{
+ background:linear-gradient(145deg,rgba(5,20,34,.38),rgba(5,18,31,.27));
+ backdrop-filter:blur(5px) saturate(1.16);-webkit-backdrop-filter:blur(5px) saturate(1.16)
+}
+@media(max-width:850px){.rumbo-scene-bg .rumbo-scene-horizon{height:100%;min-height:100%}}
