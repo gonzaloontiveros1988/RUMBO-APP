@@ -55,20 +55,32 @@ function sceneSvg(country,day){
   QA:{
    day:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
    night:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
-   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Same viewpoint · night treatment",label:"DOHA · WEST BAY"
+   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Doha skyline · night lighting",label:"DOHA · WEST BAY",position:"center 57%"
+  },
+  AE:{
+   day:"https://images.unsplash.com/photo-1782078292081-8fb6de1c54df?auto=format&fit=crop&w=2400&q=85",
+   night:"https://images.unsplash.com/photo-1753029111752-f12018752cd3?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"August Togbor · Unsplash",creditNight:"Dubai skyline · Burj Khalifa illuminated",label:"DUBAI · BURJ KHALIFA",position:"center 52%"
   },
   FR:{
    day:"https://images.unsplash.com/photo-1610981109245-c3f748c98ad2?auto=format&fit=crop&w=2400&q=85",
-   night:"https://images.unsplash.com/photo-1610981109245-c3f748c98ad2?auto=format&fit=crop&w=2400&q=85",
-   creditDay:"Fabio Fistarol · Unsplash",creditNight:"Same viewpoint · night treatment",label:"PARIS · TOUR EIFFEL"
-  }
+   night:"https://images.unsplash.com/photo-1768288985713-95ab37b6baed?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Fabio Fistarol · Unsplash",creditNight:"Paris · Eiffel Tower illuminated",label:"PARIS · TOUR EIFFEL",position:"center 48%"
+  },
+  GB:{night:"https://images.unsplash.com/photo-1758063446654-3f4403d4af50?auto=format&fit=crop&w=2400&q=85",creditNight:"Karsh Mehta · Unsplash",label:"LONDON · TOWER BRIDGE",position:"center 52%"},
+  DE:{night:"https://images.unsplash.com/photo-1748338143000-226bd497de26?auto=format&fit=crop&w=2400&q=85",creditNight:"Andreas Schmidt · Unsplash",label:"BERLIN · BRANDENBURG GATE",position:"center 55%"},
+  US:{night:"https://images.unsplash.com/photo-1765741836950-76bc831f380e?auto=format&fit=crop&w=2400&q=85",creditNight:"Matthew Zheng · Unsplash",label:"NEW YORK · MANHATTAN SKYLINE",position:"center 52%"},
+  JP:{night:"https://images.unsplash.com/photo-1771064252082-aebc397490e8?auto=format&fit=crop&w=2400&q=85",creditNight:"Tsuyoshi Kozu · Unsplash",label:"TOKYO · TOKYO TOWER",position:"center 50%"},
+  SG:{night:"https://images.unsplash.com/photo-1614771830136-75623fc2e116?auto=format&fit=crop&w=2400&q=85",creditNight:"Wesley Pribadi · Unsplash",label:"SINGAPORE · MARINA BAY",position:"center 52%"},
+  IT:{day:"https://images.unsplash.com/photo-1562317549-b0c26d204034?auto=format&fit=crop&w=2400&q=85",night:"https://images.unsplash.com/photo-1725623903410-296fdc9e2ea8?auto=format&fit=crop&w=2400&q=85",creditDay:"David Edkins · Unsplash",creditNight:"Alexander Voronov · Unsplash",label:"ROME · COLOSSEUM",position:"center 54%"}
  };
  const p=photos[country];
- if(!p)return sceneSvgVector(country,day);
- const src=day?p.day:p.night,credit=day?p.creditDay:p.creditNight;
+ if(!p||!(day?p.day:p.night))return sceneSvgVector(country,day);
+ const src=day?p.day:p.night,credit=day?(p.creditDay||"Day scene · city landmark"):(p.creditNight||"Night scene · illuminated landmark");
  return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+'">'+
-  '<img class="rumbo-photo-image" src="'+src+'" alt="'+p.label+'" fetchpriority="low">'+
+  '<img class="rumbo-photo-image" src="'+src+'" alt="'+p.label+'" fetchpriority="low" style="object-position:'+(p.position||"center 54%")+'">'+
   '<div class="rumbo-photo-grade"></div>'+
+  '<div class="rumbo-photo-lights" aria-hidden="true"></div>'+
   '<div class="rumbo-photo-horizon"></div>'+
   '<div class="rumbo-photo-caption"><span>'+p.label+'</span><small>PHOTO · '+credit+'</small></div>'+
  '</div>';
