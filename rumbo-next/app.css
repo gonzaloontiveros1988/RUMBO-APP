@@ -356,3 +356,30 @@ body[data-rumbo-theme="day"] .panel,body[data-rumbo-theme="day"] .aviation-stat-
 body[data-rumbo-theme="day"] .rumbo-scene-overlay{mix-blend-mode:multiply;opacity:.075}
 @media(max-width:850px){.rumbo-scene-overlay svg{top:17vh;right:-18vw;width:112vw;height:62vh;min-height:400px}}
 @media(max-width:650px){.rumbo-scene-overlay{opacity:.09}.rumbo-scene-overlay svg{top:22vh;right:-28vw;width:132vw;height:56vh;min-height:350px}}
+
+
+/* RUMBO 3.1 — immersive country seafront, skyline and glass surfaces */
+body{background:#071a2a}
+.rumbo-scene-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:1}
+.rumbo-scene-bg .rumbo-scene-horizon{position:absolute;inset:0;width:100%;height:100%;min-height:100%;opacity:.88;filter:saturate(1.12)}
+.rumbo-scene-bg .rumbo-scene-landmark{position:absolute;inset:0;width:100%;height:100%;opacity:.08;filter:blur(.25px)}
+.rumbo-scene-overlay{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none;mix-blend-mode:screen;opacity:.18}
+.rumbo-scene-overlay svg{position:absolute;inset:0;width:100%;height:100%;filter:blur(.35px)}
+.app{position:relative;z-index:1;background:transparent}
+main{background:transparent;isolation:isolate}
+.sidebar{background:rgba(5,22,35,.68);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.panel{background:linear-gradient(135deg,rgba(10,34,51,.66),rgba(8,27,43,.58));border:1px solid rgba(131,205,216,.24);box-shadow:0 12px 36px rgba(0,0,0,.13);backdrop-filter:blur(9px) saturate(1.18);-webkit-backdrop-filter:blur(9px) saturate(1.18)}
+.item,.day,.family-calendar-day,.calendar-day,.callout,.route-map{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.item{background:rgba(8,29,44,.54)}
+.day{background:rgba(8,29,44,.52)}
+.route-map{background:rgba(8,29,44,.4)}
+.topbar,.page-head{position:relative}
+body[data-rumbo-theme="day"] .rumbo-scene-bg{opacity:1}
+body[data-rumbo-theme="day"] .rumbo-scene-bg .rumbo-scene-horizon{opacity:.9}
+body[data-rumbo-theme="day"] .rumbo-scene-overlay{mix-blend-mode:multiply;opacity:.13}
+body[data-rumbo-theme="day"] .sidebar{background:rgba(226,242,246,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(238,249,250,.69),rgba(213,235,240,.56));border-color:rgba(74,135,151,.28);box-shadow:0 12px 36px rgba(39,83,98,.10);backdrop-filter:blur(9px) saturate(1.14);-webkit-backdrop-filter:blur(9px) saturate(1.14)}
+body[data-rumbo-theme="day"] .item,body[data-rumbo-theme="day"] .day{background:rgba(227,243,246,.55)}
+body[data-rumbo-theme="day"] .route-map{background:rgba(223,242,246,.4)}
+@media(max-width:850px){.rumbo-scene-bg .rumbo-scene-horizon{object-fit:cover}.rumbo-scene-bg .rumbo-scene-landmark{opacity:.06}.panel{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
+@media(max-width:650px){.rumbo-scene-bg .rumbo-scene-horizon{object-position:62% center}.rumbo-scene-bg .rumbo-scene-landmark{opacity:.045}.rumbo-scene-overlay{opacity:.11}.panel{background:linear-gradient(135deg,rgba(10,34,51,.72),rgba(8,27,43,.66))}body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(238,249,250,.75),rgba(213,235,240,.65))}}
