@@ -163,3 +163,16 @@ test("load progression only increases after a controlled high-rep set",()=>{
  assert.equal(suggestNextLoad(history,"bench-press").status,"increase");
  assert.equal(suggestNextLoad([{date:"2026-11-12",exercises:[{exerciseId:"bench-press",sets:3,reps:6,weight:40,rpe:9.5}]}],"bench-press").status,"hold");
 });
+
+test("14-day strength plan rotates through distinct full-body sessions",()=>{
+ const plan=adaptiveTrainingPlan([],[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-01");
+ const strength=plan.filter(x=>x.type==="Strength");
+ assert.ok(strength.length>=5);
+ assert.ok(new Set(strength.map(x=>x.routineId)).size>=5);
+});
+test("load progression holds under high effort and suggests a small increase after controlled target reps",()=>{
+ const hard=[{date:"2026-11-01",exercises:[{exerciseId:"bench-press",sets:3,reps:8,weight:60,rpe:9.5}]}];
+ assert.equal(suggestNextLoad(hard,"bench-press").status,"hold");
+ const controlled=[{date:"2026-11-02",exercises:[{exerciseId:"bench-press",sets:3,reps:12,weight:60,rpe:7}]}];
+ assert.equal(suggestNextLoad(controlled,"bench-press").status,"increase");
+});
