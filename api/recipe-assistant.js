@@ -39,6 +39,30 @@ function parseJson(text){
  if(start<0||end<start)throw new Error("La IA no devolvió una receta estructurada.");
  return JSON.parse(raw.slice(start,end+1));
 }
+
+async function searchMealDbFallback(query,servings,category){
+ const terms=[query,query.split(/\s+/).filter(w=>w.length>3).slice(0,2).join(" ")].filter(Boolean);
+ const found=[];
+ for(const term of [...new Set(terms)]){
+  try{
+   const url="https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term);
+   const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.1 recipe lookup"},signal:AbortSignal.timeout(6500)});
+   if(!response.ok)continue;
+   const data=await response.json();
+   for(const meal of data.meals||[])if(!found.some(x=>x.idMeal===meal.idMeal))found.push(meal);
+   if(found.length>=2)break;
+  }catch{}
+ }
+ return found.slice(0,2).map((meal,index)=>{
+  const ingredients=[];
+  for(let i=1;i<=20;i++){const name=String(meal["strIngredient"+i]||"").trim(),measure=String(meal["strMeasure"+i]||"").trim();if(name)ingredients.push([name.slice(0,90),measure.slice(0,70)||"To taste",0,0,0,0])}
+  const steps=String(meal.strInstructions||"").replace(/\r/g,"").split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>x.length>12).slice(0,14);
+  if(ingredients.length<2||steps.length<2)return null;
+  const image=String(meal.strMealThumb||"");
+  return {id:"themealdb-"+String(meal.idMeal||index),name:String(meal.strMeal||query).slice(0,100),category,minutes:30,servings,image,imageVerified:/^https:\/\//i.test(image),ingredients,steps,origin:"web",sourceUrl:String(meal.strSource||meal.strYoutube||"https://www.themealdb.com/"),sourceTitle:"TheMealDB · "+String(meal.strMeal||query),sourceSnippet:"Receta recuperada de TheMealDB. La fuente no proporciona macros verificados; no se han inventado calorías ni nutrientes."};
+ }).filter(Boolean);
+}
+
 function normalizeStructuredPage(page,index,requestedServings,requestedCategory){
  const name=String(page?.name||"").trim().slice(0,100),ingredients=Array.isArray(page?.ingredients)?page.ingredients.filter(Boolean).slice(0,24):[],steps=Array.isArray(page?.instructions)?page.instructions.filter(Boolean).slice(0,12):[];
  if(!name||ingredients.length<2||steps.length<2)return null;
@@ -65,8 +89,10 @@ module.exports = async function handler(req,res){
   const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
   if(!gatewayToken){
    const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
-   if(!fallback.length)return send(res,503,{error:"La búsqueda web ha respondido, pero este despliegue no tiene AI Gateway configurado y las páginas encontradas no ofrecen una receta estructurada. Configura AI_GATEWAY_API_KEY en Vercel para activar también la creación de recetas originales.",stage:"recipe-fallback"});
-   return send(res,200,{recipes:fallback.slice(0,2),webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:"structured-recipe-fallback",notice:"Modo de compatibilidad: se han recuperado recetas publicadas. La creación de recetas originales con IA está temporalmente desactivada porque falta AI_GATEWAY_API_KEY / VERCEL_OIDC_TOKEN. Las calorías y macros no están disponibles para estas fuentes; no se han inventado."});
+   const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category);
+   const recipes=fallback.length?fallback:mealDb;
+   if(!recipes.length)return send(res,200,{recipes:[],webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:"public-recipe-search",notice:"No se ha encontrado una receta fiable para esa búsqueda. Prueba con el nombre del plato en inglés o con un ingrediente principal. La creación original con IA necesita configurar AI_GATEWAY_API_KEY."});
+   return send(res,200,{recipes:recipes.slice(0,2),webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:fallback.length?"structured-recipe-fallback":"themealdb-fallback",notice:"Modo de compatibilidad: recetas publicadas recuperadas sin autenticación de IA. Las calorías y macros no están disponibles en la fuente y no se han inventado. La creación de recetas originales con IA se activará al configurar AI_GATEWAY_API_KEY."});
   }
   const system="Eres el asistente culinario de RUMBO. Devuelve exclusivamente JSON válido, sin Markdown. No inventes fuentes, enlaces ni datos de páginas. Usa el contexto web solo para la receta de origen web; crea además una receta original independiente. Devuelve imageSearchTerm en inglés con el nombre concreto del plato para localizar una fotografía. Ingredientes en cantidades para las raciones solicitadas, kcal/protein/carbs/fat aproximados por ingrediente. Recuerda que nutrición es estimada. Incluye pasos claros y seguros, temperaturas internas solo si son fiables. Categorías Breakfast, Lunch o Dinner.";
   const prompt={query,requestedServings:servings,preferredCategory:category,webResults:sourceContext,requiredOutput:{recipes:[{name:"",imageSearchTerm:"English dish name",category:"Breakfast|Lunch|Dinner",minutes:30,servings,ingredients:[{name:"",quantity:"",kcal:0,protein:0,carbs:0,fat:0}],steps:[""]}],webRecipeIndex:0,aiRecipeIndex:1}};
