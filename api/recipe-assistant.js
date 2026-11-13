@@ -40,20 +40,60 @@ function parseJson(text){
  return JSON.parse(raw.slice(start,end+1));
 }
 
+const MEALDB_ES_ALIASES={
+ "paella de marisco":["seafood paella","paella","seafood"],
+ "paella marinera":["seafood paella","paella","seafood"],
+ "paella valenciana":["paella","spanish rice"],
+ "tortilla espanola":["spanish omelette","tortilla"],
+ "tortilla de patatas":["spanish omelette","tortilla"],
+ "gazpacho":["gazpacho","spanish cold tomato soup"],
+ "salmorejo":["salmorejo","spanish tomato soup"],
+ "pollo al ajillo":["garlic chicken","chicken garlic"],
+ "pollo asado":["roast chicken","roasted chicken"],
+ "albondigas":["meatballs","spanish meatballs"],
+ "croquetas":["croquettes","spanish croquettes"],
+ "ensaladilla rusa":["russian salad","potato salad"],
+ "gambas al ajillo":["garlic shrimp","garlic prawns"],
+ "pisto":["ratatouille","spanish vegetable stew"],
+ "lentejas":["lentil stew","lentils"],
+ "arroz con pollo":["chicken rice","chicken and rice"]
+};
+function recipeSearchTerms(query){
+ const normalized=clean(query).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const aliases=MEALDB_ES_ALIASES[normalized]||[];
+ const translated=normalized.split(/\s+/).map(w=>({
+  marisco:"seafood",gamba:"shrimp",gambas:"shrimp",langostino:"prawn",langostinos:"prawns",
+  pollo:"chicken",ternera:"beef",cerdo:"pork",pavo:"turkey",atun:"tuna",salmon:"salmon",
+  arroz:"rice",patata:"potato",patatas:"potatoes",tomate:"tomato",tomates:"tomatoes",
+  huevo:"egg",huevos:"eggs",queso:"cheese",garbanzos:"chickpeas",lentejas:"lentils",
+  verduras:"vegetables",verdura:"vegetables",calabacin:"zucchini",berenjena:"eggplant",
+  espinacas:"spinach",setas:"mushrooms",champinones:"mushrooms",pasta:"pasta"
+ }[w]||w)).filter(w=>w.length>2&&!["de","del","con","la","el","los","las","una","un"].includes(w));
+ return [...new Set([query,...aliases,translated.join(" "),...translated].map(x=>clean(x)).filter(x=>x.length>2))].slice(0,5);
+}
+function scoreMealDbResult(meal,query,terms){
+ const text=clean([meal.strMeal,...Array.from({length:20},(_,i)=>meal["strIngredient"+(i+1)]||"")].join(" ")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const tokens=[...new Set(terms.flatMap(t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/\s+/)).filter(w=>w.length>3&&!["with","from","the","spanish"].includes(w)))];
+ const name=clean(meal.strMeal||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const hits=tokens.filter(w=>text.includes(w)).length;
+ const nameHits=tokens.filter(w=>name.includes(w)).length;
+ return {hits,nameHits,score:hits+nameHits*2};
+}
 async function searchMealDbFallback(query,servings,category){
- const terms=[query,query.split(/\s+/).filter(w=>w.length>3).slice(0,2).join(" ")].filter(Boolean);
- const found=[];
- for(const term of [...new Set(terms)]){
+ const terms=recipeSearchTerms(query),found=new Map();
+ for(const term of terms){
   try{
    const url="https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term);
-   const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.1 recipe lookup"},signal:AbortSignal.timeout(6500)});
+   const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.2 recipe lookup"},signal:AbortSignal.timeout(6500)});
    if(!response.ok)continue;
    const data=await response.json();
-   for(const meal of data.meals||[])if(!found.some(x=>x.idMeal===meal.idMeal))found.push(meal);
-   if(found.length>=2)break;
+   for(const meal of data.meals||[])if(meal?.idMeal)found.set(String(meal.idMeal),meal);
+   if(found.size>=12)break;
   }catch{}
  }
- return found.slice(0,2).map((meal,index)=>{
+ const ranked=[...found.values()].map(meal=>({meal,...scoreMealDbResult(meal,query,terms)}))
+  .filter(x=>x.hits>0).sort((a,b)=>b.score-a.score||a.meal.strMeal.localeCompare(b.meal.strMeal));
+ return ranked.slice(0,2).map(({meal},index)=>{
   const ingredients=[];
   for(let i=1;i<=20;i++){const name=String(meal["strIngredient"+i]||"").trim(),measure=String(meal["strMeasure"+i]||"").trim();if(name)ingredients.push([name.slice(0,90),measure.slice(0,70)||"To taste",0,0,0,0])}
   const steps=String(meal.strInstructions||"").replace(/\r/g,"").split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>x.length>12).slice(0,14);
