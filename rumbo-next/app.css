@@ -321,3 +321,31 @@ body[data-rumbo-theme="day"] #toast{background:#e8f5f6;color:#173b4b;border-colo
 @media(max-width:850px){.rumbo-scene-controls{order:3;width:100%;justify-content:flex-start}.top-actions{justify-content:flex-end}.rumbo-scene-controls select{max-width:145px}}
 @media(max-width:650px){.rumbo-scene-bg svg{height:34vh;min-height:210px;opacity:.8}.rumbo-scene-controls{gap:4px}.rumbo-scene-controls label{flex:1;justify-content:space-between}.rumbo-scene-controls select{max-width:125px;font-size:9px}main{background:transparent}}
 @media(prefers-reduced-motion:no-preference){.rumbo-scene-bg svg{transition:opacity .5s ease,filter .5s ease}}
+
+/* RUMBO architectural relief: the country landmark is part of the interface */
+.rumbo-scene-bg{z-index:0;opacity:.27}
+.rumbo-scene-bg .rumbo-scene-horizon{position:absolute;left:0;right:0;bottom:0;width:100%;height:min(43vh,390px);min-height:230px;opacity:.68}
+.rumbo-scene-bg .rumbo-scene-landmark{position:absolute;top:10vh;right:-4vw;left:auto;bottom:auto;width:min(72vw,940px);height:78vh;min-height:540px;opacity:.19;filter:drop-shadow(0 0 18px rgba(72,207,214,.10))}
+.rumbo-scene-bg .rumbo-scene-landmark g{stroke-width:4}
+.app{z-index:1}
+.panel,.aviation-stat-card,.aircraft-card,.family-calendar-panel,.family-calendar-wrap,.callout,.dash-day,.family-detail-card{
+ background:linear-gradient(145deg,rgba(17,45,63,.76),rgba(8,28,43,.72));
+ backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)
+}
+.panel{border-color:rgba(88,155,174,.38);box-shadow:0 12px 30px rgba(0,0,0,.10)}
+.panel h2,.panel .stat-label{position:relative}
+body[data-rumbo-theme="day"] .rumbo-scene-bg{opacity:.30}
+body[data-rumbo-theme="day"] .rumbo-scene-bg .rumbo-scene-landmark{opacity:.13}
+body[data-rumbo-theme="day"] .panel,body[data-rumbo-theme="day"] .aviation-stat-card,body[data-rumbo-theme="day"] .aircraft-card,body[data-rumbo-theme="day"] .family-calendar-panel,body[data-rumbo-theme="day"] .family-calendar-wrap,body[data-rumbo-theme="day"] .callout,body[data-rumbo-theme="day"] .dash-day,body[data-rumbo-theme="day"] .family-detail-card{
+ background:linear-gradient(145deg,rgba(247,252,252,.79),rgba(220,238,242,.76));
+ backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)
+}
+@media(max-width:850px){
+ .rumbo-scene-bg .rumbo-scene-landmark{top:17vh;right:-18vw;width:112vw;height:62vh;min-height:400px;opacity:.14}
+ .rumbo-scene-bg .rumbo-scene-horizon{height:34vh;min-height:200px}
+}
+@media(max-width:650px){
+ .rumbo-scene-bg .rumbo-scene-landmark{top:22vh;right:-28vw;width:132vw;height:56vh;min-height:350px;opacity:.12}
+ .rumbo-scene-bg .rumbo-scene-horizon{height:28vh;min-height:185px;opacity:.55}
+ .panel,.aviation-stat-card,.aircraft-card,.family-calendar-panel,.family-calendar-wrap,.callout,.dash-day,.family-detail-card{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+}
