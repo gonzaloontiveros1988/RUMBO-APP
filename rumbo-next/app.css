@@ -256,3 +256,17 @@
 .event-standby{border-color:#f0b35b!important}.event-training{border-color:#a99af2!important}.event-off{border-color:#58c69b!important}.event-leave{border-color:#e68176!important}
 .world-map-command .leaflet-tile{max-width:none!important}
 .world-map-command .leaflet-container img{max-width:none!important}
+
+
+/* Selected-day details float above the calendar; school remains in the lower panel */
+.family-calendar-panel{position:relative}
+.family-day-popover{position:absolute;z-index:12;top:112px;right:28px;width:min(340px,calc(100% - 36px));max-height:min(390px,70vh);overflow:auto;padding:14px;background:linear-gradient(145deg,#17384b,#0b2030);border:1px solid #477083;border-radius:13px;box-shadow:0 16px 42px rgba(0,0,0,.48);backdrop-filter:blur(12px)}
+.family-day-popover-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid #315366}
+.family-day-popover-head b{display:block;font-size:15px;margin-top:4px}
+.family-popover-close{width:30px;height:30px;flex:none;border:1px solid #45697a;border-radius:8px;background:#0b2637;color:#eaf4f7;font-size:21px;line-height:1;cursor:pointer}
+.family-day-popover .family-detail-row{padding:8px;margin:6px 0;gap:8px}
+.family-day-popover .family-detail-row>small{width:82px;font-size:7px}
+.family-day-popover .family-detail-row b{font-size:10px}
+.family-day-popover .family-detail-row span{font-size:8px;line-height:1.4}
+.family-day-popover .empty{padding:14px 6px;font-size:9px}
+@media(max-width:700px){.family-day-popover{top:106px;right:10px;width:min(300px,calc(100% - 20px));max-height:55vh;padding:11px}.family-day-popover .family-detail-row>small{width:72px}}
