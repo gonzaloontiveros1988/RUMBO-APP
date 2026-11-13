@@ -10,7 +10,7 @@ const KEY="rumbo3_local_v1";let state=load();let active="home";let pendingPdf=nu
 const VISUAL_KEY="rumbo_visual_preferences_v1";
 const visualPrefs=(()=>{try{return {...{country:"auto",light:"auto"},...JSON.parse(localStorage.getItem(VISUAL_KEY)||"{}")}}catch{return {country:"auto",light:"auto"}}})();
 const timezoneCountries={"Asia/Qatar":"QA","Asia/Riyadh":"QA","Asia/Bahrain":"QA","Asia/Kuwait":"QA","Asia/Muscat":"AE","Asia/Dubai":"AE","Asia/Abu_Dhabi":"AE","Europe/Madrid":"ES","Atlantic/Canary":"ES","Europe/Paris":"FR","Europe/London":"GB","Europe/Belfast":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Chicago":"US","America/Denver":"US","Asia/Tokyo":"JP","Asia/Singapore":"SG","Europe/Istanbul":"TR","Europe/Rome":"IT","Europe/Berlin":"DE"};
-const sceneNames={QA:"DOHA · QATAR",AE:"UNITED ARAB EMIRATES",ES:"SPAIN",FR:"FRANCE",GB:"UNITED KINGDOM",US:"UNITED STATES",JP:"JAPAN",SG:"SINGAPORE",TR:"TÜRKIYE",IT:"ITALY",DE:"GERMANY"};
+const sceneNames={QA:"DOHA · WEST BAY",AE:"DUBAI · BURJ KHALIFA",ES:"MADRID · ROYAL PALACE",FR:"PARIS · EIFFEL TOWER",GB:"LONDON · TOWER BRIDGE",US:"NEW YORK · MANHATTAN",JP:"TOKYO · TOKYO TOWER",SG:"SINGAPORE · MARINA BAY",TR:"ISTANBUL · BOSPHORUS",IT:"ROME · COLOSSEUM",DE:"BERLIN · BRANDENBURG GATE"};
 function localCountry(){return timezoneCountries[Intl.DateTimeFormat().resolvedOptions().timeZone]||"QA"}
 function sceneSvgVector(country,day){
  const night=!day,skyTop=day?"#a8d9e8":"#071a30",skyBottom=day?"#f4d8b0":"#183c58";
