@@ -414,3 +414,24 @@ body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(242,2
  repeating-linear-gradient(90deg,transparent 0 5%,rgba(255,186,104,.20) 5.2% 5.8%,transparent 6.2% 11%)}
 .rumbo-photo-scene.is-night.has-native-night .rumbo-photo-horizon{background:linear-gradient(180deg,transparent,rgba(8,30,55,.12),rgba(5,19,39,.3))}
 .rumbo-photo-scene.is-night .rumbo-photo-caption small{opacity:.86}
+
+
+/* RUMBO dashboard hierarchy: keep the world map first and dominant, with a lighter footprint. */
+.world-map-command{height:clamp(320px,40vw,470px);min-height:320px;border-radius:15px;border:1px solid rgba(102,190,204,.42);box-shadow:0 16px 38px rgba(2,18,30,.16),inset 0 0 0 1px rgba(255,255,255,.08)}
+.world-map-command .leaflet-container{border-radius:14px}
+.world-map-command .leaflet-tile{filter:saturate(.88) contrast(1.02)}
+.world-map-command .leaflet-control-zoom{border:1px solid rgba(28,74,92,.4)!important;box-shadow:0 5px 16px rgba(0,0,0,.18)!important}
+.world-map-command .leaflet-control-zoom a{background:rgba(9,38,55,.92)!important;color:#e8fbff!important;border-color:rgba(130,194,205,.28)!important}
+.world-map-command .leaflet-control-attribution{background:rgba(240,249,250,.72)!important;backdrop-filter:blur(5px)}
+.world-map-command .routes path{stroke-width:2.6;stroke-opacity:.82;filter:drop-shadow(0 1px 2px rgba(15,72,84,.22))}
+.world-map-command .airports circle{stroke-width:3}
+.panel{background:linear-gradient(135deg,rgba(10,34,51,.40),rgba(8,27,43,.30));backdrop-filter:blur(7px) saturate(1.16);-webkit-backdrop-filter:blur(7px) saturate(1.16);box-shadow:0 12px 34px rgba(0,0,0,.10)}
+body[data-rumbo-theme="day"] .panel{background:linear-gradient(135deg,rgba(245,252,253,.70),rgba(224,242,245,.60));backdrop-filter:blur(7px) saturate(1.14);-webkit-backdrop-filter:blur(7px) saturate(1.14);box-shadow:0 8px 24px rgba(49,91,105,.045)}
+body[data-rumbo-theme="night"] .panel{background:linear-gradient(135deg,rgba(8,30,47,.43),rgba(7,24,39,.34));backdrop-filter:blur(7px) saturate(1.14);-webkit-backdrop-filter:blur(7px) saturate(1.14)}
+.rumbo-scene-bg{opacity:.46}
+body[data-rumbo-theme="day"] .rumbo-scene-bg{opacity:.34}
+@media(max-width:700px){
+ .world-map-command{height:clamp(280px,68vw,390px);min-height:280px}
+ .panel{backdrop-filter:blur(6px) saturate(1.12);-webkit-backdrop-filter:blur(6px) saturate(1.12)}
+ body[data-rumbo-theme="day"] .panel{backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1)}
+}
