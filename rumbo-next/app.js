@@ -3,7 +3,7 @@ import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAs
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats} from "./training-intelligence.js";
 import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.js";
 import {parseWaderCsv} from "./wader-import.js";
-import {cityCatalogue} from "./city-scenes.js";
+import {cityCatalogue,cityForAirport} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
@@ -95,7 +95,7 @@ function applyRumboScene(){
  const bg=document.getElementById("rumbo-scene-bg");if(bg){bg.innerHTML=sceneSvg(country,light==="day");bg.setAttribute("aria-label",sceneNames[country]||"Country skyline");const landmark=bg.querySelector(".rumbo-scene-landmark"),overlay=document.getElementById("rumbo-scene-overlay");if(overlay&&landmark){overlay.innerHTML=landmark.outerHTML;landmark.remove()}}
  const countrySelect=document.getElementById("rumboCountry"),lightSelect=document.getElementById("rumboLightMode"),citySelect=document.getElementById("rumboCity");
  if(countrySelect)countrySelect.value=visualPrefs.country;if(lightSelect)lightSelect.value=visualPrefs.light;
- if(citySelect){const selected=localStorage.getItem(CITY_KEY)||"auto";citySelect.value=selected;loadCityScene(selected==="auto"?"Doha":selected,light==="day")}
+ if(citySelect){const selected=localStorage.getItem(CITY_KEY)||"auto";citySelect.value=selected;const latest=(state.logbook||[]).filter(x=>x.date&&x.to).sort((a,b)=>b.date.localeCompare(a.date))[0],lastCity=latest?cityForAirport(latest.to)?.[0]:null;loadCityScene(selected==="auto"?(lastCity||"Doha"):selected,light==="day")}
  document.documentElement.style.colorScheme=light==="day"?"light":"dark";
 }
 async function loadCityScene(city,day){
@@ -107,7 +107,7 @@ async function loadCityScene(city,day){
 }
 function initRumboScene(){
  const country=document.getElementById("rumboCountry"),light=document.getElementById("rumboLightMode"),city=document.getElementById("rumboCity");
- if(city){const entries=cityCatalogue();city.innerHTML='<option value="auto">Auto · Doha</option>'+entries.map(x=>'<option value="'+x.city.replace(/"/g,"&quot;")+'">'+x.city+' · '+x.country+'</option>').join("");city.value=localStorage.getItem(CITY_KEY)||"auto";city.onchange=()=>{localStorage.setItem(CITY_KEY,city.value);applyRumboScene()}}
+ if(city){const entries=cityCatalogue();city.innerHTML='<option value="auto">Auto · last destination</option>'+entries.map(x=>'<option value="'+x.city.replace(/"/g,"&quot;")+'">'+x.city+' · '+x.country+'</option>').join("");city.value=localStorage.getItem(CITY_KEY)||"auto";city.onchange=()=>{localStorage.setItem(CITY_KEY,city.value);applyRumboScene()}}
  if(country)country.onchange=()=>{visualPrefs.country=country.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
  if(light)light.onchange=()=>{visualPrefs.light=light.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
  applyRumboScene();setInterval(()=>{if(visualPrefs.light==="auto"||visualPrefs.country==="auto")applyRumboScene()},60000);
