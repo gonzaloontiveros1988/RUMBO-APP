@@ -7,6 +7,42 @@ import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["training","Training Intelligence"],["nutrition","Nutrition & Meals"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
 const KEY="rumbo3_local_v1";let state=load();let active="home";let pendingPdf=null;let flightMapInstance=null;
+const VISUAL_KEY="rumbo_visual_preferences_v1";
+const visualPrefs=(()=>{try{return {...{country:"auto",light:"auto"},...JSON.parse(localStorage.getItem(VISUAL_KEY)||"{}")}}catch{return {country:"auto",light:"auto"}}})();
+const timezoneCountries={"Asia/Qatar":"QA","Asia/Dubai":"AE","Asia/Abu_Dhabi":"AE","Europe/Madrid":"ES","Atlantic/Canary":"ES","Europe/Paris":"FR","Europe/London":"GB","Europe/Belfast":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Chicago":"US","America/Denver":"US","Asia/Tokyo":"JP","Asia/Singapore":"SG","Europe/Istanbul":"TR","Europe/Rome":"IT","Europe/Berlin":"DE"};
+const sceneNames={QA:"DOHA · QATAR",AE:"UNITED ARAB EMIRATES",ES:"SPAIN",FR:"FRANCE",GB:"UNITED KINGDOM",US:"UNITED STATES",JP:"JAPAN",SG:"SINGAPORE",TR:"TÜRKIYE",IT:"ITALY",DE:"GERMANY"};
+function localCountry(){return timezoneCountries[Intl.DateTimeFormat().resolvedOptions().timeZone]||"QA"}
+function sceneSvg(country,day){
+ const ink=day?"#247f91":"#58cbd2",fill=day?"#7fb7c3":"#173d50",soft=day?"#ffffff":"#b8e8e8";
+ let skyline="";
+ if(country==="QA")skyline='<path d="M0 300V255h35v-20h18v20h15v-58h16v-32h8v32h10v58h18v-82h12v-40h8v40h10v82h18v-105h9v-30h7v30h9v105h18v-70h12v-44h8v44h12v70h16v-128h10v-32h8v32h12v128h16v-83h12v-53h8v53h14v83h18v-65h15v-35h8v35h14v65h20v-45h22v45h20v-80h12v-25h7v25h10v80h20v-50h15v-25h8v25h12v50h25v-35h30v35h30v-22h40v22h50v70H0Z"/><path d="M540 300V210q0-48 34-78q34 30 34 78v90M572 133v-28m-8 0h16" fill="none" stroke="'+ink+'" stroke-width="3"/>';
+ else if(country==="AE")skyline='<path d="M0 300V255h60v-40h16v40h24v-65h15v65h20v-92h12v92h20v-120h10v120h18v-190h8l12 190h24v-105h12v105h18v-72h12v72h24v-130h12v130h22v-90h12v90h25v-60h18v60h25v-35h40v35h50v70H0Z"/>';
+ else if(country==="ES")skyline='<path d="M0 300V250h65v-40h12v40h25v-90h18v90h20v-55h18v55h18v-90h12v-25h10v25h12v90h20v-120h12v120h18v-60h20v60h25v-90h18v90h20v-48h20v48h25v-35h55v35h60v70H0Z"/><path d="M185 180l18-35 18 35m-18-35v-22m-10 0h20" fill="none" stroke="'+ink+'" stroke-width="3"/>';
+ else if(country==="FR")skyline='<path d="M0 300V250h100v-30h35v30h35v-65h18v65h35v-90h12v90h30v-55h15v55h25v-75h14v75h25v-42h18v42h35v-65h15v65h50v70H0Z"/><path d="M160 250l22-145 22 145m-33-55h22m-18-35h14m-12-30h10" fill="none" stroke="'+ink+'" stroke-width="4"/>';
+ else if(country==="GB")skyline='<path d="M0 300V250h90v-50h22v50h25v-95h18v95h24v-115h12v115h20v-80h15v80h22v-100h16v100h25v-60h18v60h25v-90h18v90h25v-40h50v40h70v70H0Z"/><path d="M180 250V115h28v135m-28-105h28m-14-30v-20m-10 0h20" fill="none" stroke="'+ink+'" stroke-width="3"/>';
+ else if(country==="JP")skyline='<path d="M0 300V255h85v-45h18v45h30v-70h18v70h25v-105h18v105h25v-65h18v65h25v-95h18v95h25v-55h18v55h30v-75h20v75h25v-45h50v45h80v70H0Z"/><path d="M35 210l75-80 75 80m-120 0h90M80 165q30-20 60 0" fill="none" stroke="'+ink+'" stroke-width="4"/>';
+ else skyline='<path d="M0 300V250h55v-45h18v45h22v-75h18v75h22v-105h16v105h22v-65h18v65h22v-135h16v135h25v-90h18v90h22v-115h18v115h22v-70h18v70h25v-100h18v100h25v-55h55v55h60v70H0Z"/>';
+ return '<svg viewBox="0 0 900 360" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sceneFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ink+'" stop-opacity=".02"/><stop offset="1" stop-color="'+ink+'" stop-opacity=".24"/></linearGradient></defs><circle cx="720" cy="95" r="46" fill="'+soft+'" opacity=".14"/><path d="M0 235Q180 205 330 235T650 225T900 230V360H0Z" fill="url(#sceneFade)"/><g fill="'+fill+'" opacity=".7">'+skyline+'</g><path d="M0 302Q220 290 420 304T900 296" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/><text x="34" y="335" fill="'+ink+'" font-family="monospace" font-size="13" letter-spacing="4" opacity=".65">'+(sceneNames[country]||"RUMBO · WORLD")+'</text></svg>';
+}
+function applyRumboScene(){
+ const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
+ const hour=Number(new Intl.DateTimeFormat("en-GB",{hour:"2-digit",hourCycle:"h23"}).format(new Date()));
+ const country=visualPrefs.country==="auto"?localCountry():visualPrefs.country;
+ const light=visualPrefs.light==="auto"?(hour>=6&&hour<18?"day":"night"):visualPrefs.light;
+ document.body.dataset.rumboTheme=light;document.body.dataset.rumboCountry=country;
+ const bg=document.getElementById("rumbo-scene-bg");if(bg){bg.innerHTML=sceneSvg(country,light==="day");bg.setAttribute("aria-label",sceneNames[country]||"Country skyline");}
+ const countrySelect=document.getElementById("rumboCountry"),lightSelect=document.getElementById("rumboLightMode");
+ if(countrySelect)countrySelect.value=visualPrefs.country;if(lightSelect)lightSelect.value=visualPrefs.light;
+ document.documentElement.style.colorScheme=light==="day"?"light":"dark";
+}
+function initRumboScene(){
+ const country=document.getElementById("rumboCountry"),light=document.getElementById("rumboLightMode");
+ if(country)country.onchange=()=>{visualPrefs.country=country.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
+ if(light)light.onchange=()=>{visualPrefs.light=light.value;localStorage.setItem(VISUAL_KEY,JSON.stringify(visualPrefs));applyRumboScene()};
+ applyRumboScene();setInterval(()=>{if(visualPrefs.light==="auto"||visualPrefs.country==="auto")applyRumboScene()},60000);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRumboScene()});
+}
+
 function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[]}}
 function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","logbook","recommendations","mealPlan","pantry","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes"])if(!Array.isArray(next[key]))next[key]=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
@@ -394,6 +430,6 @@ $("#backupInput").addEventListener("change",async e=>{
 $("#exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify({schema:"rumbo3-local-v1",exportedAt:new Date().toISOString(),state},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rumbo-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Copia local exportada.")};
 function showStartupError(message){const host=$("#view");if(host){host.innerHTML="<section class=\"panel\"><div class=\"kicker\">RUMBO RECOVERY</div><h1>RUMBO no ha podido cargar esta pantalla</h1><p>Se ha detectado un error y se ha evitado dejar la aplicación en blanco.</p><pre id=\"rumboStartupError\" style=\"white-space:pre-wrap;color:#f3b6a5\"></pre><button class=\"btn primary\" id=\"rumboReload\">Recargar</button></section>";$("#rumboStartupError").textContent=message;$("#rumboReload").onclick=()=>location.reload()}}
 window.addEventListener("error",e=>showStartupError((e.message||"Error JavaScript")+"\nArchivo: "+(e.filename||"no indicado")+"\nLínea: "+(e.lineno||"?")+" · Columna: "+(e.colno||"?")));window.addEventListener("unhandledrejection",e=>showStartupError(e.reason?.stack||e.reason?.message||String(e.reason||"Error al cargar un módulo")));
-$("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});try{render()}catch(err){console.error(err);showStartupError(err?.stack||err?.message||String(err))}
+$("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});initRumboScene();try{render()}catch(err){console.error(err);showStartupError(err?.stack||err?.message||String(err))}
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
