@@ -19,12 +19,15 @@ export function nutritionTargets(profile={}){const weight=Number(profile.weightK
 export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
  const start=new Date(startDate+"T12:00:00"),week=[],pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
  const breakfasts=recipes.filter(r=>r.category==="Breakfast"),lunches=recipes.filter(r=>r.category==="Lunch"),dinners=recipes.filter(r=>r.category==="Dinner");
- const pick=(list,index)=>list[index%list.length];
+ const pick=(list,index)=>list.length?list[((index%list.length)+list.length)%list.length]:null;
  for(let i=0;i<7;i++){
-  const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),raw=duties.map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
-  const flight=/FLIGHT|DUTY|\b\\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length),off=/\b(OFF|DOFF|REST)\b/.test(raw),standby=/PSBY|STANDBY|SBY/.test(raw),training=/GRND|TRAINING|SIM|TRNG/.test(raw);
-  const slots=[["Breakfast",pick(breakfasts,i)], [flight?"Packed lunch":off?"Comida familiar":"Lunch",pick(lunches,i+(flight?1:0))], [off?"Cena familiar":"Dinner",pick(dinners,i+2)]];
-  for(const [slot,r] of slots){week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · día de vuelo, comida portable y fácil de transportar":standby?"Standby day · imaginaria y horarios flexibles":training?"Training duty day · día de entrenamiento, preparación sencilla":off?"Roster OFF · día libre, menú mediterráneo familiar":"Plan mediterráneo · adaptable a tu jornada",status:"suggested"})}
+  const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),raw=duties.map(x=>[x.code,x.kind,x.status,x.type].join(" ")).join(" ").toUpperCase();
+  const flight=/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length||x.flightNumbers?.length);
+  const off=/\b(OFF|DOFF|REST|DAY OFF)\b/.test(raw),standby=/PSBY|STANDBY|STAND-BY|SBY/.test(raw),training=/GRND|GROUND|TRAINING|SIM|TRNG/.test(raw);
+  let breakfast=pick(breakfasts,i),lunch=pick(lunches,i+(flight?2:0)),dinner=pick(dinners,i+1);
+  if(flight)lunch=pick(lunches,i+3);
+  const slots=[["Breakfast",breakfast],[flight?"Packed lunch":off?"Comida familiar":"Lunch",lunch],[off?"Cena familiar":"Dinner",dinner]];
+  for(const [slot,r] of slots){if(!r)continue;week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Día de vuelo · comida portable":standby?"Día de standby · horarios flexibles":training?"Día de formación · preparación sencilla":off?"Día libre · menú mediterráneo familiar":"Menú mediterráneo · adaptable a tu jornada",status:"suggested"})}
  }
  return week;
 }
