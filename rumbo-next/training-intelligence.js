@@ -33,3 +33,22 @@ export function workoutStats(workouts){
  for(const w of workouts)types[w.type]=(types[w.type]||0)+1;
  return {total,minutes,hours:Number((minutes/60).toFixed(1)),types};
 }
+
+export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
+ const start=startDate||new Date().toISOString().slice(0,10),out=[],history=(workouts||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+ const recentTypes=history.slice(0,4).map(x=>x.type),lastDate=history[0]?.date;
+ const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ for(let i=0;i<14;i++){
+  const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date);
+  if(dayDuties.length)continue;
+  const prev=dayDuties.length>0,logged=history.find(x=>x.date===date);if(logged)continue;
+  const daysSince=lastDate?Math.floor((new Date(date+"T12:00:00")-new Date(lastDate+"T12:00:00"))/86400000):99;
+  let id="hotel-20",reason="Light mobility option; confirm sleep, fatigue and readiness before starting.";
+  if(daysSince>=2&&!recentTypes.slice(0,2).includes("Strength")&&profile.goal==="strength"){id="strength-a";reason="Strength candidate after a gap in logged sessions; adjust load to current readiness."}
+  else if(daysSince>=2&&!recentTypes.slice(0,2).includes("Cardio")&&profile.goal==="cardio"){id="cardio-30";reason="Easy aerobic candidate; keep effort conversational and adjust to recovery."}
+  else if(daysSince>=2&&i%3===1){id="hotel-25";reason="Short bodyweight option; reduce or skip if recovery is incomplete."}
+  const routine=ROUTINES.find(x=>x.id===id);
+  out.push({date,routineId:id,title:routine.name,minutes:routine.minutes,type:routine.type,status:"candidate",reason,readinessRequired:true});
+ }
+ return out;
+}
