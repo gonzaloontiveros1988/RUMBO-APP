@@ -1,7 +1,9 @@
 const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
 const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app"]);
-\nconst buckets = new Map();\nfunction limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
+
+const buckets = new Map();
+function limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
 function send(res,status,body){res.setHeader("Content-Type","application/json; charset=utf-8");res.setHeader("Cache-Control","no-store");return res.status(status).json(body)}
 function clean(s=""){return String(s).replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#x27;|&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s+/g," ").trim()}
 function decodeRedirect(href){try{const u=new URL(href,"https://duckduckgo.com");return u.searchParams.get("uddg")||u.href}catch{return href}}
@@ -17,7 +19,7 @@ async function fetchRecipePage(url){
  try{
   const r=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 (compatible; RUMBORecipeAssistant/1.0)"},signal:AbortSignal.timeout(6500)});
   if(!r.ok)return null;const html=(await r.text()).slice(0,900000),scripts=[...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-  for(const match of scripts){try{const data=JSON.parse(match[1].replace(/<!--|-->/g,""));const nodes=[];const walk=x=>{if(Array.isArray(x))x.forEach(walk);else if(x&&typeof x==="object"){if(String(x["@type"]||"").toLowerCase().includes("recipe"))nodes.push(x);Object.values(x).forEach(walk)}};walk(data);if(nodes.length){const x=nodes[0],instructions=(x.recipeInstructions||[]).map(v=>typeof v==="string"?v:(v.text||v.name||"")).filter(Boolean);return {name:x.name||"",ingredients:x.recipeIngredient||[],instructions,prepTime:x.prepTime||"",cookTime:x.cookTime||"",yield:x.recipeYield||""}}}catch{}}
+  for(const match of scripts){try{const data=JSON.parse(match[1].replace(/<!--|-->/g,""));const nodes=[];const walk=x=>{if(Array.isArray(x))x.forEach(walk);else if(x&&typeof x==="object"){if(String(x["@type"]||"").toLowerCase().includes("recipe"))nodes.push(x);Object.values(x).forEach(walk)}};walk(data);if(nodes.length){const x=nodes[0],instructions=(x.recipeInstructions||[]).map(v=>typeof v==="string"?v:(v.text||v.name||"")).filter(Boolean);return {name:x.name||"",ingredients:x.recipeIngredient||[],instructions,image:Array.isArray(x.image)?(x.image[0]?.url||x.image[0]||""):(typeof x.image==="object"?(x.image.url||x.image["@id"]||""):x.image||""),prepTime:x.prepTime||"",cookTime:x.cookTime||"",yield:x.recipeYield||""}}}catch{}}
   return null;
  }catch{return null}
 }
@@ -48,7 +50,8 @@ module.exports = async function handler(req,res){
  if(req.method!=="POST")return send(res,405,{error:"Método no permitido."});
  if(origin&&!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});
  if(origin){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin")}
- const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});\n const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
+ const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});
+ const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
  const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch";
  if(query.length<3)return send(res,400,{error:"Escribe qué plato o ingrediente quieres buscar."});
  if(!process.env.VERCEL_OIDC_TOKEN)return send(res,503,{error:"La autenticación de RUMBO AI no está disponible en este despliegue."});
