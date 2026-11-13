@@ -176,3 +176,30 @@ test("load progression holds under high effort and suggests a small increase aft
  const controlled=[{date:"2026-11-02",exercises:[{exerciseId:"bench-press",sets:3,reps:12,weight:60,rpe:7}]}];
  assert.equal(suggestNextLoad(controlled,"bench-press").status,"increase");
 });
+
+import {recipeNutrition,shoppingFromMeals,makeMealWeek} from "../rumbo-next/life-intelligence.js";
+test("recipe nutrition flags provider fallback values as unavailable instead of presenting zero macros",()=>{
+ const result=recipeNutrition({servings:2,ingredients:[["Chicken","100 g",0,0,0,0]]});
+ assert.equal(result.nutritionAvailable,false);
+ assert.equal(result.perServing.kcal,0);
+});
+test("shopping list matches pantry items by ingredient token despite accents or plural",()=>{
+ const items=shoppingFromMeals([{recipeId:"pan-tomate"}],undefined,[{name:"Tomates",qty:"2"}]);
+ assert.ok(!items.some(x=>x.name==="Tomate maduro"));
+});
+test("meal planner prioritises recipes that use ingredients already in the pantry",()=>{
+ const recipes=[
+  {id:"a",name:"A",category:"Breakfast",minutes:5,servings:1,ingredients:[["Avena","50 g",0,0,0,0]],steps:["Mix","Serve"]},
+  {id:"b",name:"B",category:"Breakfast",minutes:5,servings:1,ingredients:[["Huevos","2",0,0,0,0]],steps:["Cook","Serve"]},
+  {id:"c",name:"C",category:"Lunch",minutes:5,servings:1,ingredients:[["Arroz","50 g",0,0,0,0]],steps:["Cook","Serve"]},
+  {id:"d",name:"D",category:"Dinner",minutes:5,servings:1,ingredients:[["Tomate","1",0,0,0,0]],steps:["Cook","Serve"]}
+ ];
+ const plan=makeMealWeek("2026-11-01",[],recipes,{pantry:[{name:"Huevos"},{name:"Arroz"},{name:"Tomate"}]});
+ assert.equal(plan.find(x=>x.slot==="Breakfast").recipeId,"b");
+ assert.equal(plan.find(x=>x.slot==="Lunch").recipeId,"c");
+ assert.equal(plan.find(x=>x.slot==="Dinner").recipeId,"d");
+});
+test("adaptive training recognises QR flight numbers on the previous day",()=>{
+ const plan=adaptiveTrainingPlan([{date:"2026-11-09",code:"QR123"}],[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:7},"2026-11-10");
+ assert.equal(plan[0].routineId,"mobility-15");
+});
