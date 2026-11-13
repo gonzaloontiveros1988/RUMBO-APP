@@ -14,15 +14,36 @@ const sceneNames={QA:"DOHA · QATAR",AE:"UNITED ARAB EMIRATES",ES:"SPAIN",FR:"FR
 function localCountry(){return timezoneCountries[Intl.DateTimeFormat().resolvedOptions().timeZone]||"QA"}
 function sceneSvg(country,day){
  const ink=day?"#247f91":"#58cbd2",fill=day?"#7fb7c3":"#173d50",soft=day?"#ffffff":"#b8e8e8";
- let skyline="";
- if(country==="QA")skyline='<path d="M0 300V255h35v-20h18v20h15v-58h16v-32h8v32h10v58h18v-82h12v-40h8v40h10v82h18v-105h9v-30h7v30h9v105h18v-70h12v-44h8v44h12v70h16v-128h10v-32h8v32h12v128h16v-83h12v-53h8v53h14v83h18v-65h15v-35h8v35h14v65h20v-45h22v45h20v-80h12v-25h7v25h10v80h20v-50h15v-25h8v25h12v50h25v-35h30v35h30v-22h40v22h50v70H0Z"/><path d="M540 300V210q0-48 34-78q34 30 34 78v90M572 133v-28m-8 0h16" fill="none" stroke="'+ink+'" stroke-width="3"/>';
- else if(country==="AE")skyline='<path d="M0 300V255h60v-40h16v40h24v-65h15v65h20v-92h12v92h20v-120h10v120h18v-190h8l12 190h24v-105h12v105h18v-72h12v72h24v-130h12v130h22v-90h12v90h25v-60h18v60h25v-35h40v35h50v70H0Z"/>';
- else if(country==="ES")skyline='<path d="M0 300V250h65v-40h12v40h25v-90h18v90h20v-55h18v55h18v-90h12v-25h10v25h12v90h20v-120h12v120h18v-60h20v60h25v-90h18v90h20v-48h20v48h25v-35h55v35h60v70H0Z"/><path d="M185 180l18-35 18 35m-18-35v-22m-10 0h20" fill="none" stroke="'+ink+'" stroke-width="3"/>';
- else if(country==="FR")skyline='<path d="M0 300V250h100v-30h35v30h35v-65h18v65h35v-90h12v90h30v-55h15v55h25v-75h14v75h25v-42h18v42h35v-65h15v65h50v70H0Z"/><path d="M160 250l22-145 22 145m-33-55h22m-18-35h14m-12-30h10" fill="none" stroke="'+ink+'" stroke-width="4"/>';
- else if(country==="GB")skyline='<path d="M0 300V250h90v-50h22v50h25v-95h18v95h24v-115h12v115h20v-80h15v80h22v-100h16v100h25v-60h18v60h25v-90h18v90h25v-40h50v40h70v70H0Z"/><path d="M180 250V115h28v135m-28-105h28m-14-30v-20m-10 0h20" fill="none" stroke="'+ink+'" stroke-width="3"/>';
- else if(country==="JP")skyline='<path d="M0 300V255h85v-45h18v45h30v-70h18v70h25v-105h18v105h25v-65h18v65h25v-95h18v95h25v-55h18v55h30v-75h20v75h25v-45h50v45h80v70H0Z"/><path d="M35 210l75-80 75 80m-120 0h90M80 165q30-20 60 0" fill="none" stroke="'+ink+'" stroke-width="4"/>';
- else skyline='<path d="M0 300V250h55v-45h18v45h22v-75h18v75h22v-105h16v105h22v-65h18v65h22v-135h16v135h25v-90h18v90h22v-115h18v115h22v-70h18v70h25v-100h18v100h25v-55h55v55h60v70H0Z"/>';
- return '<svg viewBox="0 0 900 360" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sceneFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ink+'" stop-opacity=".02"/><stop offset="1" stop-color="'+ink+'" stop-opacity=".24"/></linearGradient></defs><circle cx="720" cy="95" r="46" fill="'+soft+'" opacity=".14"/><path d="M0 235Q180 205 330 235T650 225T900 230V360H0Z" fill="url(#sceneFade)"/><g fill="'+fill+'" opacity=".7">'+skyline+'</g><path d="M0 302Q220 290 420 304T900 296" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/><text x="34" y="335" fill="'+ink+'" font-family="monospace" font-size="13" letter-spacing="4" opacity=".65">'+(sceneNames[country]||"RUMBO · WORLD")+'</text></svg>';
+ const horizons={
+  QA:'<path d="M0 300V258h24v-28h18v28h22v-55h15v55h18v-78h12v78h20v-108h12v108h20v-72h12v72h20v-126h10v126h22v-88h13v88h18v-116h12v116h22v-72h15v72h22v-102h12v102h24v-62h18v62h25v-45h20v45h24v-70h14v70h24v-52h18v52h25v-36h38v36h45v70H0Z"/>',
+  AE:'<path d="M0 300V260h55v-42h17v42h25v-65h16v65h20v-96h13v96h20v-125h12v125h19v-185h9l12 185h22v-105h13v105h19v-75h14v75h25v-138h12v138h22v-90h14v90h25v-58h16v58h25v-38h48v38h65v70H0Z"/>',
+  ES:'<path d="M0 300V260h72v-40h18v40h22v-78h18v78h20v-52h17v52h20v-95h13v-27h10v27h12v95h22v-126h12v126h20v-65h20v65h24v-90h16v90h24v-48h20v48h26v-34h58v34h60v70H0Z"/>',
+  FR:'<path d="M0 300V260h90v-35h30v35h28v-70h15v70h24v-105h12v105h20v-60h15v60h25v-82h15v82h25v-48h18v48h28v-65h18v65h34v-42h55v42h80v70H0Z"/>',
+  GB:'<path d="M0 300V260h75v-50h18v50h28v-90h18v90h20v-112h14v112h22v-72h16v72h22v-105h16v105h22v-62h18v62h24v-90h17v90h28v-48h58v48h90v70H0Z"/>',
+  US:'<path d="M0 300V260h65v-62h16v62h26v-100h18v100h24v-145h15v145h20v-82h16v82h20v-185h18v185h20v-125h16v125h24v-160h18v160h24v-95h17v95h24v-65h20v65h30v-45h62v45h80v70H0Z"/>',
+  JP:'<path d="M0 300V260h72v-45h16v45h24v-72h16v72h24v-108h16v108h22v-65h18v65h20v-120h16v120h22v-72h16v72h25v-94h17v94h24v-55h18v55h26v-78h18v78h24v-42h50v42h85v70H0Z"/>',
+  SG:'<path d="M0 300V260h65v-48h18v48h24v-72h18v72h22v-92h15v92h25v-125h16v125h22v-85h15v85h24v-115h16v115h22v-74h16v74h26v-55h20v55h26v-80h18v80h30v-48h50v48h90v70H0Z"/>',
+  TR:'<path d="M0 300V260h75v-45h18v45h22v-70h18v70h25v-92h15v92h22v-65h18v65h24v-105h16v105h22v-74h18v74h22v-94h18v94h25v-58h18v58h26v-42h50v42h90v70H0Z"/>',
+  IT:'<path d="M0 300V260h65v-45h18v45h25v-75h18v75h22v-100h16v100h20v-70h16v70h22v-125h16v125h24v-80h18v80h24v-105h18v105h24v-55h20v55h26v-40h54v40h90v70H0Z"/>',
+  DE:'<path d="M0 300V260h65v-48h18v48h24v-75h16v75h22v-105h16v105h22v-70h18v70h22v-118h16v118h22v-82h18v82h22v-98h16v98h24v-62h18v62h28v-45h60v45h90v70H0Z"/>'
+ };
+ const landmarks={
+  QA:'<g fill="none" stroke="CURRENT" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M330 820C352 650 360 430 405 120C425 245 435 360 452 490C466 600 485 710 510 820"/><path d="M520 820C505 650 490 500 475 350C460 205 470 120 515 70C552 120 565 220 555 330"/><path d="M402 125Q430 82 468 110M475 350Q520 295 555 330"/></g><g fill="none" stroke="CURRENT" stroke-width="3" opacity=".65"><path d="M300 820V650h30v-80h28v250M585 820V610h34v-95h25v305M660 820V700h38v-70h22v190"/></g>',
+  AE:'<path d="M440 850L478 100L515 850M460 510h36m-30-125h28m-23-120h18m-13-110h8M390 850V500h24v350M540 850V420h26v430" fill="none" stroke="CURRENT" stroke-width="5" stroke-linejoin="round"/>',
+  ES:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M300 850V460l35-60 35 60v390M300 510h70M310 570h50M320 630h30M450 850V390l25-45 25 45v460M450 500h50M450 580h50M450 660h50"/><path d="M590 850V520l30-45 30 45v330"/></g>',
+  FR:'<path d="M390 850L500 130L610 850M430 590h140M450 460h100M470 330h60M500 130v-35M360 850h280M465 720h70" fill="none" stroke="CURRENT" stroke-width="6" stroke-linejoin="round"/>',
+  GB:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M390 850V390h120v460M390 470h120M410 390v-55h80v55M430 335v-45h40v45M450 290v-50M430 240h40"/><circle cx="690" cy="650" r="112"/><circle cx="690" cy="650" r="12"/></g>',
+  US:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M280 850V380h70v470M380 850V260h80v590M490 850V170h85v680M610 850V330h75v520M715 850V440h70v410"/><path d="M520 170l12-75 12 75M550 95h-36"/></g>',
+  JP:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M230 850Q450 590 670 850M270 850Q450 650 630 850" /><path d="M450 650L510 520L570 650M490 570h40M500 545h20"/><path d="M720 850V470h30v380M705 470h60M710 530h50"/></g>',
+  SG:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M270 850V430h110v420M395 850V430h110v420M520 850V430h110v420M250 430Q450 350 650 430"/><path d="M245 410Q450 320 655 410M275 390h350"/><path d="M720 850V580m-38 35l38-35 38 35m-76 50l38-50 38 50m-76 55l38-55 38 55"/></g>',
+  TR:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M250 850V610Q250 470 390 470Q530 470 530 610V850M300 610Q390 500 480 610M390 470V430"/><path d="M600 850V390h42v460M590 390h62M610 390v-55h22v55M620 335v-45"/></g>',
+  IT:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M230 850V560Q230 440 350 440Q470 440 470 560V850M270 560v220m65-340v410m70-290v290"/><path d="M560 850V500l80-120 80 120v350M600 500h80M620 460h40M640 380v-65"/></g>',
+  DE:'<g fill="none" stroke="CURRENT" stroke-width="5"><path d="M260 850V520h380v330M260 520l190-100 190 100M300 520v330m75-330v330m75-330v330m75-330v330m75-330v330"/><path d="M700 850V250h42v600M690 250h62M710 250v-65h22v65M720 185v-50"/></g>'
+ };
+ const sceneLabel=sceneNames[country]||"RUMBO · WORLD";
+ const skyline=horizons[country]||horizons.QA;
+ const landmark=(landmarks[country]||landmarks.QA).replaceAll("CURRENT",ink);
+ return '<svg class="rumbo-scene-horizon" viewBox="0 0 900 360" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sceneFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ink+'" stop-opacity=".02"/><stop offset="1" stop-color="'+ink+'" stop-opacity=".24"/></linearGradient></defs><circle cx="720" cy="95" r="46" fill="'+soft+'" opacity=".14"/><path d="M0 235Q180 205 330 235T650 225T900 230V360H0Z" fill="url(#sceneFade)"/><g fill="'+fill+'" opacity=".7">'+skyline+'</g><path d="M0 302Q220 290 420 304T900 296" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/><text x="34" y="335" fill="'+ink+'" font-family="monospace" font-size="13" letter-spacing="4" opacity=".65">'+sceneLabel+'</text></svg><svg class="rumbo-scene-landmark" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><g opacity=".34">'+landmark+'</g></svg>';
 }
 function applyRumboScene(){
  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
