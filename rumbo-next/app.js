@@ -478,7 +478,7 @@ bind("confirmRecipeAdd",()=>{
  if(existing){existing.recipeId=recipe.id;existing.meal=recipe.name;existing.servings=servings;existing.minutes=recipe.minutes;existing.context="Receta elegida por el usuario · "+(recipe.origin==="web"?"fuente web":"RUMBO AI");existing.status="confirmed"}
  else state.mealPlan.push({date,slot,recipeId:recipe.id,meal:recipe.name,servings,minutes:recipe.minutes,context:"Receta elegida por el usuario · "+(recipe.origin==="web"?"fuente web":"RUMBO AI"),status:"confirmed"});
  state.customRecipes=state.customRecipes||[];if(!state.customRecipes.some(x=>x.id===recipe.id))state.customRecipes.push(recipe);
- const norm=s=>String(s||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
+ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
  for(const ingredient of recipe.ingredients||[]){const name=String(ingredient[0]||"").trim(),qty=String(ingredient[1]||"al gusto");if(!name||state.pantry.some(p=>norm(p.name)===norm(name)))continue;const item=state.shopping.find(x=>norm(x.name)===norm(name)&&!x.done);if(item){const parts=String(item.qty||"").split(" + ");if(!parts.includes(qty))item.qty=[item.qty,qty].filter(Boolean).join(" + ")}else state.shopping.push({name,qty,done:false,source:"recipe:"+recipe.id,recipeName:recipe.name})}
  state.selectedRecipeCandidate=null;state.recipeSearchResults=[];save();render();toast("Receta añadida al menú y los ingredientes pendientes a la compra.");
 });
