@@ -613,3 +613,21 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
   body[data-rumbo-theme="day"] .panel { background: rgba(246,251,252,.96); }
   .dash-week-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
 }
+
+@media (max-width: 700px) {
+  body[data-rumbo-theme="day"] .family-calendar-day { background: #edf5f7; color: #15394a; border-color: #bdd3da; }
+  body[data-rumbo-theme="day"] .family-calendar-day>small,
+  body[data-rumbo-theme="day"] .dash-day-date { color: #456879; }
+  body[data-rumbo-theme="day"] .dash-event { color: #173e50; background: #e4f0f3; border-color: #4a9cb3; }
+  body[data-rumbo-theme="day"] .event-school { background: #eee9fb; color: #40356b; border-color: #8d7ac8; }
+  body[data-rumbo-theme="day"] .event-class { background: #e2f4ec; color: #225d4d; border-color: #3c9b7e; }
+  body[data-rumbo-theme="day"] .event-family { background: #fff0dc; color: #754919; border-color: #c58a3d; }
+  body[data-rumbo-theme="day"] .event-reminder { background: #f8e8f3; color: #713d64; border-color: #b66a9f; }
+  body[data-rumbo-theme="day"] .event-holiday { background: #fbe8e4; color: #7b3d36; border-color: #c46d62; }
+  body[data-rumbo-theme="day"] .mobile-nav { background: rgba(244,250,251,.99); }
+  body[data-rumbo-theme="night"] .mobile-nav { background: rgba(5,20,33,.99); border-color: #29485b; }
+  body[data-rumbo-theme="night"] .mobile-nav button { color: #a9bfcb; }
+  body[data-rumbo-theme="night"] .mobile-nav button.active { color: #51d4df; }
+  .recipe-search-notice { overflow-wrap: anywhere; }
+  .recipe-image-missing { min-height: 190px; }
+}
