@@ -498,3 +498,118 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .recipe-review-grid .recipe-image-missing,.recipe-review-grid img{width:100%;height:190px;object-fit:cover;border-radius:12px}
 .recipe-review ul,.recipe-review ol{padding-left:22px;line-height:1.8}
 @media(max-width:900px){.recipe-search-form{grid-template-columns:1fr 1fr}.recipe-search-form input:first-child{grid-column:1/-1}.recipe-search-form button{grid-column:1/-1}.recipe-review-grid{grid-template-columns:1fr}}
+
+
+/* RUMBO 4.1 — mobile-first readability and layout consolidation */
+@media (max-width: 700px) {
+  html, body { min-width: 320px; }
+  body { background: #071a2a; }
+  .rumbo-scene-bg { opacity: .18 !important; }
+  .rumbo-scene-bg .rumbo-scene-horizon { object-position: 62% center; }
+  .app { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+  main { padding: 12px 12px calc(30px + env(safe-area-inset-bottom)); }
+  .topbar { gap: 10px; align-items: flex-start; margin-bottom: 18px; }
+  .top-actions { min-width: 0; max-width: 58%; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .rumbo-scene-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+  .rumbo-scene-controls label { padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; background: rgba(5,24,38,.82); }
+  .rumbo-scene-controls label>span { display: none; }
+  .rumbo-scene-controls select { max-width: 112px; font-size: 10px; }
+  .icon-btn { padding: 8px 10px; }
+  .page-head { gap: 8px; margin-bottom: 16px; }
+  .page-head h1 { font-size: clamp(25px, 7vw, 32px); line-height: 1.12; }
+  .page-head p { font-size: 13px; line-height: 1.5; }
+  .panel, .aviation-stat-card, .aircraft-card, .family-calendar-panel, .family-calendar-wrap,
+  .callout, .dash-day, .family-detail-card {
+    background: rgba(7, 27, 42, .97) !important;
+    border: 1px solid rgba(115, 177, 194, .42);
+    box-shadow: 0 8px 22px rgba(0,0,0,.20);
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  body[data-rumbo-theme="day"] .panel,
+  body[data-rumbo-theme="day"] .aviation-stat-card,
+  body[data-rumbo-theme="day"] .aircraft-card,
+  body[data-rumbo-theme="day"] .family-calendar-panel,
+  body[data-rumbo-theme="day"] .family-calendar-wrap,
+  body[data-rumbo-theme="day"] .callout,
+  body[data-rumbo-theme="day"] .dash-day,
+  body[data-rumbo-theme="day"] .family-detail-card {
+    background: rgba(246, 251, 252, .98) !important;
+    border-color: #a9c8d2;
+    box-shadow: 0 7px 20px rgba(31,74,89,.10);
+  }
+  body[data-rumbo-theme="day"] .panel,
+  body[data-rumbo-theme="day"] .panel h2,
+  body[data-rumbo-theme="day"] .panel b,
+  body[data-rumbo-theme="day"] .panel label,
+  body[data-rumbo-theme="day"] .panel .stat,
+  body[data-rumbo-theme="day"] .dash-day { color: #15394a; }
+  body[data-rumbo-theme="day"] .panel .muted,
+  body[data-rumbo-theme="day"] .panel small,
+  body[data-rumbo-theme="day"] .panel p { color: #496c7b; }
+  body[data-rumbo-theme="night"] .panel,
+  body[data-rumbo-theme="night"] .aviation-stat-card,
+  body[data-rumbo-theme="night"] .aircraft-card { background: rgba(5,20,33,.97) !important; }
+  .grid, .grid.two, .grid.three { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .grid.four { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .panel { padding: 14px; border-radius: 14px; }
+  .panel h2 { font-size: 11px; line-height: 1.4; letter-spacing: 1px; }
+  .panel p, .panel .muted { font-size: 13px; line-height: 1.55; }
+  .form { display: grid; grid-template-columns: minmax(0,1fr); gap: 9px; }
+  .form input, .form select, .form textarea,
+  .recipe-search-form input, .recipe-search-form select {
+    width: 100%; min-width: 0; min-height: 44px; box-sizing: border-box;
+    font-size: 14px; padding: 11px 12px; border-radius: 9px;
+  }
+  .form label { min-width: 0; }
+  .btn, .icon-btn { min-height: 42px; font-size: 12px; }
+  .recipe-search-form { grid-template-columns: minmax(0,1fr); gap: 9px; }
+  .recipe-search-form input:first-child, .recipe-search-form button { grid-column: auto; }
+  .recipe-candidate-grid, .meal-visual-grid, .recipe-visual-grid { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .meal-visual-card>img, .recipe-visual-card>img,
+  .meal-visual-card .recipe-image-missing, .recipe-visual-card .recipe-image-missing {
+    height: 190px; min-height: 190px; object-fit: cover;
+  }
+  .meal-visual-copy, .recipe-visual-copy { padding: 12px; gap: 8px; }
+  .meal-visual-copy>b, .recipe-visual-copy>b { font-size: 14px; }
+  .meal-visual-copy>span, .recipe-visual-copy small { font-size: 12px; line-height: 1.45; }
+  .dash-week-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .dash-day { min-height: 122px; padding: 10px; }
+  .dash-event { font-size: 10px; line-height: 1.4; padding: 7px; }
+  .dash-event small { font-size: 9px; }
+  .family-calendar-weekdays { display: none; }
+  .family-calendar-cells.week-mode { grid-template-columns: minmax(0,1fr); gap: 7px; padding: 8px; }
+  .family-calendar-cells.week-mode .family-calendar-day {
+    min-height: 82px; display: grid; grid-template-columns: 54px minmax(0,1fr);
+    grid-template-rows: auto auto; align-items: center; gap: 4px 10px;
+    padding: 10px; border: 1px solid var(--line); border-radius: 10px;
+  }
+  .family-calendar-cells.week-mode .family-calendar-day .calendar-day-number { grid-row: 1 / span 2; }
+  .family-calendar-cells.week-mode .family-calendar-day>small { font-size: 11px; -webkit-line-clamp: 2; }
+  .family-calendar-cells:not(.week-mode) { grid-template-columns: repeat(7,minmax(0,1fr)); }
+  .family-calendar-cells:not(.week-mode) .family-calendar-day { min-height: 58px; padding: 5px 3px; gap: 3px; }
+  .family-calendar-cells:not(.week-mode) .family-calendar-day>small { display: none; }
+  .family-calendar-cells:not(.week-mode) .calendar-day-number { width: 22px; height: 22px; font-size: 12px; }
+  .family-calendar-actions { width: 100%; justify-content: space-between; gap: 5px; }
+  .family-calendar-actions .btn { padding: 8px 10px; }
+  .calendar-legend { gap: 8px 12px; font-size: 10px; }
+  .family-day-popover { left: 8px; right: 8px; width: auto; }
+  .mobile-nav {
+    display: grid; grid-template-columns: repeat(5,minmax(0,1fr));
+    position: fixed; z-index: 100; bottom: 0; left: 0; right: 0;
+    min-height: 58px; padding: 5px 5px calc(5px + env(safe-area-inset-bottom));
+    background: rgba(244,250,251,.98); border-top: 1px solid #b6d0d8;
+    box-shadow: 0 -6px 22px rgba(7,29,43,.14);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .mobile-nav button { min-width: 0; min-height: 48px; font-size: 10px; line-height: 1.2; padding: 4px 1px; color: #476878; }
+  .mobile-nav button b { font-size: 17px; margin-bottom: 3px; }
+  .mobile-nav button.active { color: #007f91; font-weight: 800; }
+  #toast { left: 12px; right: 12px; bottom: calc(74px + env(safe-area-inset-bottom)); text-align: center; }
+  .world-map-command { min-height: 260px; }
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  .panel { background: rgba(7,27,42,.94); backdrop-filter: blur(8px); }
+  body[data-rumbo-theme="day"] .panel { background: rgba(246,251,252,.96); }
+  .dash-week-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+}
