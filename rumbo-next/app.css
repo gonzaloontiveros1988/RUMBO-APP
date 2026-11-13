@@ -349,3 +349,10 @@ body[data-rumbo-theme="day"] .panel,body[data-rumbo-theme="day"] .aviation-stat-
  .rumbo-scene-bg .rumbo-scene-horizon{height:28vh;min-height:185px;opacity:.55}
  .panel,.aviation-stat-card,.aircraft-card,.family-calendar-panel,.family-calendar-wrap,.callout,.dash-day,.family-detail-card{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
 }
+
+/* Foreground architectural engraving: softly crosses card surfaces */
+.rumbo-scene-overlay{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none;mix-blend-mode:screen;opacity:.12}
+.rumbo-scene-overlay svg{position:absolute;top:10vh;right:-4vw;width:min(72vw,940px);height:78vh;min-height:540px;filter:drop-shadow(0 0 16px rgba(72,207,214,.12))}
+body[data-rumbo-theme="day"] .rumbo-scene-overlay{mix-blend-mode:multiply;opacity:.075}
+@media(max-width:850px){.rumbo-scene-overlay svg{top:17vh;right:-18vw;width:112vw;height:62vh;min-height:400px}}
+@media(max-width:650px){.rumbo-scene-overlay{opacity:.09}.rumbo-scene-overlay svg{top:22vh;right:-28vw;width:132vw;height:56vh;min-height:350px}}
