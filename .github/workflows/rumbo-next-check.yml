@@ -1,0 +1,66 @@
+name: RUMBO 3.0 validation
+on:
+  push:
+    branches:
+      - redesign/rumbo-os-v4
+    paths:
+      - 'rumbo-next/**'
+      - 'tests/**'
+      - '.github/workflows/rumbo-next-check.yml'
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check application JavaScript
+        run: |
+          node --check api/rumbo-ai.js
+          node --check api/recipe-assistant.js
+          node --check rumbo-next/app.js
+          node --check rumbo-next/sw.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('rumbo-next/index.html').read_text()
+          scripts = html.split('<script>', 1)[1:]
+          assert scripts, 'No inline startup script found'
+          scripts[0] = scripts[0].split('</script>', 1)[0]
+          assert scripts, 'No inline startup script found'
+          Path('/tmp/rumbo-inline-startup.js').write_text(scripts[0])
+          PY
+          node --check /tmp/rumbo-inline-startup.js
+          node --check rumbo-next/roster-import.js
+          node --check rumbo-next/qatar-pdf-import.js
+          node --check rumbo-next/monthly-planner.js
+          node --check rumbo-next/flight-intelligence.js
+          node --check rumbo-next/wader-import.js
+          node --check rumbo-next/reminders.js
+          node --check rumbo-next/training-intelligence.js
+          node --check rumbo-next/fitness-engine.js
+          node --check tests/rumbo-core.test.mjs
+          node --test tests/rumbo-core.test.mjs
+          node --check rumbo-next/flight-map.js
+          node --check rumbo-next/life-intelligence.js
+          node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
+      - name: Verify required app files
+        run: |
+          test -s api/rumbo-ai.js
+          test -s rumbo-next/index.html
+          test -s rumbo-next/app.css
+          test -s rumbo-next/app.js
+          test -s rumbo-next/manifest.webmanifest
+          test -s rumbo-next/qatar-pdf-import.js
+          test -s rumbo-next/monthly-planner.js
+          test -s rumbo-next/flight-intelligence.js
+          test -s rumbo-next/wader-import.js
+          test -s rumbo-next/reminders.js
+          test -s rumbo-next/training-intelligence.js
+          test -s rumbo-next/fitness-engine.js
+          test -s rumbo-next/flight-map.js
+          test -s rumbo-next/life-intelligence.js
+          test -s rumbo-next/sw.js
+          test -s tests/rumbo-core.test.mjs

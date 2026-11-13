@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#081522"><meta name="description" content="RUMBO Pilot & Family OS — personal flight and life command center"><meta name="theme-color" content="#071522"><title>RUMBO 3.0 · Pilot & Family OS</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+</head>
+<body><div id="rumbo-scene-bg" class="rumbo-scene-bg" aria-hidden="true"></div><div class="app">
+<aside class="sidebar"><a class="brand" href="#"><span class="brandmark">✈</span><span><b>RUMBO</b><small>PILOT & FAMILY OS</small></span></a><div class="side-label">FLIGHT OPERATIONS</div><nav id="nav"></nav><div class="side-foot"><span class="live-dot"></span> PERSONAL COMMAND CENTER <small>PREVIEW · LOCAL DATA</small></div></aside>
+<main><header class="topbar"><div><div class="eyebrow">PERSONAL FLIGHT & LIFE COMMAND CENTER</div><div id="today" class="date"></div></div><div class="top-actions"><div class="rumbo-scene-controls"><label title="City-specific background"><span>CITY</span><select id="rumboCity"><option value="auto">Auto · Doha</option></select></label><label title="Visual atmosphere"><span>SCENE</span><select id="rumboCountry" aria-label="Country background"><option value="auto">Auto location</option><option value="QA">Qatar</option><option value="AE">UAE</option><option value="ES">Spain</option><option value="FR">France</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="JP">Japan</option><option value="SG">Singapore</option><option value="TR">Türkiye</option><option value="IT">Italy</option><option value="DE">Germany</option></select></label><label title="Day and night appearance"><span>LIGHT</span><select id="rumboLightMode" aria-label="Day or night mode"><option value="auto">Auto</option><option value="day">Day</option><option value="night">Night</option></select></label></div><span class="status">● LOCAL MODE</span><button class="icon-btn" id="importBackupBtn" title="Restaurar copia">↥</button><button class="icon-btn" id="exportBtn" title="Exportar copia">⇩</button></div></header><section id="view"></section></main>
+<nav class="mobile-nav" id="mobileNav"></nav></div><div id="rumbo-scene-overlay" class="rumbo-scene-overlay" aria-hidden="true"></div><input id="fileInput" type="file" accept=".csv,.ics,.txt,.pdf"><input id="backupInput" type="file" accept=".json,application/json"><input id="waderCsvInput" type="file" accept=".csv,text/csv"><div id="toast" role="status"></div><script>
+(function(){
+ function showBootError(message){
+  var view=document.getElementById("view");if(!view)return;
+  view.innerHTML='<section style="margin:24px;padding:24px;border:1px solid #31546a;border-radius:14px;background:#10283a;color:#eaf4ff;font:14px system-ui"><div style="color:#56d9d0;letter-spacing:2px;font-size:11px">RUMBO RECOVERY</div><h2 style="margin:12px 0">No se ha podido iniciar RUMBO</h2><p>La aplicación ha detectado un error al cargar sus módulos. Tus datos locales no se han borrado.</p><pre id="rumboBootDetails" style="white-space:pre-wrap;overflow-wrap:anywhere;color:#ffc7a9"></pre><button id="rumboRepair" style="margin-top:12px;padding:12px 16px;background:#42cbd0;color:#08202e;border:0;border-radius:8px;font-weight:700">Actualizar aplicación</button></section>';
+  document.getElementById("rumboBootDetails").textContent=message;
+  document.getElementById("rumboRepair").onclick=async function(){
+   try{if("serviceWorker" in navigator){var regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(function(r){return r.unregister()}))}
+    if("caches" in window){var keys=await caches.keys();await Promise.all(keys.filter(function(k){return k.indexOf("rumbo-next-shell-")===0}).map(function(k){return caches.delete(k)}))}
+   }catch(e){}
+   location.reload();
+  };
+ }
+ window.addEventListener("error",function(e){var detail=(e.message||"Error de JavaScript")+"\\nArchivo: "+(e.filename||"no indicado")+"\\nLínea: "+(e.lineno||"?")+" · Columna: "+(e.colno||"?");showBootError(detail);console.error("RUMBO startup error",e)});
+ window.addEventListener("unhandledrejection",function(e){var reason=e.reason&&e.reason.stack||String(e.reason||"Error al cargar un módulo");showBootError("Error asíncrono\\n"+reason);console.error("RUMBO startup rejection",e.reason)});
+ window.setTimeout(function(){var nav=document.getElementById("nav"),view=document.getElementById("view");if(nav&&view&&!nav.children.length&&!view.children.length)showBootError("La interfaz no se ha iniciado. Se recomienda actualizar la caché de la aplicación.")},5000);
+})();
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script type="module" src="app.js"></script></body></html>
