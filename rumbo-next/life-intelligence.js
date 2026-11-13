@@ -24,7 +24,7 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
   const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),raw=duties.map(x=>[x.code,x.kind,x.status].join(" ")).join(" ").toUpperCase();
   const flight=/FLIGHT|DUTY|\b\\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length),off=/\b(OFF|DOFF|REST)\b/.test(raw),standby=/PSBY|STANDBY|SBY/.test(raw),training=/GRND|TRAINING|SIM|TRNG/.test(raw);
   const slots=[["Breakfast",pick(breakfasts,i)], [flight?"Packed lunch":off?"Comida familiar":"Lunch",pick(lunches,i+(flight?1:0))], [off?"Cena familiar":"Dinner",pick(dinners,i+2)]];
-  for(const [slot,r] of slots){week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Día de vuelo · comida portable y fácil de transportar":standby?"Día de imaginaria · horarios flexibles":training?"Día de entrenamiento · preparación sencilla":off?"Día libre · menú mediterráneo familiar":"Plan mediterráneo · adaptable a tu jornada",status:"suggested"})}
+  for(const [slot,r] of slots){week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · día de vuelo, comida portable y fácil de transportar":standby?"Standby day · imaginaria y horarios flexibles":training?"Training duty day · día de entrenamiento, preparación sencilla":off?"Roster OFF · día libre, menú mediterráneo familiar":"Plan mediterráneo · adaptable a tu jornada",status:"suggested"})}
  }
  return week;
 }
