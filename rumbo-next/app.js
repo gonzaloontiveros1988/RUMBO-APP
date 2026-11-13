@@ -54,13 +54,13 @@ function sceneSvg(country,day){
  const photos={
   QA:{
    day:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
-   night:"https://images.unsplash.com/photo-1669815007479-494b3b51c2c3?auto=format&fit=crop&w=2400&q=85",
-   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Hongbin · Unsplash",label:"DOHA · WEST BAY"
+   night:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Same viewpoint · night treatment",label:"DOHA · WEST BAY"
   },
   FR:{
    day:"https://images.unsplash.com/photo-1610981109245-c3f748c98ad2?auto=format&fit=crop&w=2400&q=85",
-   night:"https://images.unsplash.com/photo-1768288985713-95ab37b6baed?auto=format&fit=crop&w=2400&q=85",
-   creditDay:"Fabio Fistarol · Unsplash",creditNight:"Danish Prakash · Unsplash",label:"PARIS · TOUR EIFFEL"
+   night:"https://images.unsplash.com/photo-1610981109245-c3f748c98ad2?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Fabio Fistarol · Unsplash",creditNight:"Same viewpoint · night treatment",label:"PARIS · TOUR EIFFEL"
   }
  };
  const p=photos[country];
