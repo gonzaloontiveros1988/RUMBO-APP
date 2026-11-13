@@ -21,4 +21,21 @@ export function mealCostEstimate(items,prices={}){return items.reduce((sum,x)=>s
 export function familyWeek(duties,events,startDate){const start=new Date(startDate+"T12:00:00");return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),duty=duties.filter(x=>x.date===date),dayEvents=events.filter(x=>x.date===date);return {date,duty,events:dayEvents,availability:duty.length?"Roster activity — confirm duty details":"No imported duty — availability unconfirmed"}})}
 const localIsoDate=()=>{const d=new Date(),parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Qatar",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d),v=Object.fromEntries(parts.map(x=>[x.type,x.value]));return v.year+"-"+v.month+"-"+v.day};
 export function financeSummary(expenses){const month=localIsoDate().slice(0,7),items=expenses.filter(x=>x.date?.startsWith(month)),byCurrency={};for(const x of items)(byCurrency[x.currency||"Unspecified"]??=0,byCurrency[x.currency||"Unspecified"]+=Number(x.amount||0));return {month,count:items.length,byCurrency,all:expenses.length}}
-export function buildAssistantContext(state){const duties=state.duties||[],events=state.events||[],workouts=state.workouts||[],expenses=state.expenses||[],meals=state.mealPlan||[];return {duties:duties.length,events:events.length,workouts:workouts.length,expenses:expenses.length,mealSuggestions:meals.length,shoppingOpen:(state.shopping||[]).filter(x=>!x.done).length,nextDuty:duties.filter(x=>x.date>=localIsoDate()).sort((a,b)=>a.date.localeCompare(b.date))[0]||null}}
+export function buildAssistantContext(state){
+ const duties=state.duties||[],events=state.events||[],workouts=state.workouts||[],expenses=state.expenses||[],meals=state.mealPlan||[],logbook=state.logbook||[],today=localIsoDate(),future=(days)=>{const d=new Date(today+"T12:00:00");d.setDate(d.getDate()+days);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const upcomingDuties=duties.filter(x=>x.date>=today&&x.date<=future(45)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,35).map(x=>({date:x.date,code:x.code||x.kind||"",route:x.route||"",time:x.time||"",endTime:x.endTime||"",status:x.status||""}));
+ const upcomingEvents=events.filter(x=>x.date>=today&&x.date<=future(45)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,25).map(x=>({date:x.date,title:x.title||"",type:x.type||"",startTime:x.startTime||"",endTime:x.endTime||""}));
+ const validLogbook=logbook.filter(x=>x.date&&x.from&&x.to&&Number(x.hours)>0),recentFlights=validLogbook.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,18).map(x=>({date:x.date,from:x.from,to:x.to,hours:Number(x.hours),flightNumber:x.flightNumber||"",aircraft:x.aircraft||"",role:x.role||""}));
+ const airportSet=new Set(validLogbook.flatMap(x=>[x.from,x.to])),recordedHours=validLogbook.reduce((n,x)=>n+Number(x.hours||0),0);
+ const currentMonth=today.slice(0,7),monthExpenses=expenses.filter(x=>x.date?.startsWith(currentMonth)).slice(-35).map(x=>({date:x.date,category:x.category||x.type||"",amount:Number(x.amount||0),currency:x.currency||""}));
+ const recentWorkouts=workouts.slice(-15).map(x=>({date:x.date,type:x.type||"",minutes:Number(x.minutes||0),title:x.title||""}));
+ return {
+  generatedForDate:today,
+  roster:{totalEntries:duties.length,upcoming:upcomingDuties},
+  aviation:{sectors:validLogbook.length,recordedHours:Number(recordedHours.toFixed(1)),airports:airportSet.size,recentFlights},
+  training:{sessions:workouts.length,recentSessions:recentWorkouts,planned:(state.trainingPlan||[]).slice(0,15)},
+  nutrition:{mealSuggestions:meals.length,mealPlan:meals.slice(0,21).map(x=>({date:x.date,slot:x.slot,meal:x.meal,minutes:x.minutes,context:x.context})),shoppingOpen:(state.shopping||[]).filter(x=>!x.done).slice(0,25).map(x=>({name:x.name,qty:x.qty||""})),pantry:(state.pantry||[]).slice(0,20).map(x=>({name:x.name,qty:x.qty||""}))},
+  family:{upcomingEvents,schoolItems:(state.schoolEvents||[]).filter(x=>x.date>=today&&x.date<=future(45)).slice(0,20).map(x=>({date:x.date,title:x.title||"",type:x.type||""}))},
+  finance:{month:currentMonth,expensesThisMonth:monthExpenses,expenseCountThisMonth:monthExpenses.length,budgets:state.budgets||{}}
+ };
+}
