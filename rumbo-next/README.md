@@ -28,3 +28,9 @@ Development build on `redesign/rumbo-os-v4`. The app keeps its personal operatin
 
 ## Validation
 GitHub Actions workflow `RUMBO 3.0 validation` checks the app source. Preview publication is handled by `.github/workflows/rumbo-preview-pages.yml`.
+
+## Nutrition, fitness and household receipt reader
+- Recipe nutrition is an estimate based on ingredient quantities in the recipe catalogue. RUMBO displays kcal, protein, carbohydrates and fat per serving and kcal per ingredient; actual values vary by brand, preparation and measured portion.
+- A user-entered nutrition profile estimates a daily energy reference. It is optional and is not a medical or dietetic prescription.
+- Fitness suggestions use roster entries and logged workouts to draft candidate sessions. Users must review and accept them; an unassigned roster date is not proof of adequate rest or readiness.
+- Household finance accepts image receipts through in-browser Tesseract OCR and text-based PDF invoices through PDF.js. Merchant, date, amount, currency and category are prefilled as a draft; the user must verify and explicitly save. Scanned/image-only PDFs and Arabic-only OCR may need a photo or manual correction. No receipt is auto-booked.
