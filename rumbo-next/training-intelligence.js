@@ -3,6 +3,8 @@ export const ROUTINES=[
  {id:"strength-a",name:"Strength · Full body A",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Squat pattern · 3×8","Horizontal push · 3×8","Horizontal pull · 3×10","Hip hinge · 3×8","Core stability · 3 rounds"]},
  {id:"strength-b",name:"Strength · Full body B",type:"Strength",minutes:40,setting:"Gym",level:"Intermediate",blocks:["Split squat · 3×8 each side","Vertical push · 3×8","Vertical pull · 3×8","Glute bridge · 3×12","Carry · 3 rounds"]},
  {id:"strength-c",name:"Strength · Full body C",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Romanian deadlift · 3×8","Incline dumbbell press · 3×10","Seated cable row · 3×10","Step-up · 3×10 each side","Pallof press · 3×12"]},
+ {id:"strength-d",name:"Strength · Full body D",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Front-foot elevated split squat · 3×10 each side","Incline dumbbell press · 3×10","Chest-supported dumbbell row · 3×12","Dumbbell lateral raise · 3×15","Dead bug · 3×10 each side"]},
+ {id:"strength-e",name:"Strength · Full body E",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Leg press · 3×12","Dumbbell floor press · 3×10","Neutral-grip lat pulldown · 3×10","Seated or lying leg curl · 3×12","Farmer carry · 3×30 seconds"]},
  {id:"hotel-strength",name:"Travel · Strength circuit",type:"Hotel session",minutes:30,setting:"Hotel",level:"All levels",blocks:["Tempo squat · 3×12","Push-up variation · 3×8–12","Single-leg hip hinge · 3×8 each side","Backpack row · 3×12","Dead bug · 3×10"]},
  {id:"hotel-20",name:"Hotel · Mobility reset",type:"Mobility",minutes:20,setting:"Hotel",level:"All levels",blocks:["Gentle spinal mobility · 4 min","Hip mobility · 4 min","Thoracic rotations · 3 min","Shoulder mobility · 3 min","Easy walk or breathing · 6 min"]},
  {id:"hotel-25",name:"Hotel · Bodyweight circuit",type:"Hotel session",minutes:25,setting:"Hotel",level:"All levels",blocks:["Bodyweight squat · 3×10","Incline push-up · 3×8","Reverse lunge · 3×8","Bird dog · 3×8","Easy cooldown · 5 min"]},
@@ -42,7 +44,7 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const goal=profile.goal||"general",setting=profile.setting||"gym",limit=Math.max(15,Number(profile.availableMinutes)||40),targetDays=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
  const fatigue=Math.max(1,Math.min(5,Number(profile.fatigue)||3)),sleep=Number(profile.sleepHours)||7,readiness=profile.readiness||"Moderate";
  const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
- const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[],strengthCycle=["strength-a","strength-b","strength-c"];
+ const recentDays=new Set(history.slice(0,4).map(x=>x.date)),scheduled=[],strengthCycle=["strength-a","strength-b","strength-c","strength-d","strength-e"];
  const dutyKind=(x)=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
@@ -65,7 +67,7 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
   else if(goal==="endurance"||goal==="fat-loss"){id=scheduled.length%3===2?"mobility-15":"cardio-30";reason="Aerobic conditioning balanced with lower-load recovery sessions."}
   else if(goal==="mobility"){id="mobility-15";reason="Mobility and movement-quality session."}
   else{id=scheduled.length%3===1?"cardio-30":strengthCycle[scheduled.filter(x=>x.type==="Strength").length%strengthCycle.length];reason="Balanced general-fitness session with alternating strength and cardiovascular work."}
-  if(setting==="mixed"&&scheduled.length%3===1&&id.startsWith("strength"))id="strength-b";
+  if(setting==="mixed"&&scheduled.length%4===3&&id.startsWith("strength"))id="hotel-strength";
   const routine=ROUTINES.find(x=>x.id===id);if(!routine)continue;
   const minutes=Math.min(limit,routine.minutes);
   scheduled.push({date,routineId:id,title:routine.name,minutes,type:routine.type,status:"candidate",reason,setting:setting==="mixed"?(id.startsWith("hotel")?"hotel":"gym"):setting,readinessRequired:true,blocks:routine.blocks,equipment:profile.equipment||"",intensity,cycleIndex:scheduled.length+1,programWeek:Math.floor(i/7)+1});
