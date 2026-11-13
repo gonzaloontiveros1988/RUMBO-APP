@@ -40,6 +40,7 @@ jobs:
           node --check rumbo-next/wader-import.js
           node --check rumbo-next/reminders.js
           node --check rumbo-next/training-intelligence.js
+          node --check rumbo-next/fitness-engine.js
           node --check tests/rumbo-core.test.mjs
           node --test tests/rumbo-core.test.mjs
           node --check rumbo-next/flight-map.js
@@ -58,6 +59,7 @@ jobs:
           test -s rumbo-next/wader-import.js
           test -s rumbo-next/reminders.js
           test -s rumbo-next/training-intelligence.js
+          test -s rumbo-next/fitness-engine.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
           test -s rumbo-next/sw.js
