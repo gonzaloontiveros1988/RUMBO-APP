@@ -3,7 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence.js";
 import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/monthly-planner.js";
-import {validateWorkout,suggestTraining,workoutStats,ROUTINES} from "../rumbo-next/training-intelligence.js";
+import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES} from "../rumbo-next/training-intelligence.js";
+import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {parseRosterText} from "../rumbo-next/roster-import.js";
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
@@ -137,4 +138,28 @@ test("CSV roster parser preserves duty end time when supplied",()=>{
  const rows=parseRosterText("Date,Flight,Report Time,End Time,Route\n12/11/2026,QR123,05:40,14:15,DOH-LHR");
  assert.equal(rows[0].reportTime,"05:40");
  assert.equal(rows[0].endTime,"14:15");
+});
+
+test("adaptive fitness does not collapse every moderate-readiness day into mobility",()=>{
+ const plan=adaptiveTrainingPlan([],[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Moderate",fatigue:3,sleepHours:7},"2026-11-16");
+ assert.ok(plan.some(x=>x.type==="Strength"));
+ assert.ok(plan.every(x=>x.minutes<=45));
+ assert.ok(plan.length<=6);
+});
+test("adaptive fitness provides exercise variety and keeps heavy work away from post-flight days",()=>{
+ const duties=[{date:"2026-11-17",code:"QR123",kind:"FLIGHT"}];
+ const plan=adaptiveTrainingPlan(duties,[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
+ assert.ok(!plan.some(x=>x.date==="2026-11-17"));
+ const next=plan.find(x=>x.date==="2026-11-18");
+ assert.ok(!next||next.intensity==="low");
+});
+test("exercise catalogue validates set, rep and load entries",()=>{
+ assert.ok(EXERCISES.length>=10);
+ assert.equal(validateExerciseEntry({exerciseId:"bench-press",sets:3,reps:8,weight:40,rpe:7}).length,0);
+ assert.ok(validateExerciseEntry({exerciseId:"unknown",sets:0,reps:0,weight:-1,rpe:11}).length>=4);
+});
+test("load progression only increases after a controlled high-rep set",()=>{
+ const history=[{date:"2026-11-12",exercises:[{exerciseId:"bench-press",sets:3,reps:12,weight:40,rpe:7}]}];
+ assert.equal(suggestNextLoad(history,"bench-press").status,"increase");
+ assert.equal(suggestNextLoad([{date:"2026-11-12",exercises:[{exerciseId:"bench-press",sets:3,reps:6,weight:40,rpe:9.5}]}],"bench-press").status,"hold");
 });
