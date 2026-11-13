@@ -20,7 +20,7 @@ export function extractDutyTimes(text){
  const start=report?.[1]||labelledStart?.[1]||clockTimes[0]?.time||"";
  // Ignore the RPT label itself: the final clock time in the column is
  // the last scheduled arrival / training event. Preserve (+1) arrivals.
- const end=clockTimes.length?clockTimes[clockTimes.length-1]:null;
+ const end=clockTimes.length>1?clockTimes[clockTimes.length-1]:null;
  return {
    reportTime:start,
    endTime:end?.time||"",
