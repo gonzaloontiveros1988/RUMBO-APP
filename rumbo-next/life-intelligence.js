@@ -109,9 +109,11 @@ export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){
    requirements.set(key,current);
   }
  }
- const stock=new Map();for(const item of pantry){const key=ingredientKey(item.name);if(key&&!stock.has(key))stock.set(key,item)}
+ const stock=pantry.filter(item=>ingredientTokens(item.name).length);
  return [...requirements.entries()].flatMap(([key,item])=>{
-  const available=stock.get(key),need=item.measure?{...item.measure,amount:item.amount}:null;
+  const neededTokens=ingredientTokens(item.name);
+  const available=stock.find(candidate=>{const candidateTokens=ingredientTokens(candidate.name);return neededTokens.some(token=>candidateTokens.includes(token))||candidateTokens.some(token=>neededTokens.includes(token))});
+  const need=item.measure?{...item.measure,amount:item.amount}:null;
   if(need&&available){
    const remaining=remainingIngredientQuantity(formatMeasure(need),available.qty);
    if(remaining.covered)return [];
