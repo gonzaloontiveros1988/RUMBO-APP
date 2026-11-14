@@ -48,7 +48,10 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const dutyKind=(x)=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
-  if(dayDuties.length||recentDays.has(date))continue;
+  // OFF and annual leave are valid candidate dates; flight, standby and training remain blocked.
+  // A candidate is still only a draft: user readiness and actual rest must be confirmed.
+  const blockingDuty=dayDuties.some(x=>{const raw=dutyKind(x);return !/\\b(OFF|DOFF|DAY OFF|REST|LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\\b/.test(raw)});
+  if(blockingDuty||recentDays.has(date))continue;
   const postFlight=previousDuty.some(x=>/FLIGHT|DUTY|\\d{3,4}/.test(dutyKind(x))||x.segments?.length);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
   let id,reason,intensity="moderate";
