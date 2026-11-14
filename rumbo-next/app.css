@@ -631,3 +631,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
   .recipe-search-notice { overflow-wrap: anywhere; }
   .recipe-image-missing { min-height: 190px; }
 }
+
+/* RUMBO 4.0 · unified Fitness & Nutrition workspace */
+.wellness-tabs{display:flex;gap:8px;padding:6px;margin:0 0 18px;border:1px solid var(--line);border-radius:12px;background:rgba(8,27,41,.72);width:max-content;max-width:100%}
+.wellness-tabs button{border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);padding:10px 20px;font:700 11px Manrope,sans-serif;cursor:pointer;min-width:120px}
+.wellness-tabs button:hover{color:var(--white);background:var(--panel2)}
+.wellness-tabs button.active{background:var(--cyan);border-color:var(--cyan);color:#08202a;box-shadow:0 2px 10px rgba(81,212,223,.18)}
+.wellness-tabs button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+@media(max-width:650px){.wellness-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.wellness-tabs button{min-width:0;padding:12px 8px}}
