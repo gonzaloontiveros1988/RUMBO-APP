@@ -72,8 +72,8 @@ function init(host,id,THREE){
  host.dataset.engine="three";host.setAttribute("aria-label","Modelo humano 3D animado. Arrastra para rotar la cámara y usa la rueda para acercar.");
 }
 let THREE_PROMISE;
-async function boot(){let THREE;try{THREE=await (THREE_PROMISE||=import(THREE_URL))}catch(e){return}
- const scan=()=>document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{try{init(host,host.dataset.exercise3d,THREE)}catch(e){host.dataset.ready="0";console.warn("RUMBO 3D fallback",e)}});
+async function boot(){let THREE;try{THREE=await (THREE_PROMISE||=import(THREE_URL))}catch(e){document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="fallback";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga")});console.error("RUMBO 3D library failed",e);return}
+ const scan=()=>document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{try{init(host,host.dataset.exercise3d,THREE)}catch(e){host.dataset.ready="0";host.dataset.engine="fallback";host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.warn("RUMBO 3D fallback",e)}});
  new MutationObserver(scan).observe(document.getElementById("view")||document.body,{childList:true,subtree:true});scan();
 }
 if(typeof window!=="undefined")boot();
