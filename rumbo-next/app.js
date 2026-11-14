@@ -557,8 +557,8 @@ bind("scanReceipt",async()=>{const file=$("#receiptFile")?.files?.[0],status=$("
 bind("clearMealPlan",()=>{state.mealPlan=[];save();render();toast("Meal plan draft cleared.")});bind("saveCustomRecipe",()=>{
  const name=$("#customRecipeName")?.value.trim(),category=$("#customRecipeCategory")?.value||"Lunch",servings=Number($("#customRecipeServings")?.value)||4,minutes=Number($("#customRecipeMinutes")?.value)||30;
  const ingredientsText=$("#customRecipeIngredients")?.value||"",stepsText=$("#customRecipeSteps")?.value||"";
- const ingredients=ingredientsText.split(/\\n+/).map(line=>{const parts=line.split("|");return [String(parts[0]||"").trim(),String(parts[1]||"Al gusto").trim(),0,0,0,0]}).filter(x=>x[0]);
- const steps=stepsText.split(/\\n+/).map(x=>x.trim()).filter(Boolean);
+ const ingredients=ingredientsText.split(/\n+/).map(line=>{const parts=line.split("|");return [String(parts[0]||"").trim(),String(parts[1]||"Al gusto").trim(),0,0,0,0]}).filter(x=>x[0]);
+ const steps=stepsText.split(/\n+/).map(x=>x.trim()).filter(Boolean);
  if(!name||ingredients.length<2||steps.length<1)return toast("Añade un nombre, al menos dos ingredientes y un paso de preparación.");
  if(servings<1||servings>20||minutes<1||minutes>300)return toast("Revisa raciones y tiempo de preparación.");
  const macroIds=["customRecipeKcal","customRecipeProtein","customRecipeCarbs","customRecipeFat"],macroInputs=macroIds.map(id=>$("#"+id)?.value??""),hasMacros=macroInputs.some(x=>String(x).trim()!==""),macros=macroInputs.map(x=>Number(x));
