@@ -1012,3 +1012,14 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes jointLegpressHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
 @keyframes jointLegpressKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
 @keyframes jointPlankStability{0%,100%{transform:rotate(0)}50%{transform:rotate(1deg)}}
+
+.exercise-demo-svg .rig-mobility-motion .rig-torso{transform-box:view-box;transform-origin:160px 110px;animation:jointMobilityTorso 3.6s ease-in-out infinite}
+.exercise-demo-svg .rig-mobility-motion .rig-arm-upper{animation:jointMobilityArm 3.6s ease-in-out infinite}
+.exercise-demo-svg .rig-mobility-motion .rig-leg-upper{animation:jointMobilityLeg 3.6s ease-in-out infinite}
+.exercise-demo-svg .rig-cardio-motion .rig-leg-upper{animation:jointCardioLeg 1.1s ease-in-out infinite}
+.exercise-demo-svg .rig-cardio-motion .rig-arm-upper{animation:jointCardioArm 1.1s ease-in-out infinite}
+@keyframes jointMobilityTorso{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
+@keyframes jointMobilityArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+@keyframes jointMobilityLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
+@keyframes jointCardioLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg)}}
+@keyframes jointCardioArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
