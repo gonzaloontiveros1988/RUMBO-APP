@@ -183,7 +183,7 @@ test("recipe nutrition flags provider fallback values as unavailable instead of 
  assert.equal(result.nutritionAvailable,false);
  assert.equal(result.perServing.kcal,0);
 });
-test("shopping list matches pantry items by ingredient token despite accents or plural",()=>{
+test("shopping list matches pantry items by normalized partial ingredient tokens",()=>{
  const items=shoppingFromMeals([{recipeId:"pan-tomate"}],undefined,[{name:"Tomates",qty:"2"}]);
  assert.ok(!items.some(x=>x.name==="Tomate maduro"));
 });
