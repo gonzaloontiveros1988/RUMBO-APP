@@ -53,7 +53,7 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
   const blockingDuty=dayDuties.length>0&&!explicitOff;
   if(blockingDuty||recentDays.has(date))continue;
   // Spread sessions across the fortnight rather than filling consecutive dates.
-  if(i%2===1&&scheduled.length<targetDays*2)continue;
+  if(i%2===1&&scheduled.length<targetDays*2&&!explicitOff)continue;
   const postFlight=previousDuty.some(isFlight);
   const tooFatigued=readiness==="Low / fatigued"||fatigue>=4||sleep<5.5;
   let id,reason,intensity="moderate";
