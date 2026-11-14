@@ -55,6 +55,7 @@ jobs:
           node --test tests/rumbo-core.test.mjs
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
+          node --check rumbo-next/finance-intelligence.js
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
       - name: Verify required app files
         run: |
@@ -72,5 +73,6 @@ jobs:
           test -s rumbo-next/fitness-engine.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
+          test -s rumbo-next/finance-intelligence.js
           test -s rumbo-next/sw.js
           test -s tests/rumbo-core.test.mjs
