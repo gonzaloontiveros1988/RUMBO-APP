@@ -75,3 +75,32 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  }
  return scheduled;
 }
+
+
+export function buildTrainingProgram(profile={},startDate){
+ const start=startDate||new Date().toISOString().slice(0,10);
+ const goal=profile.goal||"general",setting=profile.setting||"gym";
+ const days=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
+ const duration=Math.max(20,Math.min(75,Number(profile.availableMinutes)||45));
+ const strength=["strength-a","strength-b","strength-c","strength-d","strength-e"];
+ const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+ const sessions=[];
+ for(let week=1;week<=6;week++){
+  const phase=week===4?"deload":week<=3?"build":"intensify";
+  for(let day=0;day<days;day++){
+   let id;
+   if(goal==="mobility")id="mobility-15";
+   else if(goal==="endurance"||goal==="fat-loss")id=day%2===0?"cardio-30":"mobility-15";
+   else if(setting==="hotel")id="hotel-strength";
+   else if(setting==="home")id="hotel-25";
+   else id=strength[day%strength.length];
+   const routine=ROUTINES.find(x=>x.id===id);
+   const weekOffset=(week-1)*7;
+   const weekdayOffset=Math.round(day*6/Math.max(1,days-1));
+   const baseDate=datePlus(start,weekOffset+weekdayOffset);
+   const multiplier=phase==="deload"?.65:phase==="intensify"?1.05:1;
+   sessions.push({week,day:day+1,date:baseDate,phase,goal,routineId:id,title:routine.name,type:routine.type,minutes:Math.min(duration,routine.minutes),volumeMultiplier:multiplier,progression:phase==="deload"?"Reduce sets or effort; keep movement comfortable.":phase==="intensify"?"Maintain technique; add a small load only when all target reps are controlled.":"Build consistency; keep 2–3 repetitions in reserve.",status:"planned"});
+  }
+ }
+ return {id:"program-"+start,createdAt:new Date().toISOString(),startDate:start,weeks:6,goal,setting,daysPerWeek:days,sessions};
+}
