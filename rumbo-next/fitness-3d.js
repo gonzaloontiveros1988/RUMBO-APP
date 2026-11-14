@@ -20,6 +20,8 @@ function init(host,id,THREE){
  const camera=new THREE.PerspectiveCamera(34,w/h,.1,100);const preset=presets[id]||{kind:"squat",camera:[3.2,2.3,4.6]};camera.position.set(...preset.camera);camera.lookAt(0,1.05,0);
  scene.add(new THREE.HemisphereLight(0xd9f4ff,0x233746,2.0));const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(3,5,4);key.castShadow=true;scene.add(key);
  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,64),new THREE.MeshStandardMaterial({color:0x18384a,roughness:.8,transparent:true,opacity:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=.015;scene.add(floor);
+ const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
+ const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
  const equipmentMat=mat(0x40596a,.72);
  const bench=new THREE.Group();
  const benchTop=new THREE.Mesh(new THREE.BoxGeometry(1.48,.12,.48),mat(0x243c50));
@@ -32,8 +34,6 @@ function init(host,id,THREE){
  barbell.position.set(-.43,1.08,0);barbell.visible=id==="bench-press";scene.add(barbell);
  const cablePost=new THREE.Mesh(new THREE.BoxGeometry(.12,1.35,.12),equipmentMat);cablePost.position.set(-.92,.68,0);cablePost.visible=id==="row";scene.add(cablePost);
  const cablePulley=new THREE.Mesh(new THREE.TorusGeometry(.09,.025,8,20),weightMat);cablePulley.position.set(-.86,1.26,0);cablePulley.visible=id==="row";scene.add(cablePulley);
- const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
- const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
  const ball=new THREE.SphereGeometry(1,32,24), limbGeo=new THREE.CapsuleGeometry(.075,.78,8,16);
  const nodes={};function node(name,material,r=.09,scale=[1,1,1]){const m=new THREE.Mesh(ball,material);m.scale.set(r*scale[0],r*scale[1],r*scale[2]);m.castShadow=true;m.receiveShadow=true;scene.add(m);nodes[name]=m}
  node("head",skin,.145,[.82,1.12,.9]);node("neck",skin,.075,[.9,1.15,.9]);
