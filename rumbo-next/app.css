@@ -868,3 +868,32 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .fitness-program-principles span{display:inline-flex;align-items:center;gap:6px}
 .fitness-program-principles span:before{content:"";width:5px;height:5px;border-radius:50%;background:#54d7ca}
 @media(max-width:650px){.fitness-profile-panel .form{flex-direction:column}.fitness-profile-panel #buildSixWeekProgram{width:100%}}
+
+/* RUMBO 4.1 · exercise-specific vector demonstrations */
+.guided-figure,.program-detail-body{display:grid;place-items:center;min-height:190px;height:100%;border-radius:16px;background:radial-gradient(ellipse at 50% 55%,rgba(43,193,183,.18),rgba(12,37,55,.06) 70%);overflow:hidden}
+.exercise-demo-svg{width:100%;height:100%;min-height:170px;max-height:220px;overflow:visible}
+.exercise-demo-svg .demo-floor,.exercise-demo-svg .demo-prop{fill:none;stroke:rgba(132,191,202,.55);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.exercise-demo-svg .demo-head{fill:#8be8df;stroke:#e0fffa;stroke-width:2}
+.exercise-demo-svg .demo-torso,.exercise-demo-svg .demo-limb{fill:none;stroke:#66d8cf;stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.exercise-demo-svg .demo-limb{stroke-width:10}
+.exercise-demo-svg .demo-weight{fill:#e9bd75;stroke:#ffe4ad;stroke-width:2}
+.exercise-demo-svg .demo-body{transform-box:fill-box;transform-origin:center}
+.demo-squat-motion{animation:vectorSquat 2.4s ease-in-out infinite}.demo-hinge-motion{animation:vectorHinge 2.7s ease-in-out infinite}
+.demo-bench-motion{animation:vectorBench 1.8s ease-in-out infinite}.demo-row-motion{animation:vectorRow 2.1s ease-in-out infinite}
+.demo-pulldown-motion{animation:vectorPulldown 2s ease-in-out infinite}.demo-shoulder-motion{animation:vectorShoulder 1.9s ease-in-out infinite}
+.demo-bridge-motion{animation:vectorBridge 2.1s ease-in-out infinite}.demo-lunge-motion{animation:vectorLunge 2.3s ease-in-out infinite}
+.demo-plank-motion{animation:vectorPlank 2s ease-in-out infinite}.demo-deadbug-motion{animation:vectorDeadbug 2s ease-in-out infinite}
+.demo-legpress-motion{animation:vectorLegpress 2s ease-in-out infinite}
+@keyframes vectorSquat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(12px) scaleY(.88)}}
+@keyframes vectorHinge{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg) translateY(5px)}}
+@keyframes vectorBench{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes vectorRow{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}
+@keyframes vectorPulldown{0%,100%{transform:translateY(0)}50%{transform:translateY(13px)}}
+@keyframes vectorShoulder{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+@keyframes vectorBridge{0%,100%{transform:translateY(0)}50%{transform:translateY(-19px)}}
+@keyframes vectorLunge{0%,100%{transform:translateY(0)}50%{transform:translateY(11px) scaleY(.92)}}
+@keyframes vectorPlank{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes vectorDeadbug{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
+@keyframes vectorLegpress{0%,100%{transform:translateX(0)}50%{transform:translateX(13px)}}
+@media(prefers-reduced-motion:reduce){.exercise-demo-svg *{animation:none!important}}
+@media(max-width:620px){.exercise-demo-svg{min-height:160px}}
