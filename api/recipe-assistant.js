@@ -126,7 +126,7 @@ module.exports = async function handler(req,res){
  try{
   const webResults=await searchWeb(query).catch(()=>[]);
   const sourceContext=await Promise.all(webResults.slice(0,3).map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
-  const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
+  const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers["x-vercel-oidc-token"];
   if(!gatewayToken){
    const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
    const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category);
