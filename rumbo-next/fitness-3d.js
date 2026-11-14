@@ -20,6 +20,18 @@ function init(host,id,THREE){
  const camera=new THREE.PerspectiveCamera(34,w/h,.1,100);const preset=presets[id]||{kind:"squat",camera:[3.2,2.3,4.6]};camera.position.set(...preset.camera);camera.lookAt(0,1.05,0);
  scene.add(new THREE.HemisphereLight(0xd9f4ff,0x233746,2.0));const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(3,5,4);key.castShadow=true;scene.add(key);
  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,64),new THREE.MeshStandardMaterial({color:0x18384a,roughness:.8,transparent:true,opacity:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=.015;scene.add(floor);
+ const equipmentMat=mat(0x40596a,.72);
+ const bench=new THREE.Group();
+ const benchTop=new THREE.Mesh(new THREE.BoxGeometry(1.48,.12,.48),mat(0x243c50));
+ benchTop.position.set(-.28,.43,0);bench.add(benchTop);
+ for(const x of [-.82,.22]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.10,.38,.10),equipmentMat);leg.position.set(x,.23,0);bench.add(leg)}
+ bench.visible=id==="bench-press"||id==="row";scene.add(bench);
+ const barbell=new THREE.Group();
+ const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.92,16),weightMat);shaft.rotation.x=Math.PI/2;barbell.add(shaft);
+ for(const z of [-.52,.52]){const plate=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.07,24),weightMat);plate.rotation.x=Math.PI/2;plate.position.z=z;barbell.add(plate)}
+ barbell.position.set(-.43,1.08,0);barbell.visible=id==="bench-press";scene.add(barbell);
+ const cablePost=new THREE.Mesh(new THREE.BoxGeometry(.12,1.35,.12),equipmentMat);cablePost.position.set(-.92,.68,0);cablePost.visible=id==="row";scene.add(cablePost);
+ const cablePulley=new THREE.Mesh(new THREE.TorusGeometry(.09,.025,8,20),weightMat);cablePulley.position.set(-.86,1.26,0);cablePulley.visible=id==="row";scene.add(cablePulley);
  const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
  const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
  const ball=new THREE.SphereGeometry(1,32,24), limbGeo=new THREE.CapsuleGeometry(.075,.78,8,16);
@@ -128,7 +140,9 @@ function init(host,id,THREE){
   if(nodes.head)nodes.head.position.copy(P.head);
   [["upperArmL","ls","le"],["lowerArmL","le","lw"],["upperArmR","rs","re"],["lowerArmR","re","rw"],["thighL","lh","lk"],["shinL","lk","la"],["thighR","rh","rk"],["shinR","rk","ra"]].forEach(([b,a,c])=>segment(bones[b],P[a],P[c]));
   if(P.lw){nodes.handL.position.copy(P.lw);nodes.handR.position.copy(P.rw);nodes.footL.position.copy(P.la).add(V(.07,-.035,0));nodes.footR.position.copy(P.ra).add(V(.07,-.035,0))}
-  dumbbells.forEach((d,i)=>{const w=P[i===0?"lw":"rw"];d.position.copy(w);d.visible=["press","curl","raise","carry"].includes(preset.kind)});
+  dumbbells.forEach((d,i)=>{const w=P[i===0?"lw":"rw"];d.position.copy(w);d.visible=(id==="rdl"||id==="squat"&&i===0||["curl","raise","carry"].includes(preset.kind))});
+  if(id==="bench-press"){barbell.position.y=.98+.20*phase((performance.now()-start)/2100);barbell.position.x=-.43}
+  if(id==="row"){cablePulley.position.y=1.26;}
   const target=V(0,1,0),radius=4.9*dist;camera.position.set(target.x+radius*Math.sin(az||.48)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(az||.48)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }
  draw(performance.now());
