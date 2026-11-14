@@ -94,7 +94,7 @@ async function boot(){
   document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
    if(host.dataset.ready==="1"||host.dataset.engine==="fallback")return;
    host.dataset.engine="loading";
-   if(!window.__RUMBO_THREE__){host.dataset.engine="loading";return}
+   if(!window.__RUMBO_THREE__){host.dataset.engine=window.__RUMBO_THREE_FAILED__?"fallback":"loading";return}
    try{init(host,host.dataset.exercise3d,window.__RUMBO_THREE__)}
    catch(e){host.dataset.ready="0";host.dataset.engine="fallback";host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.warn("RUMBO 3D fallback",e)}
   });
@@ -107,6 +107,7 @@ async function boot(){
   window.__RUMBO_THREE__=THREE;
   scan();
  }catch(e){
+  window.__RUMBO_THREE_FAILED__=true;
   document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
    host.dataset.engine="fallback";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga");
   });
