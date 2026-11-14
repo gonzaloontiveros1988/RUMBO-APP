@@ -53,7 +53,7 @@ export function parsePastedRecipe(raw){
   if(line===servingsLine||line===timeLine)continue;
   if(heading(line)){section="ingredients";continue}
   if(method(line)){section="steps";continue}
-  if(/^(raciones|porciones|servings|serves|personen|dosi|tiempo|time|prep|cocci[oó]n)\s*[:\-]/i.test(line))continue;
+  if(/^(?:\d+\s*(?:raciones|porciones|servings|serves|personen|dosi|minutos?|minutes?)|raciones|porciones|servings|serves|personen|dosi|tiempo|time|prep|cocci[oó]n)\s*[:\-]?/i.test(line))continue;
   const clean=line.replace(/^[-*•▪]\s*/,"").replace(/^\d+[\).\-\s]+/,"").trim();
   if(!clean)continue;
   const isBullet=/^[-*•▪]\s*/.test(line),isNumber=/^\d+[\).\-\s]+/.test(line);
