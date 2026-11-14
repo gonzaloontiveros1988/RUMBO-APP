@@ -34,3 +34,9 @@ GitHub Actions validates the active RUMBO 4.0 source and preview. Production rem
 - A user-entered nutrition profile estimates a daily energy reference. It is optional and is not a medical or dietetic prescription.
 - Fitness suggestions use roster entries and logged workouts to draft candidate sessions. Users must review and accept them; an unassigned roster date is not proof of adequate rest or readiness.
 - Household finance accepts image receipts through in-browser Tesseract OCR and text-based PDF invoices through PDF.js. Merchant, date, amount, currency and category are prefilled as a draft; the user must verify and explicitly save. Scanned/image-only PDFs and Arabic-only OCR may need a photo or manual correction. No receipt is auto-booked.
+
+## Recipe search and personal recipe import
+- The Nutrition recipe search uses TheMealDB's public search, ingredient and cuisine endpoints. It supports Spanish, Italian, German, American, Mediterranean and Asian cuisine filters, plus inferred cuisine for common dish names. Search results are reviewed before being added to the meal plan.
+- Recipes without reliable nutrition data are deliberately marked as unverified; RUMBO does not fabricate macros.
+- The personal recipe editor includes a local text parser. Paste a recipe with an ingredient heading and a preparation/method heading; it extracts the title, serving count, cooking time, ingredient lines and method steps into editable fields. The pasted text stays in the browser and is not sent to an AI provider.
+- The exercise catalogue is retained as the trainer's internal source for guided exercise cards; the separate long exercise list is no longer displayed as a duplicate section.
