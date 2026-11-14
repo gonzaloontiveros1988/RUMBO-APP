@@ -21,10 +21,13 @@ function init(host,id,THREE){
  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,64),new THREE.MeshStandardMaterial({color:0x18384a,roughness:.8,transparent:true,opacity:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=.015;scene.add(floor);
  const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
  const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
- const ball=new THREE.SphereGeometry(1,28,20), limbGeo=new THREE.CylinderGeometry(.78,.92,1,18,1,true);
+ const ball=new THREE.SphereGeometry(1,32,24), limbGeo=new THREE.CapsuleGeometry(.075,.78,8,16);
  const nodes={};function node(name,material,r=.09,scale=[1,1,1]){const m=new THREE.Mesh(ball,material);m.scale.set(r*scale[0],r*scale[1],r*scale[2]);m.castShadow=true;m.receiveShadow=true;scene.add(m);nodes[name]=m}
  node("head",skin,.145,[.82,1.12,.9]);node("neck",skin,.075,[.9,1.15,.9]);
  node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
+ node("abdomen",shirt,.15,[.92,1.35,.76]);node("gluteL",shorts,.13,[1.1,.9,.85]);node("gluteR",shorts,.13,[1.1,.9,.85]);
+ node("shoulderL",shirt,.105,[1.15,1,.95]);node("shoulderR",shirt,.105,[1.15,1,.95]);
+ node("elbowL",skin,.068);node("elbowR",skin,.068);node("kneeL",shorts,.078,[1,.9,.92]);node("kneeR",shorts,.078,[1,.9,.92]);
  ["ls","rs","le","re","lw","rw","lh","rh","lk","rk","la","ra"].forEach(n=>node(n,jointMat,.065));
  node("handL",skin,.075,[.78,1.25,.7]);node("handR",skin,.075,[.78,1.25,.7]);
  node("footL",shoe,.11,[.8,.55,1.7]);node("footR",shoe,.11,[.8,.55,1.7]);
@@ -32,7 +35,8 @@ function init(host,id,THREE){
  ["upperArmL","lowerArmL","upperArmR","lowerArmR","thighL","shinL","thighR","shinR"].forEach(n=>bone(n,n.startsWith("thigh")?shorts:skin,n.startsWith("thigh")?.105:.07));
  const dumbbells=[];for(let s of [-1,1]){const g=new THREE.Group();const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.32,12),weightMat);bar.rotation.z=Math.PI/2;g.add(bar);for(let z of [-.17,.17]){const d=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.07,16),weightMat);d.rotation.z=Math.PI/2;d.position.x=z;g.add(d)}scene.add(g);dumbbells.push(g)}
  const V=(x,y,z)=>new THREE.Vector3(x,y,z);
- function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);mesh.scale.set(1,dir.length(),1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
+ function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);const arm=mesh===bones.upperArmL||mesh===bones.upperArmR||mesh===bones.lowerArmL||mesh===bones.lowerArmR;
+ mesh.scale.set(arm?.92:1,Math.max(.05,dir.length()-.12),arm?.92:1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
  let dragging=false,lastX=0,lastY=0,az=0,el=0,dist=1;renderer.domElement.addEventListener("pointerdown",e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener("pointerup",()=>dragging=false);renderer.domElement.addEventListener("pointermove",e=>{if(!dragging)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.5,.65);lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener("wheel",e=>{dist=clamp(dist+e.deltaY*.002,.72,1.6)},{passive:true});
  const phase=(t)=>.5-.5*Math.cos(t*Math.PI*2);
  function pose(p){
@@ -69,6 +73,11 @@ function init(host,id,THREE){
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
   if(nodes.pelvis)nodes.pelvis.position.copy(P.pelvis);
   if(nodes.neck)nodes.neck.position.copy(P.neck);
+  if(nodes.abdomen){nodes.abdomen.position.copy(P.chest).lerp(P.pelvis,.48);nodes.abdomen.quaternion.copy(nodes.chest.quaternion)}
+  if(nodes.gluteL){nodes.gluteL.position.copy(P.pelvis).add(V(.015,-.045,-.105));nodes.gluteR.position.copy(P.pelvis).add(V(.015,-.045,.105))}
+  if(nodes.shoulderL){nodes.shoulderL.position.copy(P.ls);nodes.shoulderR.position.copy(P.rs)}
+  if(nodes.elbowL){nodes.elbowL.position.copy(P.le);nodes.elbowR.position.copy(P.re)}
+  if(nodes.kneeL){nodes.kneeL.position.copy(P.lk);nodes.kneeR.position.copy(P.rk)}
   if(nodes.head)nodes.head.position.copy(P.head);
   [["upperArmL","ls","le"],["lowerArmL","le","lw"],["upperArmR","rs","re"],["lowerArmR","re","rw"],["thighL","lh","lk"],["shinL","lk","la"],["thighR","rh","rk"],["shinR","rk","ra"]].forEach(([b,a,c])=>segment(bones[b],P[a],P[c]));
   if(P.lw){nodes.handL.position.copy(P.lw);nodes.handR.position.copy(P.rw);nodes.footL.position.copy(P.la).add(V(.07,-.035,0));nodes.footR.position.copy(P.ra).add(V(.07,-.035,0))}
