@@ -28,6 +28,7 @@ jobs:
           node-version: 22
       - name: Check application JavaScript
         run: |
+          node --check api/gateway-auth.js
           node --check api/rumbo-ai.js
           node --check api/recipe-assistant.js
           node --check rumbo-next/app.js
@@ -59,6 +60,7 @@ jobs:
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
       - name: Verify required app files
         run: |
+          test -s api/gateway-auth.js
           test -s api/rumbo-ai.js
           test -s rumbo-next/index.html
           test -s rumbo-next/app.css

@@ -1,3 +1,4 @@
+const {getGatewayToken}=require("./gateway-auth");
 const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
 const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
@@ -126,7 +127,7 @@ module.exports = async function handler(req,res){
  try{
   const webResults=await searchWeb(query).catch(()=>[]);
   const sourceContext=await Promise.all(webResults.slice(0,3).map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
-  const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
+  const gatewayToken=getGatewayToken(req);
   if(!gatewayToken){
    const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
    const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category);
