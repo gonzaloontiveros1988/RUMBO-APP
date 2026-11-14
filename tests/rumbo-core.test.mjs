@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence.js";
 import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/monthly-planner.js";
-import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES} from "../rumbo-next/training-intelligence.js";
+import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {parseRosterText} from "../rumbo-next/roster-import.js";
 
@@ -175,4 +175,21 @@ test("load progression holds under high effort and suggests a small increase aft
  assert.equal(suggestNextLoad(hard,"bench-press").status,"hold");
  const controlled=[{date:"2026-11-02",exercises:[{exerciseId:"bench-press",sets:3,reps:12,weight:60,rpe:7}]}];
  assert.equal(suggestNextLoad(controlled,"bench-press").status,"increase");
+});
+
+
+test("six-week fitness program creates progressive, roster-independent session templates",()=>{
+ const p=buildTrainingProgram({goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45},"2026-11-16");
+ assert.equal(p.weeks,6);
+ assert.equal(p.sessions.length,18);
+ assert.equal(p.sessions.filter(x=>x.phase==="deload").length,3);
+ assert.ok(p.sessions.every(x=>x.minutes<=45));
+ assert.ok(p.sessions.some(x=>x.phase==="intensify"));
+ assert.ok(p.sessions.every(x=>x.status==="planned"));
+});
+test("six-week program adapts to hotel and endurance preferences",()=>{
+ const hotel=buildTrainingProgram({goal:"strength",setting:"hotel",daysPerWeek:2},"2026-11-16");
+ assert.ok(hotel.sessions.every(x=>x.routineId==="hotel-strength"));
+ const endurance=buildTrainingProgram({goal:"endurance",setting:"gym",daysPerWeek:3},"2026-11-16");
+ assert.ok(endurance.sessions.some(x=>x.type==="Cardio"));
 });
