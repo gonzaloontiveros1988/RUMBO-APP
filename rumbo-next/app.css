@@ -897,3 +897,40 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes vectorLegpress{0%,100%{transform:translateX(0)}50%{transform:translateX(13px)}}
 @media(prefers-reduced-motion:reduce){.exercise-demo-svg *{animation:none!important}}
 @media(max-width:620px){.exercise-demo-svg{min-height:160px}}
+
+/* Anatomical joint rig: independent shoulder, elbow, hip and knee articulation */
+.exercise-demo-svg .rig-head{fill:#a8f5eb;stroke:#f0fffc;stroke-width:2}
+.exercise-demo-svg .rig-torso{fill:none;stroke:#59d5ca;stroke-width:15;stroke-linecap:round}
+.exercise-demo-svg .rig-limb{fill:none;stroke:#59d5ca;stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.exercise-demo-svg .rig-joints circle{fill:#f4c77f;stroke:#fff0ce;stroke-width:1.5}
+.exercise-demo-svg .rig-arms,.exercise-demo-svg .rig-legs{transform-box:fill-box;transform-origin:center}
+.exercise-demo-svg .rig-body{transform-box:fill-box;transform-origin:center}
+.exercise-demo-svg .rig-squat-motion{animation:rigSquat 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-hinge-motion{animation:rigHinge 2.8s ease-in-out infinite}
+.exercise-demo-svg .rig-step-motion{animation:rigStep 2.4s ease-in-out infinite}
+.exercise-demo-svg .rig-lunge-motion{animation:rigLunge 2.5s ease-in-out infinite}
+.exercise-demo-svg .rig-bridge-motion{animation:rigBridge 2.4s ease-in-out infinite}
+.exercise-demo-svg .rig-curl-motion{animation:rigCurl 1.9s ease-in-out infinite}
+.exercise-demo-svg .rig-calf-motion{animation:rigCalf 1.7s ease-in-out infinite}
+.exercise-demo-svg .rig-press-motion{animation:rigPress 2.1s ease-in-out infinite}
+.exercise-demo-svg .rig-fly-motion{animation:rigFly 2.1s ease-in-out infinite}
+.exercise-demo-svg .rig-pull-motion{animation:rigPull 2s ease-in-out infinite}
+.exercise-demo-svg .rig-raise-motion{animation:rigRaise 2s ease-in-out infinite}
+.exercise-demo-svg .rig-anti-rotation-motion{animation:rigAnti 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-carry-motion{animation:rigCarry 2s ease-in-out infinite}
+.exercise-demo-svg .rig-climber-motion{animation:rigClimber 1.4s ease-in-out infinite}
+@keyframes rigSquat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(9px) scaleY(.91)}}
+@keyframes rigHinge{0%,100%{transform:rotate(0)}50%{transform:rotate(13deg) translateY(5px)}}
+@keyframes rigStep{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px) translateX(4px)}}
+@keyframes rigLunge{0%,100%{transform:translateY(0)}50%{transform:translateY(9px) scaleY(.94)}}
+@keyframes rigBridge{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+@keyframes rigCurl{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
+@keyframes rigCalf{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes rigPress{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes rigFly{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.92)}}
+@keyframes rigPull{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+@keyframes rigRaise{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes rigAnti{0%,100%{transform:rotate(0)}50%{transform:rotate(3deg)}}
+@keyframes rigCarry{0%,100%{transform:translateY(0)}25%{transform:translateY(-2px)}75%{transform:translateY(2px)}}
+@keyframes rigClimber{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+@media(prefers-reduced-motion:reduce){.exercise-demo-svg .rig-body,.exercise-demo-svg .rig-arms,.exercise-demo-svg .rig-legs{animation:none!important}}
