@@ -98,7 +98,7 @@ export function buildTrainingProgram(profile={},startDate,duties=[],workouts=[])
   if(goal==="mobility")id="mobility-15";
   else if(goal==="endurance")id=["cardio-30","strength-a","cardio-30","mobility-15","cardio-30"][slot%5];
   else if(goal==="fat-loss")id=["strength-a","cardio-30","strength-b","mobility-15","cardio-30"][slot%5];
-  else if(goal==="strength")id=slot===days-1&&days>=4?"mobility-15":strength[slot%strength.length];
+  else if(goal==="strength")id=strength[slot%strength.length];
   else id=["strength-a","strength-b","cardio-30","mobility-15","strength-c"][slot%5];
   if(setting==="hotel"&&id.startsWith("strength"))id=slot%2===0?"hotel-strength":"hotel-lower";
   if(setting==="home"&&id.startsWith("strength"))id=slot%2===0?"hotel-25":"hotel-lower";
