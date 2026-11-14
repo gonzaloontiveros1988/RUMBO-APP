@@ -31,3 +31,20 @@ export function validateExerciseEntry(entry){
  if(entry.rpe!==""&&(!Number.isFinite(Number(entry.rpe))||Number(entry.rpe)<1||Number(entry.rpe)>10))errors.push("RPE must be between 1 and 10.");
  return errors;
 }
+
+export function exerciseProgressSummary(workouts,exerciseId){
+ const entries=(workouts||[]).flatMap(w=>(w.exercises||[]).filter(x=>x.exerciseId===exerciseId).map(x=>({...x,date:w.date||""})))
+  .sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+ if(!entries.length)return {sessions:0,last:null,bestLoad:0,bestVolume:0};
+ const last=entries[entries.length-1],bestLoad=Math.max(0,...entries.map(x=>Number(x.weight)||0));
+ const bestVolume=Math.max(0,...entries.map(x=>(Number(x.sets)||0)*(Number(x.reps)||0)*(Number(x.weight)||0)));
+ return {sessions:entries.length,last,bestLoad:Number(bestLoad.toFixed(2)),bestVolume:Number(bestVolume.toFixed(1))};
+}
+export function validateBodyMetric(entry){
+ const errors=[],values=["weightKg","waistCm","bodyFatPct"].map(k=>Number(entry?.[k])).filter(v=>Number.isFinite(v)&&v>0);
+ if(!values.length)errors.push("Add at least one body measurement.");
+ if(entry?.weightKg!==""&&entry?.weightKg!=null&&(!Number.isFinite(Number(entry.weightKg))||Number(entry.weightKg)<25||Number(entry.weightKg)>300))errors.push("Weight must be between 25 and 300 kg.");
+ if(entry?.waistCm!==""&&entry?.waistCm!=null&&(!Number.isFinite(Number(entry.waistCm))||Number(entry.waistCm)<30||Number(entry.waistCm)>200))errors.push("Waist must be between 30 and 200 cm.");
+ if(entry?.bodyFatPct!==""&&entry?.bodyFatPct!=null&&(!Number.isFinite(Number(entry.bodyFatPct))||Number(entry.bodyFatPct)<3||Number(entry.bodyFatPct)>70))errors.push("Body fat must be between 3 and 70%.");
+ return errors;
+}
