@@ -666,3 +666,8 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .workout-exercise-row{gap:8px;flex-wrap:wrap}
 .workout-exercise-row .btn{white-space:nowrap}
 @media(max-width:650px){.workout-clock-panel{grid-template-columns:1fr}.workout-clock-actions{justify-content:flex-start}.workout-exercise-row .grow{flex-basis:100%}.rest-clock-row{align-items:flex-start}}
+
+/* Personal recipe editor */
+.recipe-search-panel label{display:block;margin:10px 0 6px;color:var(--muted);font-size:12px}
+.recipe-search-panel textarea{width:100%;min-height:84px;resize:vertical;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--text);font:inherit;line-height:1.5}
+.recipe-search-panel textarea:focus,.recipe-search-panel input:focus{outline:2px solid rgba(83,214,216,.5);outline-offset:1px}
