@@ -183,9 +183,28 @@ test("recipe nutrition flags provider fallback values as unavailable instead of 
  assert.equal(result.nutritionAvailable,false);
  assert.equal(result.perServing.kcal,0);
 });
-test("shopping list matches pantry items by ingredient token despite accents or plural",()=>{
+test("shopping list matches partial pantry ingredient names and flags quantities needing review",()=>{
  const items=shoppingFromMeals([{recipeId:"pan-tomate"}],undefined,[{name:"Tomates",qty:"2"}]);
- assert.ok(!items.some(x=>x.name==="Tomate maduro"));
+ const tomato=items.find(x=>x.name==="Tomate maduro");
+ assert.equal(tomato.pantryReview,true);
+ assert.equal(tomato.pantryQty,"2");
+});
+test("meal shopping subtracts only the pantry quantity actually available",()=>{
+ const recipe={id:"soup",servings:4,ingredients:[["Tomate","500 g"],["Cebolla","200 g"]]};
+ const items=shoppingFromMeals([{recipeId:"soup",servings:4}],[recipe],[{name:"tomates",qty:"300 g"},{name:"cebolla",qty:"250 g"}]);
+ assert.deepEqual(items.map(x=>[x.name,x.qty]),[["Tomate","200 g"]]);
+ assert.equal(items[0].pantryAdjusted,true);
+});
+test("meal shopping scales recipe quantities to requested servings",()=>{
+ const recipe={id:"rice",servings:2,ingredients:[["Arroz","200 g"]]};
+ const items=shoppingFromMeals([{recipeId:"rice",servings:4}],[recipe],[]);
+ assert.equal(items[0].qty,"400 g");
+});
+test("meal shopping flags incompatible pantry units instead of silently assuming stock is enough",()=>{
+ const recipe={id:"oil",servings:2,ingredients:[["Aceite","100 ml"]]};
+ const items=shoppingFromMeals([{recipeId:"oil"}],[recipe],[{name:"Aceite",qty:"1 bottle"}]);
+ assert.equal(items[0].pantryReview,true);
+ assert.equal(items[0].qty,"100 ml");
 });
 test("meal planner prioritises recipes that use ingredients already in the pantry",()=>{
  const recipes=[

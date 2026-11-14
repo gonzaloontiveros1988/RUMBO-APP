@@ -61,11 +61,69 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
  }
  return week;
 }
+function ingredientTokens(value){
+ return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
+  .split(/[^a-z0-9]+/).filter(x=>x.length>2).map(x=>x.replace(/s$/,""));
+}
+function ingredientKey(value){return ingredientTokens(value).sort().join("|")}
+function parseMeasure(value){
+ const text=String(value||"").toLowerCase().replace(/,/g,".");
+ const patterns=[
+  /(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(kg|g|ml|l)\b/,
+  /\((\d+(?:\.\d+)?)\s*(kg|g|ml|l)\)/,
+  /(\d+(?:\.\d+)?)\s*(kg|g|ml|l|pieces?|pcs?|units?|eggs?|slices?|cloves?|tbsp|tablespoons?|tsp|teaspoons?|cups?)\b/
+ ];
+ for(let i=0;i<patterns.length;i++){
+  const m=text.match(patterns[i]);if(!m)continue;
+  let amount,unit;
+  if(i===0){amount=Number(m[1])*Number(m[2]);unit=m[3]}
+  else if(i===1){amount=Number(m[1]);unit=m[2]}
+  else{amount=Number(m[1]);unit=m[2]}
+  const normalized=unit.startsWith("kg")?"g":unit==="l"?"ml":/^(pieces?|pcs?|units?|eggs?|slices?|cloves?)$/.test(unit)?"unit":/^(tbsp|tablespoons?)$/.test(unit)?"tbsp":/^(tsp|teaspoons?)$/.test(unit)?"tsp":unit==="cups"?"cup":unit;
+  const factor=unit==="kg"?1000:unit==="l"?1000:1;
+  return {amount:amount*factor,unit:normalized,dimension:["g","ml"].includes(normalized)?"mass-volume":normalized==="unit"?"count":"measure"};
+ }
+ return null;
+}
+function formatMeasure(measure){
+ const amount=Number(measure.amount.toFixed(2));
+ return String(amount).replace(/\.00$/,"")+" "+measure.unit;
+}
+export function remainingIngredientQuantity(required,available){
+ const need=parseMeasure(required),stock=parseMeasure(available);
+ if(!need||!stock||need.unit!==stock.unit)return {quantity:required,matched:false,review:!!available};
+ const left=Math.max(0,need.amount-stock.amount);
+ return {quantity:left>0?formatMeasure({...need,amount:left}):"",matched:true,review:false,covered:left===0};
+}
 export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){
- const tokens=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/).filter(x=>x.length>3).map(x=>x.replace(/s$/,""));
- const have=pantry.flatMap(x=>tokens(x.name)),sums=new Map();
- for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){if(tokens(name).some(t=>have.includes(t)))continue;const old=sums.get(name)||[];old.push(qty);sums.set(name,old)}}
- return [...sums].map(([name,quantities])=>({name,qty:[...new Set(quantities)].join(" + "),done:false,source:"meal-plan"}));
+ const requirements=new Map();
+ for(const meal of meals){
+  const recipe=recipes.find(x=>x.id===meal.recipeId);if(!recipe)continue;
+  const recipeServings=Math.max(1,Number(recipe.servings)||1),requestedServings=Math.max(1,Number(meal.servings)||recipeServings),scale=requestedServings/recipeServings;
+  for(const [name,quantity] of recipe.ingredients){
+   const key=ingredientKey(name),parsed=parseMeasure(quantity),current=requirements.get(key)||{name,measure:parsed,quantities:[],amount:0,unparsed:new Set()};
+   if(parsed&&current.measure&&parsed.unit===current.measure.unit)current.amount+=parsed.amount*scale;
+   else if(parsed&&!current.measure){current.measure=parsed;current.amount=parsed.amount*scale}
+   else current.unparsed.add(quantity);
+   if(!parsed)current.unparsed.add(quantity);
+   requirements.set(key,current);
+  }
+ }
+ const stock=pantry.filter(item=>ingredientTokens(item.name).length);
+ return [...requirements.entries()].flatMap(([key,item])=>{
+  const neededTokens=ingredientTokens(item.name);
+  const available=stock.find(candidate=>{const candidateTokens=ingredientTokens(candidate.name);return neededTokens.some(token=>candidateTokens.includes(token))||candidateTokens.some(token=>neededTokens.includes(token))});
+  const need=item.measure?{...item.measure,amount:item.amount}:null;
+  if(need&&available){
+   const remaining=remainingIngredientQuantity(formatMeasure(need),available.qty);
+   if(remaining.covered)return [];
+   if(remaining.matched)return [{name:item.name,qty:remaining.quantity,done:false,source:"meal-plan",pantryAdjusted:true}];
+   return [{name:item.name,qty:formatMeasure(need),done:false,source:"meal-plan",pantryReview:true,pantryQty:String(available.qty||"")}];
+  }
+  if(need)return [{name:item.name,qty:formatMeasure(need),done:false,source:"meal-plan"}];
+  if(item.unparsed.size)return [{name:item.name,qty:[...item.unparsed].join(" + "),done:false,source:"meal-plan"}];
+  return [];
+ });
 }
 export function mealCostEstimate(items,prices={}){return items.reduce((sum,x)=>sum+(Number(prices[x.name])||0),0)}
 export function familyWeek(duties,events,startDate){const start=new Date(startDate+"T12:00:00");return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),duty=duties.filter(x=>x.date===date),dayEvents=events.filter(x=>x.date===date);return {date,duty,events:dayEvents,availability:duty.length?"Roster activity — confirm duty details":"No imported duty — availability unconfirmed"}})}
