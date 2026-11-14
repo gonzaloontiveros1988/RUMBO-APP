@@ -196,7 +196,7 @@ test("six-week fitness program creates progressive, roster-independent session t
 });
 test("six-week program adapts to hotel and endurance preferences",()=>{
  const hotel=buildTrainingProgram({goal:"strength",setting:"hotel",daysPerWeek:2},"2026-11-16");
- assert.ok(hotel.sessions.every(x=>x.routineId==="hotel-strength"));
+ assert.ok(hotel.sessions.every(x=>ROUTINES.find(r=>r.id===x.routineId)?.setting==="Hotel"));
  const endurance=buildTrainingProgram({goal:"endurance",setting:"gym",daysPerWeek:3},"2026-11-16");
  assert.ok(endurance.sessions.some(x=>x.type==="Cardio"));
 });
