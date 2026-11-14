@@ -8,7 +8,7 @@ import {cityCatalogue,cityForAirport} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",training:"◈",nutrition:"◉",lifestyle:"♡",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["training","Fitness"],["nutrition","Nutrition & Meals"],["lifestyle","Lifestyle & Recovery"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
-const KEY="rumbo3_local_v1";const RECIPE_API_BASE="https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app";let state=load();if(Array.isArray(state.mealPlan)&&state.mealPlan.length&&state.nutritionMenuVersion!==3){const menuStart=state.mealWeekStart||state.mealPlan.map(x=>x.date).filter(Boolean).sort()[0]||today();state.mealPlan=makeMealWeek(menuStart,state.duties||[],allRecipes(),{pantry:state.pantry||[]});state.mealWeekStart=menuStart;state.nutritionMenuVersion=3;save()}let active="home";let pendingPdf=null;let flightMapInstance=null;
+const KEY="rumbo3_local_v1";const RECIPE_API_BASE="https://rumbo-app-gonzaloor1988-8991.vercel.app";let state=load();if(Array.isArray(state.mealPlan)&&state.mealPlan.length&&state.nutritionMenuVersion!==3){const menuStart=state.mealWeekStart||state.mealPlan.map(x=>x.date).filter(Boolean).sort()[0]||today();state.mealPlan=makeMealWeek(menuStart,state.duties||[],allRecipes(),{pantry:state.pantry||[]});state.mealWeekStart=menuStart;state.nutritionMenuVersion=3;save()}let active="home";let pendingPdf=null;let flightMapInstance=null;
 const VISUAL_KEY="rumbo_visual_preferences_v1";const CITY_KEY="rumbo_city_scene_v1";let citySceneCache=new Map();let citySceneRequest=0;
 const visualPrefs=(()=>{try{return {...{country:"auto",light:"auto"},...JSON.parse(localStorage.getItem(VISUAL_KEY)||"{}")}}catch{return {country:"auto",light:"auto"}}})();
 const timezoneCountries={"Asia/Qatar":"QA","Asia/Riyadh":"QA","Asia/Bahrain":"QA","Asia/Kuwait":"QA","Asia/Muscat":"AE","Asia/Dubai":"AE","Asia/Abu_Dhabi":"AE","Europe/Madrid":"ES","Atlantic/Canary":"ES","Europe/Paris":"FR","Europe/London":"GB","Europe/Belfast":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Chicago":"US","America/Denver":"US","Asia/Tokyo":"JP","Asia/Singapore":"SG","Europe/Istanbul":"TR","Europe/Rome":"IT","Europe/Berlin":"DE"};
@@ -471,7 +471,7 @@ function render(){nav();$("#view").innerHTML=views[active]();if(active==="home")
   airportJournal:(state.airportNotes||[]).map(x=>({airport:x.code,rating:x.rating||"",tags:x.tags||[],notes:x.notes||""}))
  };
  try{
-  const response=await fetch("https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app/api/rumbo-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,context})});
+  const response=await fetch("https://rumbo-app-gonzaloor1988-8991.vercel.app/api/rumbo-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,context})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||("AI request failed ("+response.status+")"));
   const answer=String(data.answer||"");out.innerHTML="<b>RUMBO AI · "+esc(data.model||"AI Gateway")+"</b><p>"+esc(answer).replace(/\n/g,"<br>")+"</p><p class='muted'>Respuesta generada con el contexto local enviado para esta consulta. Verifica los datos antes de actuar.</p>";
