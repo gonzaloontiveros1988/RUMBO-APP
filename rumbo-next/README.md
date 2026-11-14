@@ -1,8 +1,8 @@
-# RUMBO 3.0 — Pilot & Family OS
+# RUMBO 4.0 — Pilot & Family OS
 
-Development build on `redesign/rumbo-os-v4`. The app keeps its personal operating data in browser-local storage unless an explicitly configured integration is used.
+Canonical RUMBO 4.0 development line on `redesign/rumbo-os-v4`. The former app entry point is only a compatibility redirect; this directory is the active product. The app keeps its personal operating data in browser-local storage unless an explicitly configured integration is used.
 
-## Product modules
+## RUMBO 4.0 product modules
 1. Command Center — monthly overview, next-week agenda and all-time flight map.
 2. Roster & Duty Planning — Qatar roster PDF / CSV / ICS import, review and editable duties.
 3. Aviation & Logbook — manual sector entry, Wader CSV import, flight-hour summaries, airport map and export.
@@ -27,7 +27,7 @@ Development build on `redesign/rumbo-os-v4`. The app keeps its personal operatin
 - The app is not currently connected to the legacy Firebase project, HealthKit, live METAR/TAF feeds or external calendar accounts.
 
 ## Validation
-GitHub Actions workflow `RUMBO 3.0 validation` checks the app source. Preview publication is handled by `.github/workflows/rumbo-preview-pages.yml`.
+GitHub Actions validates the active RUMBO 4.0 source and preview. Production remains separate until explicit release approval. Preview publication is handled by `.github/workflows/rumbo-preview-pages.yml`.
 
 ## Nutrition, fitness and household receipt reader
 - Recipe nutrition is an estimate based on ingredient quantities in the recipe catalogue. RUMBO displays kcal, protein, carbohydrates and fat per serving and kcal per ingredient; actual values vary by brand, preparation and measured portion.
