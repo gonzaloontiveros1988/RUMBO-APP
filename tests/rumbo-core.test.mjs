@@ -271,3 +271,14 @@ test("body measurement validation accepts partial entries but rejects implausibl
  assert.ok(validateBodyMetric({weightKg:400,waistCm:"",bodyFatPct:""}).length>0);
  assert.ok(validateBodyMetric({weightKg:"",waistCm:"",bodyFatPct:""}).length>0);
 });
+
+test("meal planner prioritises ingredients expiring during the planned week",()=>{
+ const recipes=[
+  {id:"fresh",name:"Fresh",category:"Breakfast",minutes:5,servings:1,ingredients:[["Avena","50 g",0,0,0,0]],steps:["Mix","Serve"]},
+  {id:"soon",name:"Soon",category:"Breakfast",minutes:5,servings:1,ingredients:[["Tomate","1",0,0,0,0]],steps:["Mix","Serve"]},
+  {id:"lunch",name:"Lunch",category:"Lunch",minutes:5,servings:1,ingredients:[["Arroz","50 g",0,0,0,0]],steps:["Cook","Serve"]},
+  {id:"dinner",name:"Dinner",category:"Dinner",minutes:5,servings:1,ingredients:[["Pasta","50 g",0,0,0,0]],steps:["Cook","Serve"]}
+ ];
+ const plan=makeMealWeek("2026-11-16",[],recipes,{pantry:[{name:"Tomates",qty:"3",expiryDate:"2026-11-18"}]});
+ assert.equal(plan.find(x=>x.slot==="Breakfast").recipeId,"soon");
+});
