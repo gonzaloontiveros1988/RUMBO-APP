@@ -146,6 +146,13 @@ test("adaptive fitness does not collapse every moderate-readiness day into mobil
  assert.ok(plan.every(x=>x.minutes<=45));
  assert.ok(plan.length<=6);
 });
+test("adaptive fitness can schedule reviewed sessions on rostered OFF and leave dates",()=>{
+ const duties=[{date:"2026-11-16",code:"OFF",kind:"OFF"},{date:"2026-11-17",code:"LEAVE",kind:"LEAVE"},{date:"2026-11-18",code:"QR123",kind:"FLIGHT"}];
+ const plan=adaptiveTrainingPlan(duties,[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
+ assert.ok(plan.some(x=>x.date==="2026-11-16"));
+ assert.ok(plan.some(x=>x.date==="2026-11-17"));
+ assert.ok(!plan.some(x=>x.date==="2026-11-18"));
+});
 test("adaptive fitness provides exercise variety and keeps heavy work away from post-flight days",()=>{
  const duties=[{date:"2026-11-17",code:"QR123",kind:"FLIGHT"}];
  const plan=adaptiveTrainingPlan(duties,[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
