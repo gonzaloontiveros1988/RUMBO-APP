@@ -322,9 +322,10 @@ function exerciseDemoSvg(id){
   const pts=Array.from(chain.matchAll(/([0-9.]+)\s+([0-9.]+)/g)).map(m=>[Number(m[1]),Number(m[2])]);
   if(pts.length<3)return "";
   const [a,b,c]=pts;
-  return '<g class="rig-'+kind+'-upper" style="transform-origin:'+a[0]+'px '+a[1]+'px"><path class="rig-limb" d="M'+a.join(" ")+'L'+b.join(" ")+'"/></g><g class="rig-'+kind+'-lower" style="transform-origin:'+b[0]+'px '+b[1]+'px"><path class="rig-limb" d="M'+b.join(" ")+'L'+c.join(" ")+'"/></g><circle class="rig-joint" cx="'+b[0]+'" cy="'+b[1]+'" r="5"/>';
+  return '<g class="rig-'+kind+'-upper" style="transform-origin:'+a[0]+'px '+a[1]+'px"><path class="rig-limb" d="M'+a.join(" ")+'L'+b.join(" ")+'"/></g><g class="rig-'+kind+'-lower" style="transform-origin:'+b[0]+'px '+b[1]+'px"><path class="rig-limb" d="M'+b.join(" ")+'L'+c.join(" ")+'"/></g><circle class="rig-joint" cx="'+a[0]+'" cy="'+a[1]+'" r="5"/><circle class="rig-joint" cx="'+b[0]+'" cy="'+b[1]+'" r="5"/><circle class="rig-joint" cx="'+c[0]+'" cy="'+c[1]+'" r="4"/>');
  }).join("");
  const pose=(motion,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="160" cy="27" r="10"/><path class="rig-torso" d="M160 39L160 91"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g><circle class="rig-joint" cx="160" cy="39" r="4"/></g>';
+ const horizontalPose=(motion,head,torso,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="'+head[0]+'" cy="'+head[1]+'" r="10"/><path class="rig-torso" d="M'+torso[0].join(" ")+'L'+torso[1].join(" ")+'"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g></g>';
  const scenes={
  "back-squat":pose("rig-squat-motion",upright,squatLegs,'<path class="demo-weight" d="M95 49H225m-8 -7v14m-114 -14v14"/>'),
  "front-squat":pose("rig-squat-motion",'M140 49L132 70L153 77M180 49L188 70L167 77',squatLegs,'<path class="demo-weight" d="M132 75h56"/>'),
@@ -349,6 +350,18 @@ function exerciseDemoSvg(id){
  "farmer-carry":pose("rig-carry-motion",'M140 49L140 83L140 113M180 49L180 83L180 113',squatLegs,'<rect class="demo-weight" x="126" y="111" width="16" height="24" rx="4"/><rect class="demo-weight" x="178" y="111" width="16" height="24" rx="4"/>'),
  "mountain-climber":'<path class="demo-prop" d="M24 153h272"/>'+pose("rig-climber-motion",'M140 110L119 133L105 150M140 110L126 135L112 151','M170 110L205 124L225 145M170 110L198 92L216 77').replace('cx="160" cy="27"','cx="57" cy="102"').replace('d="M160 39L160 91"','d="M68 105L160 119"')
  };
+ scenes["squat"]=pose("rig-squat-motion",upright,squatLegs);
+ scenes["rdl"]=pose("rig-hinge-motion","M140 49L125 75L118 105M180 49L195 75L202 105","M150 91L132 119L124 159M170 91L188 119L196 159");
+ scenes["bench-press"]=horizontalPose("rig-press-motion",[75,117],[[87,120],[176,127]],"M108 120L123 76L153 76M108 120L139 76L169 76","M176 127L219 112L263 142M176 127L212 137L253 157",'<path class="demo-prop" d="M55 137h205m-215 0v29m225 -29v29"/><path class="demo-weight" d="M115 58h95"/>');
+ scenes["db-press"]=horizontalPose("rig-press-motion",[75,117],[[87,120],[176,127]],"M108 120L112 75L112 54M108 120L151 75L151 54","M176 127L219 112L263 142M176 127L212 137L253 157",'<path class="demo-prop" d="M55 137h205m-215 0v29m225 -29v29"/><circle class="demo-weight" cx="112" cy="49" r="7"/><circle class="demo-weight" cx="151" cy="49" r="7"/>');
+ scenes["row"]=pose("rig-hinge-motion","M140 49L125 75L153 80M180 49L195 75L167 80","M150 91L136 128L94 128M170 91L191 132L233 132",'<path class="demo-weight" d="M210 88h35"/>');
+ scenes["lat-pulldown"]=pose("rig-pull-motion","M140 49L125 30L125 15M180 49L195 30L195 15","M150 91L139 125L126 147M170 91L181 125L194 147",'<path class="demo-prop" d="M72 12h176M92 12v140M228 12v140"/>');
+ scenes["shoulder-press"]=pose("rig-press-motion","M140 49L129 25L129 8M180 49L191 25L191 8",squatLegs,'<circle class="demo-weight" cx="129" cy="8" r="7"/><circle class="demo-weight" cx="191" cy="8" r="7"/>');
+ scenes["hip-bridge"]=horizontalPose("rig-bridge-motion",[65,139],[[76,141],[166,128]],"M92 142L89 157L111 160M92 142L80 155L62 157","M166 128L205 91L237 143M166 128L205 91L237 143",'<path class="demo-prop" d="M30 153h260"/>');
+ scenes["split-squat"]=pose("rig-lunge-motion",upright,"M150 91L133 122L106 163M170 91L193 119L225 143");
+ scenes["plank"]=horizontalPose("rig-floor-motion",[57,102],[[68,105],[160,119]],"M90 110L75 135L60 150M90 110L80 137L68 151","M160 119L210 132L278 148M160 119L210 132L278 148",'<path class="demo-prop" d="M24 153h272"/>');
+ scenes["dead-bug"]=horizontalPose("rig-deadbug-motion",[65,136],[[76,138],[158,138]],"M105 138L115 91L139 72M105 138L119 91L97 73","M158 138L199 98L229 75M158 138L199 98L184 66");
+ scenes["leg-press"]=horizontalPose("rig-legpress-motion",[87,117],[[99,120],[147,125]],"M111 121L113 145L132 151M111 121L94 139L81 145","M147 125L185 100L235 80M147 125L185 100L235 80",'<path class="demo-prop" d="M68 145l32 -78h30M130 67h55M185 67l28 78M215 145h65"/>');
  const legacy={
  "squat":'<g class="demo-body demo-squat-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 54L133 69L118 58M160 54L187 69L202 58M160 94L137 126L132 163M160 94L183 126L188 163"/></g>',
  "rdl":'<g class="demo-body demo-hinge-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 53L145 88L145 124M160 53L175 88L175 124M160 94L142 127L137 163M160 94L178 127L183 163"/></g>',
