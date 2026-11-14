@@ -183,9 +183,11 @@ test("recipe nutrition flags provider fallback values as unavailable instead of 
  assert.equal(result.nutritionAvailable,false);
  assert.equal(result.perServing.kcal,0);
 });
-test("shopping list matches pantry items by normalized partial ingredient tokens",()=>{
+test("shopping list matches partial pantry ingredient names and flags quantities needing review",()=>{
  const items=shoppingFromMeals([{recipeId:"pan-tomate"}],undefined,[{name:"Tomates",qty:"2"}]);
- assert.ok(!items.some(x=>x.name==="Tomate maduro"));
+ const tomato=items.find(x=>x.name==="Tomate maduro");
+ assert.equal(tomato.pantryReview,true);
+ assert.equal(tomato.pantryQty,"2");
 });
 test("meal shopping subtracts only the pantry quantity actually available",()=>{
  const recipe={id:"soup",servings:4,ingredients:[["Tomate","500 g"],["Cebolla","200 g"]]};
