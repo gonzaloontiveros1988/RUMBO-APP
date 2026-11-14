@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
   if (length > 24_000) return send(res, 413, { error: "Request too large" }, origin);
   const ip = String(req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (rateLimited(ip)) return send(res, 429, { error: "Rate limit reached. Wait one minute and try again." }, origin);
-  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || req.headers["x-vercel-oidc-token"];
   if (!gatewayToken) return send(res, 503, { error: "RUMBO AI no está configurada en Vercel. Añade AI_GATEWAY_API_KEY como variable secreta en el proyecto y vuelve a desplegar." }, origin);
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { return send(res, 400, { error: "Invalid JSON" }, origin); } }
