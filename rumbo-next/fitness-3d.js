@@ -95,8 +95,14 @@ async function boot(){
    if(host.dataset.ready==="1"||host.dataset.engine==="fallback")return;
    host.dataset.engine="loading";
    if(!window.__RUMBO_THREE__){host.dataset.engine=window.__RUMBO_THREE_FAILED__?"fallback":"loading";return}
+   const fallback=host.querySelector(".exercise-demo-svg")?.cloneNode(true);
    try{init(host,host.dataset.exercise3d,window.__RUMBO_THREE__)}
-   catch(e){host.dataset.ready="0";host.dataset.engine="fallback";if(fallback)host.replaceChildren(fallback);host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.error("RUMBO 3D init failed",e)}
+   catch(e){
+    host.dataset.ready="0";host.dataset.engine="fallback";
+    if(fallback){host.replaceChildren(fallback);fallback.style.display="block";fallback.style.opacity="1"}
+    host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");
+    console.error("RUMBO 3D init failed",e);
+   }
   });
  };
  const root=document.getElementById("view")||document.body;
