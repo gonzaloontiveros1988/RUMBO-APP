@@ -237,3 +237,14 @@ test("adaptive coach allows explicit OFF dates and blocks flight and standby dut
  assert.ok(plan.some(x=>x.date==="2026-11-16"&&x.availability==="roster-off"&&!x.needsRosterConfirmation));
  assert.ok(!plan.some(x=>["2026-11-17","2026-11-18"].includes(x.date)));
 });
+
+test("nutrition diary excludes recipes with missing macro data from totals",()=>{
+ const known=RECIPES.find(x=>x.id==="yogur-fruta-avena");
+ const unknown={...known,id:"unknown-macros",ingredients:known.ingredients.map(x=>[x[0],x[1],0,0,0,0])};
+ const summary=nutritionDiarySummary([{date:"2026-11-14",recipeId:known.id,servings:1},{date:"2026-11-14",recipeId:unknown.id,servings:2}],[known,unknown],"2026-11-14");
+ assert.equal(summary.entries,2);
+ assert.equal(summary.verifiedEntries,1);
+ assert.equal(summary.unverifiedEntries,1);
+ assert.equal(summary.kcal,recipeNutrition(known).perServing.kcal);
+ assert.equal(recipeNutrition(unknown).verified,false);
+});
