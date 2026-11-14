@@ -852,3 +852,19 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes demoPressLegA{0%,100%{rotate:8deg}50%{rotate:34deg}}
 @keyframes demoPressLegB{0%,100%{rotate:-8deg}50%{rotate:-34deg}}
 @media(prefers-reduced-motion:reduce){.demo-caption:before,.guided-figure span,.program-detail-body span{animation:none!important}}
+
+
+/* Premium six-week fitness programme panel */
+.fitness-profile-panel{position:relative;overflow:hidden;border:1px solid rgba(77,202,197,.28);background:linear-gradient(135deg,rgba(10,35,51,.98),rgba(8,25,40,.98) 60%,rgba(13,49,61,.95));box-shadow:0 18px 48px rgba(0,0,0,.18)}
+.fitness-profile-panel:after{content:"";position:absolute;right:-90px;top:-150px;width:340px;height:340px;border-radius:50%;border:1px solid rgba(90,220,209,.1);box-shadow:0 0 0 30px rgba(90,220,209,.025),0 0 0 65px rgba(90,220,209,.02);pointer-events:none}
+.fitness-profile-panel .panel-head{align-items:flex-start;margin-bottom:20px}
+.fitness-profile-panel .panel-head h2{font-size:clamp(20px,2.2vw,28px);letter-spacing:-.035em;margin:5px 0}
+.fitness-profile-panel .panel-head .muted{max-width:620px;margin:5px 0 0}
+.fitness-profile-panel .form{position:relative;z-index:1;gap:14px;margin-top:12px}
+.fitness-profile-panel label{display:grid;gap:7px;color:#a9c4d0;font-size:11px;font-weight:700;letter-spacing:.04em}
+.fitness-profile-panel select,.fitness-profile-panel input{min-height:44px;border:1px solid rgba(137,184,199,.2);border-radius:11px;background:rgba(3,17,29,.72);color:#e8f5f6;padding:0 13px}
+.fitness-profile-panel #buildSixWeekProgram{min-height:44px;padding:0 22px;white-space:nowrap;background:linear-gradient(110deg,#27bdb7,#55ded0);color:#06212c;border:0;font-weight:800;box-shadow:0 8px 24px rgba(43,199,188,.16)}
+.fitness-program-principles{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(137,184,199,.13);color:#8fb6c2;font:700 9px 'DM Mono',monospace;letter-spacing:.08em}
+.fitness-program-principles span{display:inline-flex;align-items:center;gap:6px}
+.fitness-program-principles span:before{content:"";width:5px;height:5px;border-radius:50%;background:#54d7ca}
+@media(max-width:650px){.fitness-profile-panel .form{flex-direction:column}.fitness-profile-panel #buildSixWeekProgram{width:100%}}
