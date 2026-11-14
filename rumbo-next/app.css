@@ -792,3 +792,14 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .program-detail-cues ol{margin:9px 0 0;padding-left:20px;display:grid;gap:7px;color:#e0edf1;font-size:13px}
 .program-detail-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px}
 @media(max-width:600px){.program-detail-visual{grid-template-columns:1fr}.program-detail-body{height:130px}.program-exercise-detail{padding:13px}.program-exercise-trigger{gap:8px}.program-exercise-trigger .pill{font-size:9px}}
+
+
+/* Nutrition recipe import and compact search */
+.recipe-paste-label{display:grid;gap:8px;font-weight:700;color:var(--text,#e8f4f8);margin:10px 0}
+.recipe-paste-label textarea{width:100%;min-height:150px;resize:vertical;padding:14px;border:1px solid rgba(113,190,203,.25);border-radius:13px;background:rgba(4,23,37,.72);color:inherit;line-height:1.55}
+.recipe-search-form{display:grid;grid-template-columns:minmax(180px,2fr) minmax(145px,1fr) minmax(110px,.8fr) 85px 145px auto;gap:8px;align-items:center}
+.recipe-search-form input,.recipe-search-form select{min-width:0}
+.recipe-search-notice{padding:10px 12px;border-radius:10px;background:rgba(47,190,181,.09);border:1px solid rgba(69,198,191,.2)}
+.recipe-search-panel textarea:focus,.recipe-search-form input:focus,.recipe-search-form select:focus{outline:2px solid rgba(75,212,205,.55);outline-offset:1px}
+@media(max-width:920px){.recipe-search-form{grid-template-columns:repeat(2,minmax(0,1fr))}.recipe-search-form input:first-child{grid-column:1/-1}.recipe-search-form button{grid-column:1/-1}}
+@media(max-width:560px){.recipe-search-form{grid-template-columns:1fr}.recipe-search-form input:first-child,.recipe-search-form button{grid-column:auto}.recipe-paste-label textarea{min-height:190px}}
