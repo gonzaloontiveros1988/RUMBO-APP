@@ -43,7 +43,53 @@ function init(host,id,THREE){
  function pose(p){
   const k=preset.kind,u=phase(p),P={};
   const upright=k!=="plank"&&k!=="bridge";
-  if(k==="plank"){Object.assign(P,{head:V(-.95,1.05,0),neck:V(-.78,1.03,0),chest:V(-.35,.99,0),pelvis:V(.38,.96,0),lh:V(.42,.95,-.13),rh:V(.42,.95,.13),lk:V(.85,.92,-.13),rk:V(.85,.92,.13),la:V(1.18,.91,-.13),ra:V(1.18,.91,.13),ls:V(-.58,.95,-.18),rs:V(-.58,.95,.18),le:V(-.72,.62,-.18),re:V(-.72,.62,.18),lw:V(-.95,.56,-.18),rw:V(-.95,.56,.18)})}
+  if(id==="squat"){
+   const d=.30*u,torso=.13*u,hip=V(.015+d*.16,1-d,0),chest=V(-Math.sin(torso)*.48,hip.y+.46,0),head=V(chest.x-.035,hip.y+.91,0);
+   Object.assign(P,{pelvis:hip,chest,neck:V(chest.x-.015,chest.y+.13,0),head,
+    ls:V(chest.x-.17,chest.y-.02,-.2),rs:V(chest.x-.17,chest.y-.02,.2),
+    lh:V(.02,hip.y,-.14),rh:V(.02,hip.y,.14),
+    lk:V(-.12-.22*u,hip.y-.43,-.14),rk:V(-.12-.22*u,hip.y-.43,.14),
+    la:V(-.10, .12,-.14),ra:V(-.10,.12,.14)});
+   P.le=V(chest.x-.28,chest.y-.04,-.2);P.re=V(chest.x-.28,chest.y-.04,.2);
+   P.lw=V(chest.x-.42,chest.y-.12,-.16);P.rw=V(chest.x-.42,chest.y-.12,.16);
+  }
+  else if(id==="rdl"){
+   const hinge=.48*u,hip=V(.30*u,1-.06*u,0),chest=V(-hinge,hip.y+.40,0),head=V(-hinge-.04,hip.y+.82,0);
+   Object.assign(P,{pelvis:hip,chest,neck:V(chest.x-.02,chest.y+.12,0),head,
+    ls:V(chest.x-.17,chest.y-.02,-.2),rs:V(chest.x-.17,chest.y-.02,.2),
+    lh:V(hip.x-.08,hip.y,-.14),rh:V(hip.x-.08,hip.y,.14),
+    lk:V(hip.x-.10,hip.y-.43,-.14),rk:V(hip.x-.10,hip.y-.43,.14),
+    la:V(.02,.12,-.14),ra:V(.02,.12,.14)});
+   P.le=V(chest.x-.12,chest.y-.18,-.2);P.re=V(chest.x-.12,chest.y-.18,.2);
+   P.lw=V(chest.x-.05-.12*u,hip.y-.53,-.2);P.rw=V(chest.x-.05-.12*u,hip.y-.53,.2);
+  }
+  else if(id==="bench-press"){
+   const press=.5-.5*Math.cos(p*Math.PI*2),shoulder=V(-.38,.66,0),elbow=V(-.48,.78,0),wrist=V(-.43,.98+.20*press,0);
+   Object.assign(P,{head:V(-1.08,.57,0),neck:V(-.86,.59,0),chest:V(-.38,.62,0),pelvis:V(.28,.53,0),
+    ls:V(-.39,.68,-.2),rs:V(-.39,.68,.2),lh:V(.28,.53,-.14),rh:V(.28,.53,.14),
+    lk:V(.65,.34,-.14),rk:V(.65,.34,.14),la:V(.91,.12,-.14),ra:V(.91,.12,.14),
+    le:V(elbow.x,elbow.y,-.29),re:V(elbow.x,elbow.y,.29),lw:V(wrist.x,wrist.y,-.29),rw:V(wrist.x,wrist.y,.29)});
+  }
+  else if(id==="row"){
+   const pull=.5-.5*Math.cos(p*Math.PI*2),hip=V(.28,.62,0),chest=V(.12,.98,0);
+   Object.assign(P,{head:V(.06,1.42,0),neck:V(.10,1.12,0),chest,pelvis:hip,
+    ls:V(-.03,1.0,-.2),rs:V(-.03,1,.2),
+    lh:V(.28,.62,-.14),rh:V(.28,.62,.14),lk:V(-.02,.38,-.14),rk:V(-.02,.38,.14),
+    la:V(-.48,.12,-.14),ra:V(-.48,.12,.14),
+    le:V(-.34+.34*pull,.82,-.29),re:V(-.34+.34*pull,.82,.29),
+    lw:V(-.63+.44*pull,.80,-.29),rw:V(-.63+.44*pull,.80,.29)});
+  }
+  else if(id==="reverse-lunge"){
+   const d=.28*u,hip=V(0,1-d,0),chest=V(-.045,hip.y+.46,0);
+   Object.assign(P,{pelvis:hip,chest,neck:V(chest.x,chest.y+.13,0),head:V(chest.x-.02,chest.y+.80,0),
+    ls:V(chest.x-.17,chest.y,-.2),rs:V(chest.x-.17,chest.y,.2),
+    lh:V(-.10,hip.y,-.14),rh:V(.18,hip.y,.14),
+    lk:V(-.12,hip.y-.43,-.14),rk:V(.38,hip.y-.38,.14),
+    la:V(-.12,.12,-.14),ra:V(.64,.12,.14),
+    le:V(chest.x-.25,chest.y-.28,-.2),re:V(chest.x-.25,chest.y-.28,.2),
+    lw:V(chest.x-.27,chest.y-.55,-.2),rw:V(chest.x-.27,chest.y-.55,.2)});
+  }
+  else if(k==="plank"){Object.assign(P,{head:V(-.95,1.05,0),neck:V(-.78,1.03,0),chest:V(-.35,.99,0),pelvis:V(.38,.96,0),lh:V(.42,.95,-.13),rh:V(.42,.95,.13),lk:V(.85,.92,-.13),rk:V(.85,.92,.13),la:V(1.18,.91,-.13),ra:V(1.18,.91,.13),ls:V(-.58,.95,-.18),rs:V(-.58,.95,.18),le:V(-.72,.62,-.18),re:V(-.72,.62,.18),lw:V(-.95,.56,-.18),rw:V(-.95,.56,.18)})}
   else if(k==="bridge"){Object.assign(P,{head:V(-1.05,.28,0),neck:V(-.85,.34,0),chest:V(-.35,.62,0),pelvis:V(.25,.68,0),lh:V(.42,.62,-.13),rh:V(.42,.62,.13),lk:V(.82,.36,-.13),rk:V(.82,.36,.13),la:V(1.08,.13,-.13),ra:V(1.08,.13,.13),ls:V(-.58,.52,-.18),rs:V(-.58,.52,.18),le:V(-.72,.28,-.18),re:V(-.72,.28,.18),lw:V(-.9,.13,-.18),rw:V(-.9,.13,.18)})}
   else {
    let hipY=1.0,kneeF=0,torso=0,stance=.25;
