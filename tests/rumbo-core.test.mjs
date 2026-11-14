@@ -224,3 +224,16 @@ test("pantry expiry status distinguishes expired, soon, fresh and unknown dates"
  assert.equal(pantryExpiryStatus({expiryDate:"2026-11-25"},"2026-11-14"),"fresh");
  assert.equal(pantryExpiryStatus({},"2026-11-14"),"unknown");
 });
+
+test("adaptive coach drafts spaced sessions on unassigned dates but flags roster confirmation",()=>{
+ const plan=adaptiveTrainingPlan([],[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:40,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
+ assert.equal(plan.length,6);
+ assert.ok(plan.every(x=>x.status==="candidate"&&x.needsRosterConfirmation===true&&x.availability==="unconfirmed"));
+ assert.ok(plan.every((x,i)=>i===0||x.date>plan[i-1].date));
+});
+test("adaptive coach allows explicit OFF dates and blocks flight and standby duties",()=>{
+ const duties=[{date:"2026-11-16",code:"OFF"},{date:"2026-11-17",code:"QR123"},{date:"2026-11-18",code:"PSBY"}];
+ const plan=adaptiveTrainingPlan(duties,[],{goal:"strength",setting:"gym",daysPerWeek:3,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
+ assert.ok(plan.some(x=>x.date==="2026-11-16"&&x.availability==="roster-off"&&!x.needsRosterConfirmation));
+ assert.ok(!plan.some(x=>["2026-11-17","2026-11-18"].includes(x.date)));
+});
