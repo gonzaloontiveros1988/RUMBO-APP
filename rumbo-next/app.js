@@ -573,7 +573,7 @@ bind("detectPastedRecipe",()=>{
  const r=parsed.recipe;
  $("#customRecipeName").value=r.name;$("#customRecipeServings").value=String(r.servings);$("#customRecipeMinutes").value=String(r.minutes);
  $("#customRecipeIngredients").value=r.ingredients.map(x=>x[0]+" | "+x[1]).join("\n");
- $("#customRecipeSteps").value=r.steps.map((x,i)=>(i+1)+". "+x).join("\n");
+ $("#customRecipeSteps").value=r.steps.map((x,i)=>(i+1)+". "+x).join("\n");for(const id of ["customRecipeKcal","customRecipeProtein","customRecipeCarbs","customRecipeFat"])$("#"+id).value="";
  if(status)status.textContent="Detectados "+r.ingredients.length+" ingredientes y "+r.steps.length+" pasos. Revisa el resultado antes de guardarlo.";
  toast("Receta detectada. Revisa ingredientes y elaboración antes de guardar.");
 });
@@ -586,9 +586,9 @@ bind("searchRecipes",async()=>{
  try{
   const base="https://www.themealdb.com/api/json/v1/1/",q=query.toLowerCase(),clean=q.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   const aliases=[[/carbonara/,"spaghetti"],[/bolognesa|bolognese/,"beef"],[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n|spaghetti|fettuccine|ravioli|lasagna|lasa[nñ]a/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"]];
-  const ingredientTerms=[...new Set(aliases.filter(([re])=>re.test(clean)).map(([,v])=>v))];
+  const ingredientTerms=[...new Set([...aliases.filter(([re])=>re.test(clean)).map(([,v])=>v),...(/carbonara/.test(clean)?["pasta"]:[])])];
   const searchTerms=[query];if(/carbonara/.test(clean))searchTerms.push("spaghetti carbonara","carbonara");if(/bolognesa|bolognese/.test(clean))searchTerms.push("bolognese");if(/paella/.test(clean))searchTerms.push("paella");
-  const areas=cuisine==="Mediterranean"?["Spanish","Italian","Greek","Turkish","Moroccan"]:cuisine==="Asian"?["Chinese","Japanese","Thai","Vietnamese","Indian","Malaysian"]:cuisine?[cuisine]:[];
+  const areas=cuisine==="Mediterranean"?["Spanish","Italian","Greek","Turkish","Moroccan"]:cuisine==="Asian"?["Chinese","Japanese","Thai","Vietnamese","Indian","Malaysian"]:cuisine?[cuisine]:(/carbonara|pasta|pizza|lasagna|ravioli/.test(clean)?["Italian"]:/paella|tortilla|gazpacho/.test(clean)?["Spanish"]:/sushi|ramen|teriyaki/.test(clean)?["Japanese"]:/schnitzel|sauerkraut/.test(clean)?["German"]:/burger|bbq|mac and cheese/.test(clean)?["American"]:[]);
   const requests=[...new Set(searchTerms)].map(s=>base+"search.php?s="+encodeURIComponent(s));
   for(const ingredient of ingredientTerms.slice(0,4))requests.push(base+"filter.php?i="+encodeURIComponent(ingredient));
   for(const area of areas)requests.push(base+"filter.php?a="+encodeURIComponent(area));
