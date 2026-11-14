@@ -567,36 +567,48 @@ bind("clearMealPlan",()=>{state.mealPlan=[];save();render();toast("Meal plan dra
  const recipe={id:"user-"+(crypto.randomUUID?crypto.randomUUID():String(Date.now())),name,category,minutes,servings,ingredients,steps,image:"",origin:"user",sourceTitle:"Receta añadida por el usuario"};
  state.customRecipes=state.customRecipes||[];state.customRecipes.push(recipe);save();render();toast("Receta guardada en tu recetario.");
 });
+bind("detectPastedRecipe",()=>{
+ const raw=$("#recipePasteText")?.value||"",parsed=parsePastedRecipe(raw),status=$("#recipeParseStatus");
+ if(!parsed.ok){if(status)status.textContent=parsed.error;return toast(parsed.error)}
+ const r=parsed.recipe;
+ $("#customRecipeName").value=r.name;$("#customRecipeServings").value=String(r.servings);$("#customRecipeMinutes").value=String(r.minutes);
+ $("#customRecipeIngredients").value=r.ingredients.map(x=>x[0]+" | "+x[1]).join("\n");
+ $("#customRecipeSteps").value=r.steps.map((x,i)=>(i+1)+". "+x).join("\n");
+ if(status)status.textContent="Detectados "+r.ingredients.length+" ingredientes y "+r.steps.length+" pasos. Revisa el resultado antes de guardarlo.";
+ toast("Receta detectada. Revisa ingredientes y elaboración antes de guardar.");
+});
 bind("searchRecipes",async()=>{
- const query=$("#recipeSearchQuery")?.value.trim(),servings=Number($("#recipeSearchServings")?.value)||4,category=$("#recipeSearchCategory")?.value||"Lunch",date=$("#recipeSearchDate")?.value||today(),button=$("#searchRecipes");
+ const query=$("#recipeSearchQuery")?.value.trim(),servings=Number($("#recipeSearchServings")?.value)||4,category=$("#recipeSearchCategory")?.value||"Lunch",date=$("#recipeSearchDate")?.value||today(),cuisine=$("#recipeSearchCuisine")?.value||"",button=$("#searchRecipes");
  if(!query||query.length<2)return toast("Escribe un plato o ingrediente.");
  if(!date||servings<1||servings>12)return toast("Revisa la fecha y las raciones (1–12).");
- state.recipeSearchQuery=query;state.recipeSearchDate=date;state.recipeTargetCategory=category;state.recipeTargetServings=servings;state.recipeSearchResults=[];state.selectedRecipeCandidate=null;save();
- button.disabled=true;button.textContent="Buscando recetas…";
- let status=$("#recipeSearchStatus");if(!status){status=document.createElement("p");status.className="muted";status.id="recipeSearchStatus";button.parentElement.after(status)}status.textContent="Consultando el catálogo público de recetas…";
+ state.recipeSearchQuery=query;state.recipeSearchDate=date;state.recipeTargetCategory=category;state.recipeTargetServings=servings;state.recipeCuisine=cuisine;state.recipeSearchResults=[];state.selectedRecipeCandidate=null;state.recipeSearchNotice="";save();
+ button.disabled=true;button.textContent="Buscando…";let status=$("#recipeSearchStatus");if(!status){status=document.createElement("p");status.className="muted";status.id="recipeSearchStatus";button.parentElement.after(status)}status.textContent="Buscando coincidencias por plato, ingredientes y cocina…";
  try{
-  const base="https://www.themealdb.com/api/json/v1/1/",q=query.toLowerCase();
-  const aliases=[[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken_breast"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"],[/carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|macarr[oó]n|espagueti|spaghetti|fettuccine/,"pasta"],[/paella|arroz marinero|arroz con marisco/,"shrimp"]];
-  const ingredientTerms=[...new Set(aliases.filter(([re])=>re.test(q)).map(([,v])=>v))];
-  const tasks=[base+"search.php?s="+encodeURIComponent(query)];
-  for(const ingredient of ingredientTerms.slice(0,3))tasks.push(base+"filter.php?i="+encodeURIComponent(ingredient));
-  if(/paella|marisco|seafood|pescado|fish/.test(q))tasks.push(base+"filter.php?c=Seafood");
-  if(/espa[nñ]ol|paella|tortilla|gazpacho|mediterr[aá]ne/.test(q))tasks.push(base+"filter.php?a=Spanish");
-  if(/italian|italia|pasta|pizza|carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|espagueti|spaghetti|fettuccine/.test(q))tasks.push(base+"filter.php?a=Italian");
-  const found=new Map();
-  for(const url of tasks){try{const resp=await fetch(url);if(!resp.ok)continue;const data=await resp.json();for(const m of data.meals||[])if(m.idMeal&&!found.has(m.idMeal))found.set(m.idMeal,m)}catch{}if(found.size>=12)break}
-  if(!found.size){const fallbackCategories=/paella|marisco|seafood|pescado|fish/.test(q)?["Seafood"]:/carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|espagueti|spaghetti|fettuccine|pasta|pizza/.test(q)?["Pasta","Vegetarian","Miscellaneous"]:[category==="Breakfast"?"Breakfast":category==="Dinner"?"Seafood":"Chicken","Vegetarian"];for(const fallbackCategory of fallbackCategories){try{const resp=await fetch(base+"filter.php?c="+encodeURIComponent(fallbackCategory));if(!resp.ok)continue;const data=await resp.json();for(const m of (data.meals||[]).slice(0,8))if(m.idMeal)found.set(m.idMeal,m);if(found.size)break}catch{}}}
+  const base="https://www.themealdb.com/api/json/v1/1/",q=query.toLowerCase(),clean=q.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const aliases=[[/carbonara/,"spaghetti"],[/bolognesa|bolognese/,"beef"],[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n|spaghetti|fettuccine|ravioli|lasagna|lasa[nñ]a/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"]];
+  const ingredientTerms=[...new Set(aliases.filter(([re])=>re.test(clean)).map(([,v])=>v))];
+  const searchTerms=[query];if(/carbonara/.test(clean))searchTerms.push("spaghetti carbonara","carbonara");if(/bolognesa|bolognese/.test(clean))searchTerms.push("bolognese");if(/paella/.test(clean))searchTerms.push("paella");
+  const areas=cuisine==="Mediterranean"?["Spanish","Italian","Greek","Turkish","Moroccan"]:cuisine==="Asian"?["Chinese","Japanese","Thai","Vietnamese","Indian","Malaysian"]:cuisine?[cuisine]:[];
+  const requests=[...new Set(searchTerms)].map(s=>base+"search.php?s="+encodeURIComponent(s));
+  for(const ingredient of ingredientTerms.slice(0,4))requests.push(base+"filter.php?i="+encodeURIComponent(ingredient));
+  for(const area of areas)requests.push(base+"filter.php?a="+encodeURIComponent(area));
+  const get=async url=>{const response=await fetch(url,{signal:AbortSignal.timeout(9000),headers:{Accept:"application/json"}});if(!response.ok)throw new Error("HTTP "+response.status);return response.json()};
+  const responses=await Promise.allSettled(requests.map(get)),found=new Map();
+  for(const result of responses)if(result.status==="fulfilled")for(const meal of result.value?.meals||[])if(meal?.idMeal&&!found.has(meal.idMeal))found.set(meal.idMeal,meal);
+  if(cuisine&&found.size===0&&areas.length)throw new Error("El catálogo no devolvió platos de esa cocina. Prueba «Todas las cocinas» o cambia el término.");
+  const candidates=[...found.values()].slice(0,16);
+  const details=await Promise.allSettled(candidates.map(x=>get(base+"lookup.php?i="+encodeURIComponent(x.idMeal))));
   const results=[];
-  for(const item of [...found.values()].slice(0,8)){try{
-   const resp=await fetch(base+"lookup.php?i="+encodeURIComponent(item.idMeal));if(!resp.ok)continue;const data=await resp.json(),m=data.meals?.[0];if(!m)continue;
+  for(const detail of details){if(detail.status!=="fulfilled")continue;const m=detail.value?.meals?.[0];if(!m)continue;
    const ingredients=[];for(let n=1;n<=20;n++){const name=String(m["strIngredient"+n]||"").trim(),qty=String(m["strMeasure"+n]||"").trim();if(name)ingredients.push([name,qty||"Al gusto",0,0,0,0])}
-   const steps=String(m.strInstructions||"").replace(/\\r/g,"").split(/(?<=[.!?])\\s+|\\n+/).map(x=>x.trim()).filter(x=>x.length>12).slice(0,16);
-   if(ingredients.length<2||steps.length<2)continue;
-   results.push({id:"themealdb-"+m.idMeal,name:m.strMeal,category,minutes:30,servings,image:m.strMealThumb||"",imageVerified:!!m.strMealThumb,ingredients,steps,origin:"web",sourceUrl:m.strSource||("https://www.themealdb.com/meal/"+m.idMeal),sourceTitle:"TheMealDB · "+m.strMeal,sourceSnippet:"Receta pública. No hay información nutricional verificada disponible; RUMBO no inventa macros."});
-  }catch{}}
-  state.recipeSearchResults=results;state.recipeSearchNotice=results.length?"Resultados del catálogo público TheMealDB. Las recetas sin valores nutricionales verificados no muestran macros.":"No encontramos coincidencias. Prueba con un ingrediente principal o una categoría más general.";
-  state.selectedRecipeCandidate=null;save();render();if(results.length)toast(results.length+" recetas encontradas. Revisa ingredientes y fuente antes de añadir.");
- }catch(error){status.textContent="No se pudo conectar con el catálogo de recetas. "+(error.message||"");toast(status.textContent)}
+   const steps=String(m.strInstructions||"").replace(/\r/g,"").split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>x.length>12).slice(0,18);
+   if(ingredients.length<2||steps.length<1)continue;
+   results.push({id:"themealdb-"+m.idMeal,name:m.strMeal,category,minutes:30,servings,image:m.strMealThumb||"",imageVerified:!!m.strMealThumb,ingredients,steps,origin:"web",sourceUrl:m.strSource||("https://www.themealdb.com/meal/"+m.idMeal),sourceTitle:"TheMealDB · "+m.strMeal,sourceSnippet:"Receta pública. No hay macros verificados disponibles; RUMBO no inventa valores."});
+   if(results.length>=8)break;
+  }
+  state.recipeSearchResults=results;state.recipeSearchNotice=results.length?results.length+" recetas encontradas. Comprueba la fuente y los ingredientes antes de incorporarlas. Los macros no disponibles se muestran como no verificados.":(responses.every(x=>x.status==="rejected")?"No se pudo conectar con el catálogo público. Comprueba la conexión y vuelve a intentarlo.":"No hay coincidencias exactas. Prueba con un nombre más corto, un ingrediente principal o «Todas las cocinas».");
+  state.selectedRecipeCandidate=null;save();render();if(results.length)toast(results.length+" recetas recuperadas para revisar.");
+ }catch(error){state.recipeSearchNotice=error.message||"No se pudo completar la búsqueda.";save();render();toast(state.recipeSearchNotice)}
  finally{const current=$("#searchRecipes");if(current){current.disabled=false;current.textContent="Buscar recetas"}}
 });
 document.querySelectorAll("[data-recipe-candidate]").forEach(e=>e.onclick=()=>{state.selectedRecipeCandidate=e.dataset.recipeCandidate;save();render()});
