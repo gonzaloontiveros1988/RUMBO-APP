@@ -318,9 +318,13 @@ function sixWeekProgramMarkup(){
 
 function exerciseDemoSvg(id){
  const svg='<svg class="exercise-demo-svg" viewBox="0 0 320 190" role="img" aria-label="Demostración biomecánica animada del ejercicio"><path class="demo-floor" d="M18 166H302"/>';
- const pose=(motion,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="160" cy="27" r="10"/><path class="rig-torso" d="M160 39L160 91"/><g class="rig-arms"><path class="rig-limb" d="'+arms+'"/></g><g class="rig-legs"><path class="rig-limb" d="'+legs+'"/></g><g class="rig-joints"><circle cx="140" cy="49" r="5"/><circle cx="180" cy="49" r="5"/><circle cx="150" cy="91" r="5"/><circle cx="170" cy="91" r="5"/><circle cx="160" cy="39" r="4"/></g></g>';
- const upright='M140 49L125 75L118 58M180 49L195 75L202 58';
- const squatLegs='M150 91L132 119L124 159M170 91L188 119L196 159';
+ const limbSegments=(path,kind)=>path.split("M").filter(Boolean).map(chain=>{
+  const pts=Array.from(chain.matchAll(/([0-9.]+)\\s+([0-9.]+)/g)).map(m=>[Number(m[1]),Number(m[2])]);
+  if(pts.length<3)return "";
+  const [a,b,c]=pts;
+  return '<g class="rig-'+kind+'-upper" style="transform-origin:'+a[0]+'px '+a[1]+'px"><path class="rig-limb" d="M'+a.join(" ")+'L'+b.join(" ")+'"/></g><g class="rig-'+kind+'-lower" style="transform-origin:'+b[0]+'px '+b[1]+'px"><path class="rig-limb" d="M'+b.join(" ")+'L'+c.join(" ")+'"/></g><circle class="rig-joint" cx="'+b[0]+'" cy="'+b[1]+'" r="5"/>';
+ }).join("");
+ const pose=(motion,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="160" cy="27" r="10"/><path class="rig-torso" d="M160 39L160 91"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g><circle class="rig-joint" cx="160" cy="39" r="4"/></g>';
  const scenes={
  "back-squat":pose("rig-squat-motion",upright,squatLegs,'<path class="demo-weight" d="M95 49H225m-8 -7v14m-114 -14v14"/>'),
  "front-squat":pose("rig-squat-motion",'M140 49L132 70L153 77M180 49L188 70L167 77',squatLegs,'<path class="demo-weight" d="M132 75h56"/>'),
