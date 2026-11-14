@@ -326,6 +326,8 @@ function exerciseDemoSvg(id){
  }).join("");
  const pose=(motion,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="160" cy="27" r="10"/><path class="rig-torso" d="M160 39L160 91"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g><circle class="rig-joint" cx="160" cy="39" r="4"/></g>';
  const horizontalPose=(motion,head,torso,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="'+head[0]+'" cy="'+head[1]+'" r="10"/><path class="rig-torso" d="M'+torso[0].join(" ")+'L'+torso[1].join(" ")+'"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g></g>';
+ const upright="M140 49L125 75L118 58M180 49L195 75L202 58";
+ const squatLegs="M150 91L132 119L124 159M170 91L188 119L196 159";
  const scenes={
  "back-squat":pose("rig-squat-motion",upright,squatLegs,'<path class="demo-weight" d="M95 49H225m-8 -7v14m-114 -14v14"/>'),
  "front-squat":pose("rig-squat-motion",'M140 49L132 70L153 77M180 49L188 70L167 77',squatLegs,'<path class="demo-weight" d="M132 75h56"/>'),
