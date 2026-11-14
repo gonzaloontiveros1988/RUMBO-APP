@@ -222,3 +222,25 @@ test("adaptive training recognises QR flight numbers on the previous day",()=>{
  const plan=adaptiveTrainingPlan([{date:"2026-11-09",code:"QR123"}],[],{goal:"strength",setting:"gym",daysPerWeek:3,availableMinutes:45,readiness:"Good",fatigue:1,sleepHours:7},"2026-11-10");
  assert.equal(plan[0].routineId,"mobility-15");
 });
+
+import {parseReceiptText,findDuplicateExpense} from "../rumbo-next/finance-intelligence.js";
+test("receipt parser extracts merchant, Qatar currency, total and date",()=>{
+ const parsed=parseReceiptText("CARREFOUR CITY\nINVOICE\nDate: 14/11/2026\nQAR 123.45\nGRAND TOTAL QAR 123.45");
+ assert.equal(parsed.merchant,"CARREFOUR CITY");
+ assert.equal(parsed.date,"2026-11-14");
+ assert.equal(parsed.amount,123.45);
+ assert.equal(parsed.currency,"QAR");
+ assert.equal(parsed.category,"Groceries");
+});
+test("receipt parser handles European thousands and decimal separators",()=>{
+ const parsed=parseReceiptText("MERCADONA\nFecha: 13/11/2026\nTOTAL 1.234,50 EUR");
+ assert.equal(parsed.amount,1234.5);
+ assert.equal(parsed.currency,"EUR");
+ assert.equal(parsed.date,"2026-11-13");
+});
+test("duplicate receipt check matches merchant, date, amount and currency",()=>{
+ const saved=[{name:"Carrefour Market",date:"2026-11-14",amount:123.45,currency:"QAR"}];
+ assert.ok(findDuplicateExpense({name:"CARREFOUR",date:"2026-11-14",amount:123.45,currency:"QAR"},saved));
+ assert.equal(findDuplicateExpense({name:"CARREFOUR",date:"2026-11-14",amount:123.45,currency:"EUR"},saved),null);
+ assert.equal(findDuplicateExpense({name:"CARREFOUR",date:"2026-11-15",amount:123.45,currency:"QAR"},saved),null);
+});
