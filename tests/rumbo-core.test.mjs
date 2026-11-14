@@ -94,7 +94,7 @@ test("completion is stored per occurrence without completing future monthly remi
  assert.deepEqual(r.map(x=>x.done),[true,false,false]);
 });
 
-import {makeMealWeek,financeSummary,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,RECIPES,recipeNutrition} from "../rumbo-next/life-intelligence.js";
+import {makeMealWeek,financeSummary,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,RECIPES,recipeNutrition,parsePastedRecipe} from "../rumbo-next/life-intelligence.js";
 test("meal planner creates breakfast, lunch and dinner for each day and adapts to roster",()=>{
  const plan=makeMealWeek("2026-11-01",[
   {date:"2026-11-01",code:"QR123",kind:"FLIGHT"},
@@ -236,6 +236,25 @@ test("adaptive coach allows explicit OFF dates and blocks flight and standby dut
  const plan=adaptiveTrainingPlan(duties,[],{goal:"strength",setting:"gym",daysPerWeek:3,readiness:"Good",fatigue:1,sleepHours:8},"2026-11-16");
  assert.ok(plan.some(x=>x.date==="2026-11-16"&&x.availability==="roster-off"&&!x.needsRosterConfirmation));
  assert.ok(!plan.some(x=>["2026-11-17","2026-11-18"].includes(x.date)));
+});
+
+
+test("pasted recipe detector separates Spanish ingredients, quantities and preparation steps",()=>{
+ const parsed=parsePastedRecipe("Carbonara tradicional\n4 raciones · 25 minutos\n\nIngredientes\n- 400 g | espaguetis\n- 150 g | guanciale\n- 4 unidades | huevos\n- 80 g | pecorino\n\nPreparación\n1. Cuece la pasta en agua abundante.\n2. Dora el guanciale.\n3. Mezcla los huevos con el queso y combina fuera del fuego.");
+ assert.equal(parsed.ok,true);
+ assert.equal(parsed.recipe.name,"Carbonara tradicional");
+ assert.equal(parsed.recipe.servings,4);
+ assert.equal(parsed.recipe.minutes,25);
+ assert.equal(parsed.recipe.ingredients.length,4);
+ assert.equal(parsed.recipe.steps.length,3);
+ assert.equal(parsed.recipe.ingredients[0][0],"400 g");
+});
+test("pasted recipe detector supports English and German headings and rejects ambiguous text",()=>{
+ const parsed=parsePastedRecipe("Apple cake\nServes 6 · 55 minutes\n\nIngredients:\n- 2 apples\n- 200 g flour\n\nMethod:\n1. Mix the ingredients.\n2. Bake until cooked.");
+ assert.equal(parsed.ok,true);
+ assert.equal(parsed.recipe.servings,6);
+ assert.equal(parsed.recipe.ingredients.length,2);
+ assert.equal(parsePastedRecipe("This is just a random short note.").ok,false);
 });
 
 test("nutrition diary excludes recipes with missing macro data from totals",()=>{
