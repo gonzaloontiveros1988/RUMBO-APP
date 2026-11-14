@@ -36,6 +36,47 @@ RECIPES.push(
 {id:"dinner-tuna-stuffed-potatoes",name:"Patatas asadas rellenas de atún y yogur",category:"Dinner",minutes:35,servings:4,image:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=85",ingredients:[["Patatas grandes","4 unidades (800 g)",616,16,136,0.8],["Atún al natural","2 latas",186,40,0,1.5],["Yogur natural","120 g",73,6.4,4,3.2],["Maíz","80 g",77,2.7,17,1.2],["Cebollino","al gusto",2,0.1,0.4,0]],steps:["Hornea las patatas a 200 °C hasta que estén tiernas.","Mezcla el atún con yogur, maíz y cebollino.","Abre las patatas y reparte el relleno."]},
 {id:"dinner-lentil-bolognese",name:"Boloñesa de lentejas con espaguetis",category:"Dinner",minutes:30,servings:4,image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=900&q=85",ingredients:[["Lentejas cocidas","400 g",464,36,80,1.6],["Espaguetis secos","280 g",980,35,196,4],["Tomate triturado","350 g",105,5.3,17.5,1.8],["Zanahoria","1 mediana",33,0.8,7.6,0.2],["Aceite de oliva","1 cucharada",126,0,0,14]],steps:["Cuece la pasta según las indicaciones del envase.","Sofríe zanahoria y tomate y añade las lentejas.","Cocina 10 minutos y sirve la salsa sobre la pasta."]}
 );
+
+export function parsePastedRecipe(raw){
+ const text=String(raw||"").replace(/\r/g,"").replace(/[\u00a0\t]/g," ").trim();
+ if(text.length<30)return {ok:false,error:"Pega el texto completo de una receta (al menos 30 caracteres)."};
+ const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ const heading=(s)=>/^(ingredientes?|ingredients?|zutaten|ingredienti|ingrédients?)\s*:?$/i.test(s);
+ const method=(s)=>/^(elaboraci[oó]n|preparaci[oó]n|pasos?|instrucciones|method|instructions?|directions?|zubereitung|preparazione|préparation)\s*:?$/i.test(s);
+ let title=lines[0].replace(/^#+\s*/,"").replace(/^(receta|recipe)\s*:\s*/i,"").slice(0,100);
+ const servingsLine=lines.find(x=>/(raciones|porciones|servings|serves|personen|dosi)\s*[:\-]?\s*\d+/i.test(x));
+ const timeLine=lines.find(x=>/(tiempo|time|prep|cocci[oó]n|cooking)\s*[:\-]?\s*\d+/i.test(x));
+ const servings=Number(servingsLine?.match(/\d+/)?.[0])||4;
+ const minutes=Number(timeLine?.match(/\d+/)?.[0])||30;
+ let section="",ingredients=[],steps=[];
+ for(let line of lines.slice(1)){
+  if(heading(line)){section="ingredients";continue}
+  if(method(line)){section="steps";continue}
+  if(/^(raciones|porciones|servings|serves|personen|dosi|tiempo|time|prep|cocci[oó]n)\s*[:\-]/i.test(line))continue;
+  const clean=line.replace(/^[-*•▪]\s*/,"").replace(/^\d+[\).\-\s]+/,"").trim();
+  if(!clean)continue;
+  const isBullet=/^[-*•▪]\s*/.test(line),isNumber=/^\d+[\).\-\s]+/.test(line);
+  if(section==="ingredients"||(section===""&&isBullet&&!/[.!?]\s/.test(clean))){
+   let name=clean,qty="Cantidad según receta";
+   if(clean.includes("|")){const p=clean.split("|");name=p[0].trim();qty=p.slice(1).join("|").trim()||qty}
+   else if(clean.includes(" — ")) {const p=clean.split(" — ");name=p[0].trim();qty=p.slice(1).join(" — ").trim()||qty}
+   else if(clean.includes(" - ")&&clean.split(" - ")[0].length<65){const p=clean.split(" - ");name=p[0].trim();qty=p.slice(1).join(" - ").trim()||qty}
+   else {const m=clean.match(/^((?:\d+[\d\/.,]*\s*)(?:g|kg|ml|cl|l|cucharadas?|cucharaditas?|unidades?|dientes?|tazas?|cups?|tbsp|tsp|oz|lb)?\s*)\s+(.+)$/i);if(m){qty=m[1].trim();name=m[2].trim()}}
+   if(name.length>1)ingredients.push([name.slice(0,100),qty.slice(0,80),0,0,0,0]);
+  }else if(section==="steps"||isNumber){if(clean.length>5)steps.push(clean.slice(0,500))}
+ }
+ if(ingredients.length<2){
+  const bullets=lines.slice(1).filter(x=>/^[-*•▪]\s*/.test(x)).map(x=>x.replace(/^[-*•▪]\s*/,"").trim());
+  if(bullets.length>=2)ingredients=bullets.map(x=>{const p=x.split("|");return [p[0].trim().slice(0,100),(p[1]||"Cantidad según receta").trim().slice(0,80),0,0,0,0]});
+ }
+ if(steps.length<1){
+  const numbered=lines.slice(1).filter(x=>/^\d+[\).\-\s]+/.test(x)).map(x=>x.replace(/^\d+[\).\-\s]+/,"").trim()).filter(x=>x.length>8);
+  if(numbered.length)steps=numbered;
+ }
+ if(ingredients.length<2||steps.length<1)return {ok:false,error:"He detectado el texto, pero no puedo separar con seguridad al menos dos ingredientes y un paso de preparación. Usa los encabezados «Ingredientes» y «Preparación» o revisa el formato."};
+ return {ok:true,recipe:{name:title||"Receta importada",servings:Math.min(20,Math.max(1,servings)),minutes:Math.min(300,Math.max(1,minutes)),ingredients,steps}};
+}
+
 export function recipeNutrition(recipe){const totals=recipe.ingredients.reduce((a,x)=>({kcal:a.kcal+(Number(x[2])||0),protein:a.protein+(Number(x[3])||0),carbs:a.carbs+(Number(x[4])||0),fat:a.fat+(Number(x[5])||0)}),{kcal:0,protein:0,carbs:0,fat:0});const verified=recipe.ingredients.some(x=>[2,3,4,5].some(i=>Number(x[i])>0));return {verified,total:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v)])),perServing:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v/Math.max(1,Number(recipe.servings)||1))])),ingredients:recipe.ingredients.map(x=>({name:x[0],quantity:x[1],kcal:x[2],protein:x[3],carbs:x[4],fat:x[5]}))}}
 export function nutritionTargets(profile={}){const weight=Number(profile.weightKg),height=Number(profile.heightCm),age=Number(profile.age),sex=profile.sex||"unspecified",activity=Number(profile.activityFactor)||1.4;if(!(weight>0&&height>0&&age>0))return {status:"needs-profile",note:"Add age, height, weight and activity level before estimating personal calorie targets."};const bmr=10*weight+6.25*height-5*age+(sex==="male"?5:sex==="female"?-161:-78),maintenance=Math.round(bmr*activity),goal=profile.goal||"maintain",target=Math.round(maintenance+(goal==="lose"?-300:goal==="gain"?200:0));return {status:"estimate",bmr:Math.round(bmr),maintenance,target,proteinG:Math.round(weight*(goal==="gain"?1.8:1.6)),note:"Planning estimate only; not medical or dietetic advice."}}
 export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
