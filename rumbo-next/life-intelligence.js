@@ -48,14 +48,29 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
  const start=new Date(startDate+"T12:00:00"),week=[],pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
  const breakfasts=recipes.filter(r=>r.category==="Breakfast"),lunches=recipes.filter(r=>r.category==="Lunch"),dinners=recipes.filter(r=>r.category==="Dinner");
  const pick=(list,index)=>list.length?list[((index%list.length)+list.length)%list.length]:null;
- const pantryTokens=(preferences.pantry||[]).flatMap(x=>String(x.name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/)).filter(x=>x.length>3).map(x=>x.replace(/s$/,""));
- const pantryPick=(list,index)=>{if(!pantryTokens.length)return pick(list,index);const ranked=list.map(r=>({r,score:r.ingredients.reduce((n,x)=>{const tokens=String(x[0]||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/).filter(t=>t.length>3).map(t=>t.replace(/s$/,""));return n+(tokens.some(t=>pantryTokens.includes(t))?1:0)},0)}));const best=Math.max(0,...ranked.map(x=>x.score)),choices=ranked.filter(x=>x.score===best);return choices.length?choices[((index%choices.length)+choices.length)%choices.length].r:pick(list,index)};
+ const pantry=preferences.pantry||[];
+ const tokens=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().split(/[^a-z0-9]+/).filter(x=>x.length>2).map(x=>x.replace(/s$/,""));
+ const pantryPick=(list,index,mealDate)=>{
+  if(!pantry.length)return pick(list,index);
+  const ranked=list.map(recipe=>({r:recipe,score:recipe.ingredients.reduce((total,ingredient)=>{
+   const ingredientWords=tokens(ingredient[0]);
+   return total+pantry.reduce((sum,item)=>{
+    const matches=tokens(item.name).some(word=>ingredientWords.includes(word));if(!matches)return sum;
+    if(!item.expiryDate)return sum+1;
+    const days=Math.round((new Date(item.expiryDate+"T12:00:00")-new Date(mealDate+"T12:00:00"))/86400000);
+    if(days<0)return sum;
+    return sum+(days<=3?4:days<=7?3:days<=14?2:1);
+   },0);
+  },0)}));
+  const best=Math.max(0,...ranked.map(x=>x.score)),choices=ranked.filter(x=>x.score===best);
+  return choices.length?choices[((index%choices.length)+choices.length)%choices.length].r:pick(list,index);
+ };
  for(let i=0;i<7;i++){
   const d=new Date(start);d.setDate(d.getDate()+i);const date=iso(d),duties=(roster||[]).filter(x=>x.date===date),raw=duties.map(x=>[x.code,x.kind,x.status,x.type].join(" ")).join(" ").toUpperCase();
   const flight=/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(raw)||duties.some(x=>x.segments?.length||x.flightNumbers?.length);
   const off=/\b(OFF|DOFF|REST|DAY OFF)\b/.test(raw),standby=/PSBY|STANDBY|STAND-BY|SBY/.test(raw),training=/GRND|GROUND|TRAINING|SIM|TRNG/.test(raw);
-  let breakfast=pantryPick(breakfasts,i),lunch=pantryPick(lunches,i+(flight?2:0)),dinner=pantryPick(dinners,i+1);
-  if(flight)lunch=pantryPick(lunches,i+3);
+  let breakfast=pantryPick(breakfasts,i,date),lunch=pantryPick(lunches,i+(flight?2:0),date),dinner=pantryPick(dinners,i+1,date);
+  if(flight)lunch=pantryPick(lunches,i+3,date);
   const slots=[["Breakfast",breakfast],[flight?"Packed lunch":off?"Comida familiar":"Lunch",lunch],[off?"Cena familiar":"Dinner",dinner]];
   for(const [slot,r] of slots){if(!r)continue;week.push({date,duty:duties[0]?.code||"",recipeId:r.id,meal:r.name,slot,servings:r.servings,minutes:r.minutes,context:flight?"Flight duty day · comida portable":standby?"Standby day · horarios flexibles":training?"Día de formación · preparación sencilla":off?"Roster OFF · día libre y menú mediterráneo familiar":"Menú mediterráneo · adaptable a tu jornada",status:"suggested"})}
  }
