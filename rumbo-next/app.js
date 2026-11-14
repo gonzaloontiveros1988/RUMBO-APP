@@ -525,16 +525,16 @@ bind("searchRecipes",async()=>{
  let status=$("#recipeSearchStatus");if(!status){status=document.createElement("p");status.className="muted";status.id="recipeSearchStatus";button.parentElement.after(status)}status.textContent="Consultando el catálogo público de recetas…";
  try{
   const base="https://www.themealdb.com/api/json/v1/1/",q=query.toLowerCase();
-  const aliases=[[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken_breast"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"]];
+  const aliases=[[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken_breast"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"],[/carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|macarr[oó]n|espagueti|spaghetti|fettuccine/,"pasta"],[/paella|arroz marinero|arroz con marisco/,"shrimp"]];
   const ingredientTerms=[...new Set(aliases.filter(([re])=>re.test(q)).map(([,v])=>v))];
   const tasks=[base+"search.php?s="+encodeURIComponent(query)];
   for(const ingredient of ingredientTerms.slice(0,3))tasks.push(base+"filter.php?i="+encodeURIComponent(ingredient));
   if(/paella|marisco|seafood|pescado|fish/.test(q))tasks.push(base+"filter.php?c=Seafood");
   if(/espa[nñ]ol|paella|tortilla|gazpacho|mediterr[aá]ne/.test(q))tasks.push(base+"filter.php?a=Spanish");
-  if(/italian|italia|pasta|pizza/.test(q))tasks.push(base+"filter.php?a=Italian");
+  if(/italian|italia|pasta|pizza|carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|espagueti|spaghetti|fettuccine/.test(q))tasks.push(base+"filter.php?a=Italian");
   const found=new Map();
   for(const url of tasks){try{const resp=await fetch(url);if(!resp.ok)continue;const data=await resp.json();for(const m of data.meals||[])if(m.idMeal&&!found.has(m.idMeal))found.set(m.idMeal,m)}catch{}if(found.size>=12)break}
-  if(!found.size){const resp=await fetch(base+"filter.php?c="+encodeURIComponent(category==="Breakfast"?"Breakfast":category==="Dinner"?"Seafood":"Chicken"));if(resp.ok){const data=await resp.json();for(const m of (data.meals||[]).slice(0,8))if(m.idMeal)found.set(m.idMeal,m)}}
+  if(!found.size){const fallbackCategories=/paella|marisco|seafood|pescado|fish/.test(q)?["Seafood"]:/carbonara|bolognesa|bolo[nñ]esa|lasagna|lasa[nñ]a|ravioli|espagueti|spaghetti|fettuccine|pasta|pizza/.test(q)?["Pasta","Vegetarian","Miscellaneous"]:[category==="Breakfast"?"Breakfast":category==="Dinner"?"Seafood":"Chicken","Vegetarian"];for(const fallbackCategory of fallbackCategories){try{const resp=await fetch(base+"filter.php?c="+encodeURIComponent(fallbackCategory));if(!resp.ok)continue;const data=await resp.json();for(const m of (data.meals||[]).slice(0,8))if(m.idMeal)found.set(m.idMeal,m);if(found.size)break}catch{}}}
   const results=[];
   for(const item of [...found.values()].slice(0,8)){try{
    const resp=await fetch(base+"lookup.php?i="+encodeURIComponent(item.idMeal));if(!resp.ok)continue;const data=await resp.json(),m=data.meals?.[0];if(!m)continue;
