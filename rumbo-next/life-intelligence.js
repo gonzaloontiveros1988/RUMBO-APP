@@ -77,3 +77,39 @@ export function buildAssistantContext(state){
   finance:{month:currentMonth,expensesThisMonth:monthExpenses,expenseCountThisMonth:monthExpenses.length,budgets:state.budgets||{}}
  };
 }
+
+export function filterRecipesByProfile(recipes=RECIPES,profile={}){
+ const blocked=String(profile.allergens||"").split(/[,;\\n]/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+ const avoid=String(profile.avoidIngredients||"").split(/[,;\\n]/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+ return recipes.filter(recipe=>{
+  const names=(recipe.ingredients||[]).map(x=>String(x[0]||"").toLowerCase());
+  return !blocked.some(term=>names.some(name=>name.includes(term)))&&!avoid.some(term=>names.some(name=>name.includes(term)));
+ });
+}
+export function validateFoodLog(entry,recipes=RECIPES){
+ const errors=[];
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(entry.date||""))errors.push("Choose a valid food-log date.");
+ if(!recipes.some(x=>x.id===entry.recipeId))errors.push("Choose a known recipe or food item.");
+ if(!Number.isFinite(Number(entry.servings))||Number(entry.servings)<=0||Number(entry.servings)>20)errors.push("Servings must be between 0 and 20.");
+ if(!["Breakfast","Lunch","Dinner","Snack"].includes(entry.mealType))errors.push("Choose a meal type.");
+ return errors;
+}
+export function nutritionDiarySummary(entries=[],recipes=RECIPES,date){
+ const rows=entries.filter(x=>!date||x.date===date);
+ const totals={kcal:0,protein:0,carbs:0,fat:0};
+ for(const entry of rows){const recipe=recipes.find(x=>x.id===entry.recipeId);if(!recipe)continue;const n=recipeNutrition(recipe).perServing,factor=Number(entry.servings)||1;for(const key of Object.keys(totals))totals[key]+=Number(n[key]||0)*factor;}
+ return {entries:rows.length,kcal:Math.round(totals.kcal),proteinG:Math.round(totals.protein),carbsG:Math.round(totals.carbs),fatG:Math.round(totals.fat)};
+}
+export function pantryExpiryStatus(item,today=localIsoDate()){
+ if(!item.expiryDate)return "unknown";
+ if(item.expiryDate<today)return "expired";
+ const delta=Math.round((new Date(item.expiryDate+"T12:00:00")-new Date(today+"T12:00:00"))/86400000);
+ return delta<=3?"soon":"fresh";
+}
+export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){
+ const stock=new Map();
+ for(const item of pantry){const key=String(item.name||"").trim().toLowerCase();if(key)stock.set(key,String(item.qty||""));}
+ const sums=new Map();
+ for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){const key=name.toLowerCase(),existing=sums.get(key)||{name,quantities:[]};existing.quantities.push(String(qty));sums.set(key,existing);}}
+ return [...sums.values()].filter(x=>!stock.has(x.name.toLowerCase())).map(x=>({name:x.name,qty:[...new Set(x.quantities)].join(" + "),done:false,source:"meal-plan"}));
+}
