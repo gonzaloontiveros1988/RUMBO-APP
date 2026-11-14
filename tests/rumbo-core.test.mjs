@@ -240,14 +240,14 @@ test("adaptive coach allows explicit OFF dates and blocks flight and standby dut
 
 
 test("pasted recipe detector separates Spanish ingredients, quantities and preparation steps",()=>{
- const parsed=parsePastedRecipe("Carbonara tradicional\n4 raciones · 25 minutos\n\nIngredientes\n- 400 g | espaguetis\n- 150 g | guanciale\n- 4 unidades | huevos\n- 80 g | pecorino\n\nPreparación\n1. Cuece la pasta en agua abundante.\n2. Dora el guanciale.\n3. Mezcla los huevos con el queso y combina fuera del fuego.");
+ const parsed=parsePastedRecipe("Carbonara tradicional\n4 raciones · 25 minutos\n\nIngredientes\n- espaguetis | 400 g\n- guanciale | 150 g\n- huevos | 4 unidades\n- pecorino | 80 g\n\nPreparación\n1. Cuece la pasta en agua abundante.\n2. Dora el guanciale.\n3. Mezcla los huevos con el queso y combina fuera del fuego.");
  assert.equal(parsed.ok,true);
  assert.equal(parsed.recipe.name,"Carbonara tradicional");
  assert.equal(parsed.recipe.servings,4);
  assert.equal(parsed.recipe.minutes,25);
  assert.equal(parsed.recipe.ingredients.length,4);
  assert.equal(parsed.recipe.steps.length,3);
- assert.equal(parsed.recipe.ingredients[0][0],"400 g");
+ assert.equal(parsed.recipe.ingredients[0][0],"espaguetis");
 });
 test("pasted recipe detector supports English and German headings and rejects ambiguous text",()=>{
  const parsed=parsePastedRecipe("Apple cake\nServes 6 · 55 minutes\n\nIngredients:\n- 2 apples\n- 200 g flour\n\nMethod:\n1. Mix the ingredients.\n2. Bake until cooked.");
