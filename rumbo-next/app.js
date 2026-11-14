@@ -1,5 +1,5 @@
 import {flightMapData,flightMapSvg,loadAirportDirectory,AIRPORTS} from "./flight-map.js";
-import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,nutritionTargets} from "./life-intelligence.js";
+import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,nutritionTargets,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile} from "./life-intelligence.js";
 import {ROUTINES,validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,buildTrainingProgram} from "./training-intelligence.js";
 import {EXERCISES,exerciseById,suggestNextLoad,validateExerciseEntry} from "./fitness-engine.js";
 import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.js";
@@ -318,6 +318,8 @@ function training(){
 }
 function nutrition(){
  const meals=state.mealPlan||[],pantry=state.pantry||[],open=state.shopping.filter(x=>!x.done),recipes=allRecipes(),candidates=state.recipeSearchResults||[],selected=candidates.find(x=>x.id===state.selectedRecipeCandidate),target=nutritionTargets(state.nutritionProfile||{}),np=state.nutritionProfile||{};
+ const diary=state.foodDiary||[],diaryToday=nutritionDiarySummary(diary,recipes,today()),safeRecipes=filterRecipesByProfile(recipes,np);
+ const diaryRows=diary.filter(x=>x.date===today()).map(x=>{const r=recipeById(x.recipeId);return '<div class="row"><span><b>'+esc(r?.name||"Food item")+'</b><small>'+esc(x.mealType)+' · '+x.servings+' serving(s)</small></span><b>'+Math.round((r?recipeNutrition(r).perServing.kcal:0)*x.servings)+' kcal</b><button class="btn ghost" data-diary-remove="'+diary.indexOf(x)+'">×</button></div>'}).join("");
  const byDay=new Map();for(const m of meals){if(!byDay.has(m.date))byDay.set(m.date,[]);byDay.get(m.date).push(m)}
  const image=r=>{if(r.image&&/^https?:\/\//i.test(String(r.image)))return '<img src="'+esc(r.image)+'" alt="'+esc(r.name)+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;recipe-image-missing&quot;>Fotografía no disponible</div>\'">';return '<div class="recipe-image-missing">Fotografía no disponible</div>';};
  const recipeCards=recipes.map(r=>{const n=recipeNutrition(r);return '<article class="recipe-visual-card">'+image(r)+'<div class="recipe-visual-copy"><b>'+esc(r.name)+'</b><small>'+esc(r.category)+' · '+r.minutes+' min · '+r.servings+' raciones</small><strong>'+n.perServing.kcal+' kcal/ración</strong><small>P '+n.perServing.protein+'g · C '+n.perServing.carbs+'g · G '+n.perServing.fat+'g</small><button class="btn ghost" data-recipe="'+esc(r.id)+'">Ver receta e ingredientes</button></div></article>'}).join("");
