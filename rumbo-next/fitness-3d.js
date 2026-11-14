@@ -21,11 +21,16 @@ function init(host,id,THREE){
  const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,64),new THREE.MeshStandardMaterial({color:0x18384a,roughness:.8,transparent:true,opacity:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=.015;scene.add(floor);
  const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
  const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
- const ball=new THREE.SphereGeometry(1,18,14), cylinder=new THREE.CylinderGeometry(.075,.095,1,12);
- const nodes={};function node(name,material,r=.09){const m=new THREE.Mesh(ball,material);m.scale.setScalar(r);m.castShadow=true;scene.add(m);nodes[name]=m}
- ["head","neck","pelvis","chest","ls","rs","le","re","lw","rw","lh","rh","lk","rk","la","ra"].forEach(n=>node(n,n==="head"?skin:n==="pelvis"?shorts:n==="chest"?shirt:n.endsWith("s")||n.endsWith("h")?jointMat:n==="la"||n==="ra"?shoe:skin,n==="head"?.145:n==="chest"?.19:.082));
- const bones={};function bone(name,material,r=.065){const m=new THREE.Mesh(cylinder,material);m.castShadow=true;scene.add(m);bones[name]=m}
- ["spine","neck","upperArmL","lowerArmL","upperArmR","lowerArmR","thighL","shinL","thighR","shinR"].forEach(n=>bone(n,n==="spine"?shirt:n.startsWith("thigh")?shorts:n==="neck"?skin:skin,n==="spine"?.13:.067));
+ const ball=new THREE.SphereGeometry(1,28,20), limbGeo=new THREE.CylinderGeometry(.78,.92,1,18,1,true);
+ const nodes={};function node(name,material,r=.09,scale=[1,1,1]){const m=new THREE.Mesh(ball,material);m.scale.set(r*scale[0],r*scale[1],r*scale[2]);m.castShadow=true;m.receiveShadow=true;scene.add(m);nodes[name]=m}
+ node("head",skin,.145,[.82,1.12,.9]);node("neck",skin,.075,[.9,1.15,.9]);
+ node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
+ ["ls","rs","le","re","lw","rw","lh","rh","lk","rk","la","ra"].forEach(n=>node(n,jointMat,.065));
+ node("handL",skin,.075,[.78,1.25,.7]);node("handR",skin,.075,[.78,1.25,.7]);
+ node("footL",shoe,.11,[.8,.55,1.7]);node("footR",shoe,.11,[.8,.55,1.7]);
+ const bones={};function bone(name,material,r=.065){const m=new THREE.Mesh(limbGeo,material);m.castShadow=true;m.receiveShadow=true;scene.add(m);bones[name]=m}
+ ["upperArmL","lowerArmL","upperArmR","lowerArmR","thighL","shinL","thighR","shinR"].forEach(n=>bone(n,n.startsWith("thigh")?shorts:skin,n.startsWith("thigh")?.105:.07));
+ function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);mesh.scale.set(mesh===bones.upperArmL||mesh===bones.upperArmR||mesh===bones.lowerArmL||mesh===bones.lowerArmR?.9:1,dir.length(),.9);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
  const dumbbells=[];for(let s of [-1,1]){const g=new THREE.Group();const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.32,12),weightMat);bar.rotation.z=Math.PI/2;g.add(bar);for(let z of [-.17,.17]){const d=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.07,16),weightMat);d.rotation.z=Math.PI/2;d.position.x=z;g.add(d)}scene.add(g);dumbbells.push(g)}
  const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);mesh.scale.set(1,dir.length(),1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
@@ -62,8 +67,12 @@ function init(host,id,THREE){
  let raf;const start=performance.now();
  function draw(now){raf=requestAnimationFrame(draw);const p=((now-start)/2400)%1,P=pose(p);
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
-  segment(bones.spine,P.chest,P.pelvis);segment(bones.neck,P.chest,P.neck);
+  if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
+  if(nodes.pelvis)nodes.pelvis.position.copy(P.pelvis);
+  if(nodes.neck)nodes.neck.position.copy(P.neck);
+  if(nodes.head)nodes.head.position.copy(P.head);
   [["upperArmL","ls","le"],["lowerArmL","le","lw"],["upperArmR","rs","re"],["lowerArmR","re","rw"],["thighL","lh","lk"],["shinL","lk","la"],["thighR","rh","rk"],["shinR","rk","ra"]].forEach(([b,a,c])=>segment(bones[b],P[a],P[c]));
+  if(P.lw){nodes.handL.position.copy(P.lw);nodes.handR.position.copy(P.rw);nodes.footL.position.copy(P.la).add(V(.07,-.035,0));nodes.footR.position.copy(P.ra).add(V(.07,-.035,0))}
   dumbbells.forEach((d,i)=>{const w=P[i===0?"lw":"rw"];d.position.copy(w);d.visible=["press","curl","raise","carry"].includes(preset.kind)});
   const target=V(0,1,0),radius=4.9*dist;camera.position.set(target.x+radius*Math.sin(az||.48)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(az||.48)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }
