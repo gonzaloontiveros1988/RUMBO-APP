@@ -803,3 +803,52 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .recipe-search-panel textarea:focus,.recipe-search-form input:focus,.recipe-search-form select:focus{outline:2px solid rgba(75,212,205,.55);outline-offset:1px}
 @media(max-width:920px){.recipe-search-form{grid-template-columns:repeat(2,minmax(0,1fr))}.recipe-search-form input:first-child{grid-column:1/-1}.recipe-search-form button{grid-column:1/-1}}
 @media(max-width:560px){.recipe-search-form{grid-template-columns:1fr}.recipe-search-form input:first-child,.recipe-search-form button{grid-column:auto}.recipe-paste-label textarea{min-height:190px}}
+
+
+/* RUMBO exercise demonstrations: exercise-specific looping movement */
+.demo-caption{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#71ded7;font:700 9px 'DM Mono',monospace;letter-spacing:.13em}
+.demo-caption:before{content:"";width:7px;height:7px;border-radius:50%;background:#58d8ce;box-shadow:0 0 10px rgba(88,216,206,.8);animation:demoPulse 1.4s ease-in-out infinite}
+@keyframes demoPulse{50%{opacity:.35;transform:scale(.75)}}
+.demo-squat .figure-body,.demo-squat .detail-torso{transform-origin:bottom center;animation:demoSquatTorso 2.2s ease-in-out infinite}
+.demo-squat .figure-leg.left,.demo-squat .detail-leg.a{animation:demoSquatLegA 2.2s ease-in-out infinite}
+.demo-squat .figure-leg.right,.demo-squat .detail-leg.b{animation:demoSquatLegB 2.2s ease-in-out infinite}
+.demo-squat .figure-arm,.demo-squat .detail-arm{animation:demoSquatArms 2.2s ease-in-out infinite}
+@keyframes demoSquatTorso{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 13px;rotate:8deg}}
+@keyframes demoSquatLegA{0%,100%{rotate:8deg}50%{rotate:29deg}}
+@keyframes demoSquatLegB{0%,100%{rotate:-8deg}50%{rotate:-29deg}}
+@keyframes demoSquatArms{0%,100%{rotate:0deg}50%{rotate:-12deg}}
+.demo-rdl .figure-body,.demo-rdl .detail-torso{transform-origin:bottom center;animation:demoHinge 2.5s ease-in-out infinite}
+.demo-rdl .figure-arm,.demo-rdl .detail-arm{animation:demoHang 2.5s ease-in-out infinite}
+@keyframes demoHinge{0%,100%{rotate:0deg}50%{rotate:28deg}}
+@keyframes demoHang{0%,100%{rotate:0deg}50%{rotate:-18deg}}
+.demo-bench-press .figure-arm,.demo-bench-press .detail-arm,.demo-db-press .figure-arm,.demo-db-press .detail-arm{animation:demoPress 1.8s ease-in-out infinite}
+@keyframes demoPress{0%,100%{rotate:48deg}50%{rotate:-48deg}}
+.demo-shoulder-press .figure-arm,.demo-shoulder-press .detail-arm{animation:demoOverhead 1.9s ease-in-out infinite}
+@keyframes demoOverhead{0%,100%{rotate:48deg}50%{rotate:-150deg}}
+.demo-row .figure-arm,.demo-row .detail-arm,.demo-lat-pulldown .figure-arm,.demo-lat-pulldown .detail-arm{animation:demoRow 2s ease-in-out infinite}
+@keyframes demoRow{0%,100%{rotate:0deg}50%{rotate:62deg}}
+.demo-hip-bridge .figure-body,.demo-hip-bridge .detail-torso{transform-origin:bottom center;animation:demoBridge 2.1s ease-in-out infinite}
+@keyframes demoBridge{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -18px;rotate:-12deg}}
+.demo-split-squat .figure-body,.demo-split-squat .detail-torso{animation:demoLunge 2.3s ease-in-out infinite}
+.demo-split-squat .figure-leg.left,.demo-split-squat .detail-leg.a{animation:demoLungeFront 2.3s ease-in-out infinite}
+.demo-split-squat .figure-leg.right,.demo-split-squat .detail-leg.b{animation:demoLungeBack 2.3s ease-in-out infinite}
+@keyframes demoLunge{0%,100%{translate:0 0}50%{translate:0 12px}}
+@keyframes demoLungeFront{0%,100%{rotate:8deg}50%{rotate:35deg}}
+@keyframes demoLungeBack{0%,100%{rotate:-8deg}50%{rotate:-28deg}}
+.demo-plank .figure-body,.demo-plank .detail-torso{animation:demoPlank 2s ease-in-out infinite}
+.demo-plank .figure-arm,.demo-plank .detail-arm{animation:demoPlankArms 2s ease-in-out infinite}
+@keyframes demoPlank{0%,100%{rotate:0deg}50%{rotate:4deg}}
+@keyframes demoPlankArms{0%,100%{rotate:0deg}50%{rotate:-8deg}}
+.demo-dead-bug .figure-arm,.demo-dead-bug .detail-arm{animation:demoDeadBugArms 1.8s ease-in-out infinite}
+.demo-dead-bug .figure-leg.left,.demo-dead-bug .detail-leg.a{animation:demoDeadBugLegA 1.8s ease-in-out infinite}
+.demo-dead-bug .figure-leg.right,.demo-dead-bug .detail-leg.b{animation:demoDeadBugLegB 1.8s ease-in-out infinite}
+@keyframes demoDeadBugArms{0%,100%{rotate:0deg}50%{rotate:35deg}}
+@keyframes demoDeadBugLegA{0%,100%{rotate:8deg}50%{rotate:42deg}}
+@keyframes demoDeadBugLegB{0%,100%{rotate:-8deg}50%{rotate:-35deg}}
+.demo-leg-press .figure-body,.demo-leg-press .detail-torso{animation:demoLegPress 2s ease-in-out infinite}
+.demo-leg-press .figure-leg.left,.demo-leg-press .detail-leg.a{animation:demoPressLegA 2s ease-in-out infinite}
+.demo-leg-press .figure-leg.right,.demo-leg-press .detail-leg.b{animation:demoPressLegB 2s ease-in-out infinite}
+@keyframes demoLegPress{0%,100%{translate:0 0}50%{translate:0 5px}}
+@keyframes demoPressLegA{0%,100%{rotate:8deg}50%{rotate:34deg}}
+@keyframes demoPressLegB{0%,100%{rotate:-8deg}50%{rotate:-34deg}}
+@media(prefers-reduced-motion:reduce){.demo-caption:before,.guided-figure span,.program-detail-body span{animation:none!important}}
