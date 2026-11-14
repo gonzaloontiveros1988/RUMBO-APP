@@ -319,7 +319,7 @@ function sixWeekProgramMarkup(){
 function exerciseDemoSvg(id){
  const svg='<svg class="exercise-demo-svg" viewBox="0 0 320 190" role="img" aria-label="Demostración biomecánica animada del ejercicio"><path class="demo-floor" d="M18 166H302"/>';
  const limbSegments=(path,kind)=>path.split("M").filter(Boolean).map(chain=>{
-  const pts=Array.from(chain.matchAll(/([0-9.]+)\\s+([0-9.]+)/g)).map(m=>[Number(m[1]),Number(m[2])]);
+  const pts=Array.from(chain.matchAll(/([0-9.]+)\s+([0-9.]+)/g)).map(m=>[Number(m[1]),Number(m[2])]);
   if(pts.length<3)return "";
   const [a,b,c]=pts;
   return '<g class="rig-'+kind+'-upper" style="transform-origin:'+a[0]+'px '+a[1]+'px"><path class="rig-limb" d="M'+a.join(" ")+'L'+b.join(" ")+'"/></g><g class="rig-'+kind+'-lower" style="transform-origin:'+b[0]+'px '+b[1]+'px"><path class="rig-limb" d="M'+b.join(" ")+'L'+c.join(" ")+'"/></g><circle class="rig-joint" cx="'+b[0]+'" cy="'+b[1]+'" r="5"/>';
