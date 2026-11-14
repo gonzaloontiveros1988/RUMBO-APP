@@ -631,3 +631,31 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
   .recipe-search-notice { overflow-wrap: anywhere; }
   .recipe-image-missing { min-height: 190px; }
 }
+
+/* RUMBO 3.2 · stronger daytime calendar and timetable contrast */
+body[data-rumbo-theme="day"] .timetable-lesson{
+ border-width:1px!important;
+ box-shadow:inset 3px 0 0 currentColor;
+}
+body[data-rumbo-theme="day"] .timetable-lesson time{
+ color:#243b50!important;opacity:1!important;font-weight:700;
+}
+body[data-rumbo-theme="day"] .timetable-lesson span{
+ color:#172f43!important;font-weight:800;
+}
+body[data-rumbo-theme="day"] .lesson-language{background:#ded0fb!important;color:#392267!important;border-color:#7654bb!important}
+body[data-rumbo-theme="day"] .lesson-activity{background:#c9efdc!important;color:#15583d!important;border-color:#31865f!important}
+body[data-rumbo-theme="day"] .lesson-break{background:#d8e7f1!important;color:#29475c!important;border-color:#648aa7!important}
+body[data-rumbo-theme="day"] .lesson-welcome{background:#bfeef0!important;color:#07565b!important;border-color:#278d94!important}
+body[data-rumbo-theme="day"] .lesson-homeroom{background:#c9ddff!important;color:#173e78!important;border-color:#477fc4!important}
+body[data-rumbo-theme="day"] .family-day .school-holiday{background:#ead5f7!important;color:#51266a!important;border-color:#9554b2!important}
+body[data-rumbo-theme="day"] .family-day .school-event{background:#cfe3ff!important;color:#173f70!important;border-color:#4e83c1!important}
+body[data-rumbo-theme="day"] .family-day .school-note{background:#dce6ed!important;color:#334b5b!important;border-color:#718b9c!important}
+body[data-rumbo-theme="day"] .family-day .family-event-home{background:#c5eeee!important;color:#07565a!important;border-color:#278b8e!important}
+body[data-rumbo-theme="day"] .family-day .duty-event{background:#ffe0b5!important;color:#75400d!important;border-color:#c27b25!important}
+body[data-rumbo-theme="day"] .event-flight{background:#c9eaff!important;color:#104b69!important;border-color:#3685b1!important}
+body[data-rumbo-theme="day"] .event-school{background:#ded5ff!important;color:#3d2b76!important;border-color:#765fc2!important}
+body[data-rumbo-theme="day"] .event-class{background:#c7f0df!important;color:#155b43!important;border-color:#318a68!important}
+body[data-rumbo-theme="day"] .event-family{background:#ffe2bc!important;color:#74420f!important;border-color:#c48735!important}
+body[data-rumbo-theme="day"] .dash-event{font-weight:800!important}
+body[data-rumbo-theme="day"] .family-calendar-day>small{color:#345568!important;font-weight:700}
