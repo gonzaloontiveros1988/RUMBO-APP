@@ -1,5 +1,3 @@
-const {getGatewayToken}=require("./gateway-auth");
-const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
 const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
 
@@ -127,14 +125,14 @@ module.exports = async function handler(req,res){
  try{
   const webResults=await searchWeb(query).catch(()=>[]);
   const sourceContext=await Promise.all(webResults.slice(0,3).map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
-  const gatewayToken=getGatewayToken(req);
-  if(!gatewayToken){
-   const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
-   const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category);
-   const recipes=fallback.length?fallback:mealDb;
-   if(!recipes.length)return send(res,200,{recipes:[],webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:"public-recipe-search",notice:"No se ha encontrado una receta fiable para esa búsqueda. Prueba con el nombre del plato en inglés o con un ingrediente principal. La creación original con IA necesita configurar AI_GATEWAY_API_KEY."});
-   return send(res,200,{recipes:recipes.slice(0,2),webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:fallback.length?"structured-recipe-fallback":"themealdb-fallback",notice:"Modo de compatibilidad: recetas publicadas recuperadas sin autenticación de IA. Las calorías y macros no están disponibles en la fuente y no se han inventado. La creación de recetas originales con IA se activará al configurar AI_GATEWAY_API_KEY."});
-  }
+  const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
+  const mealDb=fallback.length?[]:await searchMealDbFallback(query,servings,category);
+  const recipes=fallback.length?fallback:mealDb;
+  const visibleResults=sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet}));
+  if(!recipes.length)return send(res,200,{recipes:[],webResults:visibleResults,model:"free-web-search",notice:visibleResults.length
+   ?"No se pudo extraer una receta completa automáticamente. Te mostramos páginas públicas para abrir y consultar directamente. No se ha utilizado IA de pago."
+   :"No se encontraron recetas en las fuentes gratuitas para esta búsqueda. Prueba con el nombre de un ingrediente principal o una expresión más corta. No se ha utilizado IA de pago."});
+  return send(res,200,{recipes:recipes.slice(0,4),webResults:visibleResults,model:fallback.length?"structured-recipe-free":"themealdb-free",notice:"Búsqueda gratuita en Internet y fuentes públicas. La información nutricional solo aparece si la fuente la proporciona; no se han inventado calorías ni macros. No se necesita tarjeta de crédito ni API de pago."});
   const system="Eres el asistente culinario de RUMBO. Devuelve exclusivamente JSON válido, sin Markdown. No inventes fuentes, enlaces ni datos de páginas. Usa el contexto web solo para la receta de origen web; crea además una receta original independiente. Devuelve imageSearchTerm en inglés con el nombre concreto del plato para localizar una fotografía. Ingredientes en cantidades para las raciones solicitadas, kcal/protein/carbs/fat aproximados por ingrediente. Recuerda que nutrición es estimada. Incluye pasos claros y seguros, temperaturas internas solo si son fiables. Categorías Breakfast, Lunch o Dinner.";
   const prompt={query,requestedServings:servings,preferredCategory:category,webResults:sourceContext,requiredOutput:{recipes:[{name:"",imageSearchTerm:"English dish name",category:"Breakfast|Lunch|Dinner",minutes:30,servings,ingredients:[{name:"",quantity:"",kcal:0,protein:0,carbs:0,fat:0}],steps:[""]}],webRecipeIndex:0,aiRecipeIndex:1}};
   const response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+gatewayToken,"Content-Type":"application/json"},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(prompt)}],temperature:.25,max_tokens:3200})});
