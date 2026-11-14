@@ -253,3 +253,21 @@ test("AI Gateway auth prefers explicit key then build token then runtime request
  assert.equal(getToken({headers:{"x-vercel-oidc-token":"runtime"}},{}),"runtime");
  assert.equal(getToken({headers:{}},{}),"");
 });
+
+import {exerciseProgressSummary,validateBodyMetric} from "../rumbo-next/fitness-engine.js";
+test("exercise progress summary reports last session, best load and best volume",()=>{
+ const history=[
+  {date:"2026-11-01",exercises:[{exerciseId:"bench-press",sets:3,reps:8,weight:40}]},
+  {date:"2026-11-08",exercises:[{exerciseId:"bench-press",sets:3,reps:10,weight:42.5}]}
+ ];
+ const result=exerciseProgressSummary(history,"bench-press");
+ assert.equal(result.sessions,2);
+ assert.equal(result.last.date,"2026-11-08");
+ assert.equal(result.bestLoad,42.5);
+ assert.equal(result.bestVolume,1275);
+});
+test("body measurement validation accepts partial entries but rejects implausible values",()=>{
+ assert.equal(validateBodyMetric({weightKg:80,waistCm:"",bodyFatPct:""}).length,0);
+ assert.ok(validateBodyMetric({weightKg:400,waistCm:"",bodyFatPct:""}).length>0);
+ assert.ok(validateBodyMetric({weightKg:"",waistCm:"",bodyFatPct:""}).length>0);
+});
