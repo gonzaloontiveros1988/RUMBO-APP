@@ -955,3 +955,48 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-details>summary:after{content:"＋";margin-left:auto;color:#79d9d0}
 .exercise-library-details[open]>summary:after{content:"−"}
 .exercise-library-details[open]>summary{margin-bottom:12px}
+
+/* True joint articulation: upper/lower arm and leg segments rotate at their joint origins */
+.exercise-demo-svg .rig-body{animation:none!important}
+.exercise-demo-svg .rig-arm-upper,.exercise-demo-svg .rig-arm-lower,.exercise-demo-svg .rig-leg-upper,.exercise-demo-svg .rig-leg-lower{transform-box:view-box}
+.exercise-demo-svg .rig-squat-motion .rig-leg-upper{animation:jointSquatHip 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-squat-motion .rig-leg-lower{animation:jointSquatKnee 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-squat-motion .rig-arm-upper{animation:jointSquatArm 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-hinge-motion .rig-torso{transform-box:view-box;transform-origin:160px 39px;animation:jointHipHinge 2.8s ease-in-out infinite}
+.exercise-demo-svg .rig-hinge-motion .rig-arm-upper{animation:jointHingeArm 2.8s ease-in-out infinite}
+.exercise-demo-svg .rig-step-motion .rig-leg-upper,.exercise-demo-svg .rig-lunge-motion .rig-leg-upper{animation:jointLungeHip 2.5s ease-in-out infinite}
+.exercise-demo-svg .rig-step-motion .rig-leg-lower,.exercise-demo-svg .rig-lunge-motion .rig-leg-lower{animation:jointLungeKnee 2.5s ease-in-out infinite}
+.exercise-demo-svg .rig-bridge-motion .rig-torso{transform-box:view-box;transform-origin:160px 116px;animation:jointBridgeHip 2.4s ease-in-out infinite}
+.exercise-demo-svg .rig-curl-motion .rig-arm-lower{animation:jointElbowCurl 1.9s ease-in-out infinite}
+.exercise-demo-svg .rig-calf-motion .rig-leg-lower{animation:jointCalf 1.7s ease-in-out infinite}
+.exercise-demo-svg .rig-press-motion .rig-arm-upper{animation:jointPressShoulder 2.1s ease-in-out infinite}
+.exercise-demo-svg .rig-press-motion .rig-arm-lower{animation:jointPressElbow 2.1s ease-in-out infinite}
+.exercise-demo-svg .rig-fly-motion .rig-arm-upper{animation:jointFlyShoulder 2.1s ease-in-out infinite}
+.exercise-demo-svg .rig-pull-motion .rig-arm-upper{animation:jointPullShoulder 2s ease-in-out infinite}
+.exercise-demo-svg .rig-pull-motion .rig-arm-lower{animation:jointPullElbow 2s ease-in-out infinite}
+.exercise-demo-svg .rig-raise-motion .rig-arm-upper{animation:jointLateralRaise 2s ease-in-out infinite}
+.exercise-demo-svg .rig-anti-rotation-motion .rig-torso{transform-box:view-box;transform-origin:160px 39px;animation:jointAntiRotation 2.6s ease-in-out infinite}
+.exercise-demo-svg .rig-carry-motion .rig-arm-upper,.exercise-demo-svg .rig-carry-motion .rig-arm-lower{animation:jointCarry 2s ease-in-out infinite}
+.exercise-demo-svg .rig-climber-motion .rig-leg-upper{animation:jointClimberHip 1.4s ease-in-out infinite}
+.exercise-demo-svg .rig-climber-motion .rig-leg-lower{animation:jointClimberKnee 1.4s ease-in-out infinite}
+@keyframes jointSquatHip{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg)}}
+@keyframes jointSquatKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(-30deg)}}
+@keyframes jointSquatArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-7deg)}}
+@keyframes jointHipHinge{0%,100%{transform:rotate(0)}50%{transform:rotate(16deg)}}
+@keyframes jointHingeArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+@keyframes jointLungeHip{0%,100%{transform:rotate(0)}50%{transform:rotate(12deg)}}
+@keyframes jointLungeKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(-25deg)}}
+@keyframes jointBridgeHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+@keyframes jointElbowCurl{0%,100%{transform:rotate(0)}50%{transform:rotate(-48deg)}}
+@keyframes jointCalf{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+@keyframes jointPressShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+@keyframes jointPressElbow{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+@keyframes jointFlyShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+@keyframes jointPullShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+@keyframes jointPullElbow{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+@keyframes jointLateralRaise{0%,100%{transform:rotate(0)}50%{transform:rotate(-24deg)}}
+@keyframes jointAntiRotation{0%,100%{transform:rotate(0)}50%{transform:rotate(3deg)}}
+@keyframes jointCarry{0%,100%{transform:rotate(0)}50%{transform:rotate(2deg)}}
+@keyframes jointClimberHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
+@keyframes jointClimberKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(42deg)}}
+@media(prefers-reduced-motion:reduce){.exercise-demo-svg .rig-arm-upper,.exercise-demo-svg .rig-arm-lower,.exercise-demo-svg .rig-leg-upper,.exercise-demo-svg .rig-leg-lower,.exercise-demo-svg .rig-torso{animation:none!important}}
