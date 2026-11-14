@@ -47,7 +47,7 @@ export function parsePastedRecipe(raw){
  const servingsLine=lines.find(x=>/(?:\d+\s*(?:raciones|porciones|servings|personen|dosi)|(?:raciones|porciones|servings|serves|personen|dosi)\s*[:\-]?\s*\d+)/i.test(x));
  const timeLine=lines.find(x=>/(?:\d+\s*(?:min(?:utos)?|minutes?|mins?)|(?:tiempo|time|prep|cocci[oó]n|cooking)\s*[:\-]?\s*\d+)/i.test(x));
  const servings=Number(servingsLine?.match(/\d+/)?.[0])||4;
- const minutes=Number(timeLine?.match(/\d+/)?.[0])||30;
+ const minutes=Number(timeLine?.match(/(\d+)\s*(?:min(?:utos)?|minutes?|mins?)/i)?.[1]||timeLine?.match(/(?:tiempo|time|prep|cocci[oó]n|cooking)\s*[:\-]?\s*(\d+)/i)?.[1])||30;
  let section="",ingredients=[],steps=[];
  for(let line of lines.slice(1)){
   if(heading(line)){section="ingredients";continue}
