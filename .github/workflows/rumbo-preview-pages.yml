@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/rumbo-v4-modular-redesign
+      - release/rumbo-next-review
     paths:
       - 'rumbo-next/**'
       - '.github/workflows/rumbo-preview-pages.yml'
