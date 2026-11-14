@@ -41,28 +41,43 @@ function parseJson(text){
 }
 
 async function searchMealDbFallback(query,servings,category){
- const terms=[query,query.split(/\s+/).filter(w=>w.length>3).slice(0,2).join(" ")].filter(Boolean);
- const found=[];
- for(const term of [...new Set(terms)]){
-  try{
-   const url="https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term);
-   const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.1 recipe lookup"},signal:AbortSignal.timeout(6500)});
-   if(!response.ok)continue;
-   const data=await response.json();
-   for(const meal of data.meals||[])if(!found.some(x=>x.idMeal===meal.idMeal))found.push(meal);
-   if(found.length>=2)break;
-  }catch{}
+ const q=String(query||"").toLowerCase();
+ const aliases=[
+  [/paella|marisco|seafood/,"seafood"],[/gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|chicken/,"chicken"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"],[/verdura|vegetal|vegetable/,"vegetable"]
+ ];
+ const keywords=[query];
+ for(const [re,term] of aliases)if(re.test(q))keywords.push(term);
+ if(/paella|marisco|seafood/.test(q))keywords.push("seafood rice","Spanish");
+ const terms=[...new Set(keywords.map(x=>String(x).trim()).filter(Boolean))].slice(0,6),found=new Map();
+ const getJson=async url=>{const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.1 recipe lookup"},signal:AbortSignal.timeout(6500)});if(!response.ok)return null;return response.json()};
+ for(const term of terms){
+  try{const data=await getJson("https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term));for(const meal of data?.meals||[])if(meal?.idMeal)found.set(meal.idMeal,meal)}catch{}
+  if(found.size>=5)break;
  }
- return found.slice(0,2).map((meal,index)=>{
+ // Ingredient search catches dishes whose title does not contain the ingredient.
+ if(found.size<3){
+  const ingredients=[...new Set(terms.filter(x=>["shrimp","squid","chicken","rice","pasta","salmon","tuna","beef","chickpeas","lentils","egg","potato","vegetable"].includes(x)))];
+  for(const ingredient of ingredients.slice(0,3)){
+   try{
+    const data=await getJson("https://www.themealdb.com/api/json/v1/1/filter.php?i="+encodeURIComponent(ingredient));
+    for(const item of (data?.meals||[]).slice(0,5))if(item?.idMeal&&!found.has(item.idMeal))found.set(item.idMeal,{idMeal:item.idMeal,strMeal:item.strMeal,strMealThumb:item.strMealThumb});
+   }catch{}
+  }
+ }
+ const meals=[...found.values()].slice(0,6),details=[];
+ for(const item of meals){
+  if(item.strInstructions){details.push(item);continue}
+  try{const data=await getJson("https://www.themealdb.com/api/json/v1/1/lookup.php?i="+encodeURIComponent(item.idMeal));if(data?.meals?.[0])details.push(data.meals[0])}catch{}
+ }
+ return details.slice(0,4).map((meal,index)=>{
   const ingredients=[];
   for(let i=1;i<=20;i++){const name=String(meal["strIngredient"+i]||"").trim(),measure=String(meal["strMeasure"+i]||"").trim();if(name)ingredients.push([name.slice(0,90),measure.slice(0,70)||"To taste",0,0,0,0])}
   const steps=String(meal.strInstructions||"").replace(/\r/g,"").split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>x.length>12).slice(0,14);
   if(ingredients.length<2||steps.length<2)return null;
   const image=String(meal.strMealThumb||"");
-  return {id:"themealdb-"+String(meal.idMeal||index),name:String(meal.strMeal||query).slice(0,100),category,minutes:30,servings,image,imageVerified:/^https:\/\//i.test(image),ingredients,steps,origin:"web",sourceUrl:String(meal.strSource||meal.strYoutube||"https://www.themealdb.com/"),sourceTitle:"TheMealDB · "+String(meal.strMeal||query),sourceSnippet:"Receta recuperada de TheMealDB. La fuente no proporciona macros verificados; no se han inventado calorías ni nutrientes."};
+  return {id:"themealdb-"+String(meal.idMeal||index),name:String(meal.strMeal||query).slice(0,100),category,minutes:30,servings,image,imageVerified:/^https:\/\//i.test(image),ingredients,steps,origin:"web",sourceUrl:String(meal.strSource||("https://www.themealdb.com/meal/"+meal.idMeal)),sourceTitle:"TheMealDB · "+String(meal.strMeal||query),sourceSnippet:"Receta recuperada de TheMealDB. La fuente no proporciona macros verificados; no se han inventado calorías ni nutrientes."};
  }).filter(Boolean);
 }
-
 function normalizeStructuredPage(page,index,requestedServings,requestedCategory){
  const name=String(page?.name||"").trim().slice(0,100),ingredients=Array.isArray(page?.ingredients)?page.ingredients.filter(Boolean).slice(0,24):[],steps=Array.isArray(page?.instructions)?page.instructions.filter(Boolean).slice(0,12):[];
  if(!name||ingredients.length<2||steps.length<2)return null;
