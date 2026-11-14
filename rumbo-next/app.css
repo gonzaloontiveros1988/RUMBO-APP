@@ -1023,3 +1023,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes jointMobilityLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
 @keyframes jointCardioLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg)}}
 @keyframes jointCardioArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+
+/* RUMBO articulated 3D exercise stage */
+.guided-figure[data-exercise-3d]{touch-action:pan-y;cursor:grab;isolation:isolate}
+.guided-figure[data-exercise-3d]:active{cursor:grabbing}
+.guided-figure[data-exercise-3d] canvas{display:block;width:100%;height:100%;outline:none}
+.guided-figure[data-exercise-3d] .exercise-demo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.08;pointer-events:none}
+@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-3d]{height:230px}}
