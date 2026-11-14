@@ -10,7 +10,15 @@ export const ROUTINES=[
  {id:"hotel-25",name:"Hotel · Bodyweight circuit",type:"Hotel session",minutes:25,setting:"Hotel",level:"All levels",blocks:["Bodyweight squat · 3×10","Incline push-up · 3×8","Reverse lunge · 3×8","Bird dog · 3×8","Easy cooldown · 5 min"]},
  {id:"cardio-30",name:"Cardio · Easy aerobic",type:"Cardio",minutes:30,setting:"Any",level:"Adjustable",blocks:["Easy conversational-pace aerobic activity · 25 min","Cool down · 5 min"]},
  {id:"mobility-15",name:"Mobility · Short session",type:"Mobility",minutes:15,setting:"Any",level:"All levels",blocks:["Neck and shoulder mobility · 3 min","Thoracic mobility · 4 min","Hips and ankles · 5 min","Gentle cooldown · 3 min"]},
- {id:"recovery-15",name:"Recovery · Gentle reset",type:"Recovery",minutes:15,setting:"Any",level:"All levels",blocks:["Easy walk or gentle movement · 8 min","Comfortable mobility · 5 min","Breathing and cooldown · 2 min"]}
+ {id:"recovery-15",name:"Recovery · Gentle reset",type:"Recovery",minutes:15,setting:"Any",level:"All levels",blocks:["Easy walk or gentle movement · 8 min","Comfortable mobility · 5 min","Breathing and cooldown · 2 min"]},
+ {id:"strength-f",name:"Strength · Lower body & core",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Back squat · 3×6–8","Romanian deadlift · 3×8","Reverse lunge · 3×10 each side","Seated leg curl · 3×12","Pallof press · 3×10 each side"]},
+ {id:"strength-g",name:"Strength · Upper body",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Incline dumbbell press · 3×8–10","Assisted pull-up · 3×6–10","Single-arm dumbbell row · 3×10","Lateral raise · 3×12–15","Cable triceps pushdown · 3×12"]},
+ {id:"strength-h",name:"Strength · Posterior chain",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Hip thrust · 3×8–10","Single-leg Romanian deadlift · 3×8 each side","Seated leg curl · 3×12","Standing calf raise · 3×12–15","Farmer carry · 3×30 seconds"]},
+ {id:"strength-i",name:"Strength · Push / pull",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Barbell bench press · 3×6–8","Seated cable row · 3×8–10","Dumbbell shoulder press · 3×8","Cable face pull · 3×12–15","Dumbbell biceps curl · 3×10–12"]},
+ {id:"strength-j",name:"Strength · Unilateral & stability",type:"Strength",minutes:40,setting:"Gym",level:"Intermediate",blocks:["Dumbbell step-up · 3×8 each side","Goblet squat · 3×10","Cable chest fly · 3×12","Side plank · 3×30 seconds each side","Bird dog · 3×8 each side"]},
+ {id:"hotel-upper",name:"Travel · Upper body & core",type:"Hotel session",minutes:30,setting:"Hotel",level:"Intermediate",blocks:["Push-up variation · 3×8–12","Backpack single-arm row · 3×10","Pike push-up or shoulder press · 3×8","Side plank · 3×25 seconds","Bird dog · 3×8 each side"]},
+ {id:"hotel-lower",name:"Travel · Lower body",type:"Hotel session",minutes:30,setting:"Hotel",level:"Intermediate",blocks:["Reverse lunge · 3×10 each side","Single-leg hip hinge · 3×8 each side","Glute bridge · 3×12","Calf raise · 3×15","Dead bug · 3×10 each side"]},
+ {id:"cardio-intervals",name:"Cardio · Intervals",type:"Cardio",minutes:30,setting:"Any",level:"Intermediate",blocks:["Warm-up · 5 min easy","Intervals · 8 rounds of 1 min brisk / 1 min easy","Cool down · 5 min"]}
 ];
 export function validateWorkout(w){
  const e=[];if(!/^\d{4}-\d{2}-\d{2}$/.test(w.date||""))e.push("Choose a valid date.");
@@ -84,7 +92,7 @@ export function buildTrainingProgram(profile={},startDate,duties=[],workouts=[])
  const dutyKind=x=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
  const isExplicitOff=items=>items.length>0&&items.every(x=>/\b(OFF|DOFF|DAY OFF|REST|LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\b/.test(dutyKind(x)));
  const isBlocked=items=>items.length>0&&!isExplicitOff(items);
- const strength=["strength-a","strength-b","strength-c","strength-d","strength-e"];
+ const strength=["strength-a","strength-b","strength-c","strength-d","strength-e","strength-f","strength-g","strength-h","strength-i","strength-j"];
  const goalRoutine=slot=>{
   let id;
   if(goal==="mobility")id="mobility-15";
@@ -92,23 +100,32 @@ export function buildTrainingProgram(profile={},startDate,duties=[],workouts=[])
   else if(goal==="fat-loss")id=["strength-a","cardio-30","strength-b","mobility-15","cardio-30"][slot%5];
   else if(goal==="strength")id=slot===days-1&&days>=4?"mobility-15":strength[slot%strength.length];
   else id=["strength-a","strength-b","cardio-30","mobility-15","strength-c"][slot%5];
-  if(setting==="hotel"&&id.startsWith("strength"))id="hotel-strength";
-  if(setting==="home"&&id.startsWith("strength"))id="hotel-25";
-  if(setting==="mixed"&&id.startsWith("strength")&&slot%2===1)id="hotel-strength";
+  if(setting==="hotel"&&id.startsWith("strength"))id=slot%2===0?"hotel-strength":"hotel-lower";
+  if(setting==="home"&&id.startsWith("strength"))id=slot%2===0?"hotel-25":"hotel-lower";
+  if(setting==="mixed"&&id.startsWith("strength")&&slot%2===1)id=slot%3===0?"hotel-upper":"hotel-lower";
   return id;
  };
  const sessions=[];
  for(let week=1;week<=6;week++){
   const phase=week===4?"deload":week>=5?"intensify":"build",chosen=[];
-  for(let slot=0;slot<days;slot++){
+  const eligible=Array.from({length:7},(_,offset)=>{
+   const date=datePlus(start,(week-1)*7+offset),items=(duties||[]).filter(x=>x.date===date);
+   return {offset,date,items,available:!isBlocked(items)};
+  }).filter(x=>x.available);
+  // Requested frequency is a target, not a spacing filter: fill 2–5 sessions if roster permits.
+  for(let slot=0;slot<Math.min(days,eligible.length);slot++){
    const ideal=Math.round(slot*6/Math.max(1,days-1));
-   const candidates=Array.from({length:7},(_,i)=>i).filter(offset=>{
-    const date=datePlus(start,(week-1)*7+offset),items=(duties||[]).filter(x=>x.date===date);
-    return !isBlocked(items)&&!chosen.some(x=>Math.abs(x.offset-offset)<2);
-   }).sort((a,b)=>Math.abs(a-ideal)-Math.abs(b-ideal));
-   if(!candidates.length)continue;
-   const offset=candidates[0],date=datePlus(start,(week-1)*7+offset),roster=(duties||[]).filter(x=>x.date===date);
-   chosen.push({offset,date,availability:roster.length?"roster-off":"unconfirmed"});
+   const candidates=eligible.filter(c=>!chosen.some(x=>x.offset===c.offset));
+   candidates.sort((a,b)=>{
+    const score=c=>Math.abs(c.offset-ideal)*1.15+chosen.reduce((penalty,x)=>{
+     const gap=Math.abs(x.offset-c.offset);
+     return penalty+(gap===1?3.2:gap===2?0.45:0);
+    },0);
+    return score(a)-score(b)||a.offset-b.offset;
+   });
+   if(!candidates.length)break;
+   const pick=candidates[0];
+   chosen.push({offset:pick.offset,date:pick.date,availability:pick.items.length?"roster-off":"unconfirmed"});
   }
   chosen.sort((a,b)=>a.offset-b.offset);
   chosen.forEach((slot,index)=>{
