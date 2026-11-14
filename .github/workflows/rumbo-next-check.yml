@@ -14,6 +14,7 @@ on:
       - redesign/rumbo-os-v4
       - publish/rumbo-os-v4-github
       - feature/rumbo-v4-modular-redesign
+      - release/rumbo-next-review
     paths:
       - 'rumbo-next/**'
       - 'tests/**'
