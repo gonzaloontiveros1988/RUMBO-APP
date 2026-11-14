@@ -56,9 +56,9 @@ function sceneSvgVector(country,day){
 function sceneSvg(country,day){
  const photos={
   QA:{
-   day:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
-   night:"https://images.unsplash.com/photo-1658863714664-bced34d5606f?auto=format&fit=crop&w=2400&q=85",
-   creditDay:"Jirayu Koontholjinda · Unsplash",creditNight:"Doha skyline · night lighting",label:"DOHA · WEST BAY",position:"center 57%"
+   day:"https://images.unsplash.com/photo-1596986343464-332d54fa5702?auto=format&fit=crop&w=2400&q=85",
+   night:"https://images.unsplash.com/photo-1793038439265-d4d6f9586222?auto=format&fit=crop&w=2400&q=85",
+   creditDay:"Tarek Suman · Unsplash",creditNight:"Michael Starkie · Unsplash",label:"DOHA · WEST BAY",position:"center 56%"
   },
   AE:{
    day:"https://images.unsplash.com/photo-1782078292081-8fb6de1c54df?auto=format&fit=crop&w=2400&q=85",
@@ -80,7 +80,7 @@ function sceneSvg(country,day){
  const p=photos[country];
  if(!p||!(day?p.day:p.night))return sceneSvgVector(country,day);
  const src=day?p.day:p.night,credit=day?(p.creditDay||"Day scene · city landmark"):(p.creditNight||"Night scene · illuminated landmark");
- return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+(!day&&p.night&&country!=="QA"?' has-native-night':'')+'">'+
+ return '<div class="rumbo-photo-scene '+(day?'is-day':'is-night')+(!day&&p.night?' has-native-night':'')+'">'+
   '<img class="rumbo-photo-image" src="'+src+'" alt="'+p.label+'" fetchpriority="low" style="object-position:'+(p.position||"center 54%")+'">'+
   '<div class="rumbo-photo-grade"></div>'+
   '<div class="rumbo-photo-lights" aria-hidden="true"></div>'+
@@ -102,6 +102,8 @@ function applyRumboScene(){
 }
 async function loadCityScene(city,day){
  const bg=document.getElementById("rumbo-scene-bg");if(!bg)return;
+ const cityKey=String(city||"").trim().toLowerCase();
+ if(["doha","qatar"].includes(cityKey)){citySceneRequest++;bg.innerHTML=sceneSvg("QA",day);bg.setAttribute("aria-label","Doha West Bay skyline");return}
  const request=++citySceneRequest,key=city+"|"+(day?"day":"night"),page=cityCatalogue().find(x=>x.city===city)?.page||city;let data=citySceneCache.get(key);
  if(!data){try{const response=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(page),{headers:{accept:"application/json"},cache:"force-cache"});if(!response.ok)throw new Error("City image unavailable");const json=await response.json();data={image:json.originalimage?.source||json.thumbnail?.source||"",description:json.description||json.title||city};citySceneCache.set(key,data)}catch(e){data={image:"",description:city};citySceneCache.set(key,data)}}
  if(request!==citySceneRequest)return;

@@ -13,6 +13,7 @@ on:
       - main
       - redesign/rumbo-os-v4
       - publish/rumbo-os-v4-github
+      - feature/rumbo-v4-modular-redesign
     paths:
       - 'rumbo-next/**'
       - 'tests/**'

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - redesign/rumbo-os-v4
+      - feature/rumbo-v4-modular-redesign
     paths:
       - 'rumbo-next/**'
       - '.github/workflows/rumbo-preview-pages.yml'
