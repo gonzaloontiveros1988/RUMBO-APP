@@ -948,3 +948,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-panel .form{align-items:center}
 @media(max-width:760px){.exercise-library-grid{grid-template-columns:1fr}}
 @media(max-width:430px){.exercise-library-card{grid-template-columns:108px minmax(0,1fr);gap:9px;padding:9px}.exercise-library-art{min-height:120px}}
+
+.exercise-library-details{margin-top:8px}
+.exercise-library-details>summary{cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(113,170,184,.2);border-radius:12px;color:#b8eee7;font-weight:700;list-style:none}
+.exercise-library-details>summary::-webkit-details-marker{display:none}
+.exercise-library-details>summary:after{content:"＋";margin-left:auto;color:#79d9d0}
+.exercise-library-details[open]>summary:after{content:"−"}
+.exercise-library-details[open]>summary{margin-bottom:12px}
