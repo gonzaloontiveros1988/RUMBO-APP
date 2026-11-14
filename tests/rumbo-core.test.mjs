@@ -203,7 +203,7 @@ test("nutrition diary validates entries and aggregates recipe nutrients by servi
  const summary=nutritionDiarySummary([entry]);
  assert.equal(summary.entries,1);
  assert.equal(summary.kcal,recipeNutrition(recipe).perServing.kcal*2);
- assert.equal(summary.proteinG,recipeNutritionForTest(recipe).perServing.protein*2);
+ assert.equal(summary.proteinG,recipeNutrition(recipe).perServing.protein*2);
 });
 test("declared allergens and avoided ingredients filter recipe candidates",()=>{
  const safe=filterRecipesByProfile(RECIPES,{allergens:"huevo, nueces"});
