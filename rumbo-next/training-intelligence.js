@@ -46,10 +46,10 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
  const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
  const recentDays=new Set(history.slice(0,3).map(x=>x.date)),scheduled=[],strengthCycle=["strength-a","strength-b","strength-c","strength-d","strength-e"];
  const dutyKind=x=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
- const isFlight=x=>/FLIGHT|DUTY|\\b(?:QR)?\\d{3,4}\\b/.test(dutyKind(x))||!!(x.segments?.length||x.flightNumbers?.length);
+ const isFlight=x=>/FLIGHT|DUTY|\b(?:QR)?\d{3,4}\b/.test(dutyKind(x))||!!(x.segments?.length||x.flightNumbers?.length);
  for(let i=0;i<14;i++){
   const date=datePlus(start,i),dayDuties=(duties||[]).filter(x=>x.date===date),previousDuty=(duties||[]).filter(x=>x.date===datePlus(date,-1));
-  const explicitOff=dayDuties.length>0&&dayDuties.every(x=>/\\b(OFF|DOFF|DAY OFF|REST|LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\\b/.test(dutyKind(x)));
+  const explicitOff=dayDuties.length>0&&dayDuties.every(x=>/\b(OFF|DOFF|DAY OFF|REST|LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\b/.test(dutyKind(x)));
   const blockingDuty=dayDuties.length>0&&!explicitOff;
   if(blockingDuty||recentDays.has(date))continue;
   // Spread sessions across the fortnight rather than filling consecutive dates.
