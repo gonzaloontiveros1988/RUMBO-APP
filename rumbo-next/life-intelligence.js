@@ -88,7 +88,7 @@ export function filterRecipesByProfile(recipes=RECIPES,profile={}){
 }
 export function validateFoodLog(entry,recipes=RECIPES){
  const errors=[];
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(entry.date||""))errors.push("Choose a valid food-log date.");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(entry.date||""))errors.push("Choose a valid food-log date.");
  if(!recipes.some(x=>x.id===entry.recipeId))errors.push("Choose a known recipe or food item.");
  if(!Number.isFinite(Number(entry.servings))||Number(entry.servings)<=0||Number(entry.servings)>20)errors.push("Servings must be between 0 and 20.");
  if(!["Breakfast","Lunch","Dinner","Snack"].includes(entry.mealType))errors.push("Choose a meal type.");
