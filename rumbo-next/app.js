@@ -510,8 +510,8 @@ bind("clearMealPlan",()=>{state.mealPlan=[];save();render();toast("Meal plan dra
  const steps=stepsText.split(/\\n+/).map(x=>x.trim()).filter(Boolean);
  if(!name||ingredients.length<2||steps.length<1)return toast("Añade un nombre, al menos dos ingredientes y un paso de preparación.");
  if(servings<1||servings>20||minutes<1||minutes>300)return toast("Revisa raciones y tiempo de preparación.");
- const macroIds=["customRecipeKcal","customRecipeProtein","customRecipeCarbs","customRecipeFat"],macros=macroIds.map(id=>$( "#"+id)?.value===""?0:Number($("#"+id)?.value||0));
- if(macros.some(x=>!Number.isFinite(x)||x<0))return toast("Revisa los valores nutricionales.");
+ const macroIds=["customRecipeKcal","customRecipeProtein","customRecipeCarbs","customRecipeFat"],macroInputs=macroIds.map(id=>$("#"+id)?.value??""),hasMacros=macroInputs.some(x=>String(x).trim()!==""),macros=macroInputs.map(x=>Number(x));
+ if(hasMacros&&(macroInputs.some(x=>String(x).trim()==="")||macros.some(x=>!Number.isFinite(x)||x<0)))return toast("Introduce los cuatro valores nutricionales por ración o deja todos vacíos.");
  if(macros.some(x=>x>0)){ingredients[0][2]=macros[0]*servings;ingredients[0][3]=macros[1]*servings;ingredients[0][4]=macros[2]*servings;ingredients[0][5]=macros[3]*servings}
  const recipe={id:"user-"+(crypto.randomUUID?crypto.randomUUID():String(Date.now())),name,category,minutes,servings,ingredients,steps,image:"",origin:"user",sourceTitle:"Receta añadida por el usuario"};
  state.customRecipes=state.customRecipes||[];state.customRecipes.push(recipe);save();render();toast("Receta guardada en tu recetario.");
