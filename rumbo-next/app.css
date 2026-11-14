@@ -723,3 +723,44 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .program-exercise-mini small{font-size:10px;color:#9bbac7;margin-top:3px}
 .program-day-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid rgba(104,177,198,.15)}
 @media(max-width:700px){.program-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.program-exercise-mini{align-items:flex-start}.program-day-actions{align-items:stretch;flex-direction:column}.program-day-actions .btn{width:100%}.program-day-exercises{grid-template-columns:1fr}}
+
+
+/* Exercise-by-exercise guided coach */
+.guided-exercise-card{margin:14px 0;padding:clamp(16px,3vw,28px);border:1px solid rgba(82,210,205,.34);border-radius:20px;background:linear-gradient(145deg,rgba(9,39,57,.97),rgba(5,24,39,.98));box-shadow:0 18px 50px rgba(0,0,0,.2)}
+.guided-exercise-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.guided-exercise-visual{display:grid;grid-template-columns:minmax(130px,.7fr) minmax(0,1.3fr);gap:20px;align-items:center;padding:22px 0;border-bottom:1px solid rgba(138,196,207,.16)}
+.guided-figure{height:190px;position:relative;display:flex;align-items:center;justify-content:center;border-radius:16px;background:radial-gradient(circle at 50% 42%,rgba(40,199,192,.18),rgba(18,64,84,.08) 65%);overflow:hidden}
+.guided-figure span{position:absolute;display:block;background:linear-gradient(180deg,#78e3dc,#269ba8);border-radius:20px;box-shadow:0 0 18px rgba(50,205,196,.16)}
+.guided-figure .figure-head{width:25px;height:25px;top:27px;border-radius:50%}
+.guided-figure .figure-body{width:35px;height:75px;top:56px;border-radius:16px}
+.guided-figure .figure-arm{width:13px;height:72px;top:61px;transform-origin:top center}
+.guided-figure .figure-arm.left{transform:rotate(32deg);margin-left:-52px}
+.guided-figure .figure-arm.right{transform:rotate(-32deg);margin-left:52px}
+.guided-figure .figure-leg{width:15px;height:66px;top:124px;transform-origin:top center}
+.guided-figure .figure-leg.left{transform:rotate(8deg);margin-left:-15px}
+.guided-figure .figure-leg.right{transform:rotate(-8deg);margin-left:15px}
+.guided-exercise-title h2{font-size:clamp(22px,3vw,32px);margin:5px 0}
+.guided-exercise-title p,.guided-equipment{color:#a9c6d1;font-size:13px}
+.guided-equipment{display:block;margin:7px 0 13px}
+.guided-video-link{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:11px;background:rgba(39,192,187,.14);border:1px solid rgba(63,210,202,.3);color:#7ce5df;font-weight:750;text-decoration:none}
+.guided-target-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 0}
+.guided-target-row>div{padding:12px;border-radius:12px;background:rgba(255,255,255,.045)}
+.guided-target-row small,.guided-target-row b{display:block}
+.guided-target-row small{font:650 9px 'DM Mono',monospace;letter-spacing:.12em;color:#73d9d3}
+.guided-target-row b{margin-top:5px;font-size:15px}
+.guided-technique{padding:14px 16px;border-radius:13px;background:rgba(255,255,255,.035)}
+.guided-technique>b{font:700 10px 'DM Mono',monospace;letter-spacing:.12em;color:#77dcd7}
+.guided-technique ul{display:grid;gap:7px;padding-left:19px;color:#d1e5eb;font-size:13px}
+.guided-set-tracker{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.guided-set-tracker span{padding:8px 12px;border-radius:9px;border:1px solid rgba(136,185,199,.2);font:700 10px 'DM Mono',monospace;color:#a9c6d1}
+.guided-set-tracker span.current{border-color:#4ed8cf;color:#7ce5df;background:rgba(40,194,190,.12)}
+.guided-set-tracker span.completed{background:rgba(48,193,144,.14);border-color:rgba(48,193,144,.35);color:#86e3bd}
+.guided-timer-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;border-radius:16px;background:linear-gradient(110deg,rgba(22,78,99,.6),rgba(10,38,57,.65));border:1px solid rgba(98,185,198,.18)}
+.guided-timer-face{display:grid;gap:3px}
+.guided-timer-face strong{font:750 clamp(32px,5vw,46px) 'DM Mono',monospace;letter-spacing:-.06em;color:#f0fbff;font-variant-numeric:tabular-nums}
+.guided-timer-face small{font:700 10px 'DM Mono',monospace;letter-spacing:.16em;color:#6ee0d8}
+.guided-progress-track{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:14px 0}
+.guided-progress-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#25aaa9,#71e5d8);transition:width .25s ease}
+.guided-navigation{display:flex;justify-content:space-between;gap:12px;margin-top:12px}
+.guided-finish-card{padding:24px;border-radius:16px;background:rgba(37,191,164,.08);border:1px solid rgba(62,208,174,.25)}
+@media(max-width:620px){.guided-exercise-visual{grid-template-columns:1fr;gap:10px}.guided-figure{height:150px}.guided-timer-card{align-items:flex-start;flex-direction:column}.guided-timer-buttons,.guided-timer-buttons button{width:100%}.guided-navigation button{flex:1}.guided-target-row{gap:6px}.guided-target-row>div{padding:9px}.guided-target-row b{font-size:12px}}
