@@ -89,8 +89,28 @@ function init(host,id,THREE){
  host.dataset.engine="three";host.setAttribute("aria-label","Modelo humano 3D animado. Arrastra para rotar la cámara y usa la rueda para acercar.");
 }
 let THREE_PROMISE;
-async function boot(){document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="loading"});let THREE;try{THREE=await (THREE_PROMISE||=import(THREE_URL))}catch(e){document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="fallback";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga")});console.error("RUMBO 3D library failed",e);return}
- const scan=()=>document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{try{init(host,host.dataset.exercise3d,THREE)}catch(e){host.dataset.ready="0";host.dataset.engine="fallback";host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.warn("RUMBO 3D fallback",e)}});
- new MutationObserver(scan).observe(document.getElementById("view")||document.body,{childList:true,subtree:true});scan();
+async function boot(){
+ const scan=()=>{
+  document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
+   if(host.dataset.ready==="1"||host.dataset.engine==="fallback")return;
+   host.dataset.engine="loading";
+   if(!window.__RUMBO_THREE__){host.dataset.engine="fallback";return}
+   try{init(host,host.dataset.exercise3d,window.__RUMBO_THREE__)}
+   catch(e){host.dataset.ready="0";host.dataset.engine="fallback";host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.warn("RUMBO 3D fallback",e)}
+  });
+ };
+ const root=document.getElementById("view")||document.body;
+ const observer=new MutationObserver(scan);observer.observe(root,{childList:true,subtree:true});
+ scan();
+ try{
+  const THREE=await (THREE_PROMISE||=import(THREE_URL));
+  window.__RUMBO_THREE__=THREE;
+  scan();
+ }catch(e){
+  document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
+   host.dataset.engine="fallback";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga");
+  });
+  console.error("RUMBO 3D library failed",e);
+ }
 }
 if(typeof window!=="undefined")boot();
