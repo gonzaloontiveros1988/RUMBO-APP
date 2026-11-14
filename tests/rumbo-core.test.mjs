@@ -94,7 +94,7 @@ test("completion is stored per occurrence without completing future monthly remi
  assert.deepEqual(r.map(x=>x.done),[true,false,false]);
 });
 
-import {makeMealWeek,financeSummary} from "../rumbo-next/life-intelligence.js";
+import {makeMealWeek,financeSummary,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,RECIPES,recipeNutrition} from "../rumbo-next/life-intelligence.js";
 test("meal planner creates breakfast, lunch and dinner for each day and adapts to roster",()=>{
  const plan=makeMealWeek("2026-11-01",[
   {date:"2026-11-01",code:"QR123",kind:"FLIGHT"},
@@ -192,4 +192,28 @@ test("six-week program adapts to hotel and endurance preferences",()=>{
  assert.ok(hotel.sessions.every(x=>x.routineId==="hotel-strength"));
  const endurance=buildTrainingProgram({goal:"endurance",setting:"gym",daysPerWeek:3},"2026-11-16");
  assert.ok(endurance.sessions.some(x=>x.type==="Cardio"));
+});
+
+
+test("nutrition diary validates entries and aggregates recipe nutrients by serving count",()=>{
+ const recipe=RECIPES.find(x=>x.id==="yogur-fruta-avena");
+ const entry={date:"2026-11-14",mealType:"Breakfast",recipeId:recipe.id,servings:2};
+ assert.deepEqual(validateFoodLog(entry),[]);
+ assert.ok(validateFoodLog({...entry,servings:0}).length);
+ const summary=nutritionDiarySummary([entry]);
+ assert.equal(summary.entries,1);
+ assert.equal(summary.kcal,recipeNutrition(recipe).perServing.kcal*2);
+ assert.equal(summary.proteinG,recipeNutritionForTest(recipe).perServing.protein*2);
+});
+test("declared allergens and avoided ingredients filter recipe candidates",()=>{
+ const safe=filterRecipesByProfile(RECIPES,{allergens:"huevo, nueces"});
+ assert.ok(!safe.some(r=>r.ingredients.some(i=>/huevo|nueces/i.test(i[0]))));
+ const avoid=filterRecipesByProfile(RECIPES,{avoidIngredients:"salmón"});
+ assert.ok(!avoid.some(r=>r.ingredients.some(i=>/salmón/i.test(i[0]))));
+});
+test("pantry expiry status distinguishes expired, soon, fresh and unknown dates",()=>{
+ assert.equal(pantryExpiryStatus({expiryDate:"2026-11-13"},"2026-11-14"),"expired");
+ assert.equal(pantryExpiryStatus({expiryDate:"2026-11-16"},"2026-11-14"),"soon");
+ assert.equal(pantryExpiryStatus({expiryDate:"2026-11-25"},"2026-11-14"),"fresh");
+ assert.equal(pantryExpiryStatus({},"2026-11-14"),"unknown");
 });
