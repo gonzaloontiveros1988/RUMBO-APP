@@ -39,7 +39,7 @@ function detectCurrency(raw){
  return "QAR";
 }
 function extractAmountFromLine(line){
- const matches=[...String(line||"").matchAll(/(?:QAR|QR|EUR|USD|AED|SAR|GBP|€|\$|£)?\s*([0-9][0-9,]*(?:[.,][0-9]{1,2})?)/gi)];
+ const matches=[...String(line||"").matchAll(/(?:QAR|QR|EUR|USD|AED|SAR|GBP|€|\$|£)?\s*([0-9]+(?:[.,][0-9]{3})*(?:[.,][0-9]{1,2})?)/gi)];
  const values=matches.map(m=>parseAmount(m[1])).filter(Number.isFinite);
  return values.length?values[values.length-1]:NaN;
 }
