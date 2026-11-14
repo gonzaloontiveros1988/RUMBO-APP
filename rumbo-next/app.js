@@ -574,3 +574,5 @@ window.addEventListener("error",e=>showStartupError((e.message||"Error JavaScrip
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});initRumboScene();try{render()}catch(err){console.error(err);showStartupError(err?.stack||err?.message||String(err))}
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+// Nutrition diary, allergen preferences and pantry expiry release checkpoint.
