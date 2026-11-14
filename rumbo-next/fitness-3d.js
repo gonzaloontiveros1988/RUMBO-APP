@@ -30,7 +30,7 @@ function init(host,id,THREE){
  node("footL",shoe,.11,[.8,.55,1.7]);node("footR",shoe,.11,[.8,.55,1.7]);
  const bones={};function bone(name,material,r=.065){const m=new THREE.Mesh(limbGeo,material);m.castShadow=true;m.receiveShadow=true;scene.add(m);bones[name]=m}
  ["upperArmL","lowerArmL","upperArmR","lowerArmR","thighL","shinL","thighR","shinR"].forEach(n=>bone(n,n.startsWith("thigh")?shorts:skin,n.startsWith("thigh")?.105:.07));
- function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);const arm=mesh===bones.upperArmL||mesh===bones.upperArmR||mesh===bones.lowerArmL||mesh===bones.lowerArmR;mesh.scale.set(arm?.9:1,dir.length(),arm?.9:1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
+ function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);const arm=mesh===bones.upperArmL||mesh===bones.upperArmR||mesh===bones.lowerArmL||mesh===bones.lowerArmR;mesh.scale.set(arm ? .9 : 1,dir.length(),arm ? .9 : 1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
  const dumbbells=[];for(let s of [-1,1]){const g=new THREE.Group();const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.32,12),weightMat);bar.rotation.z=Math.PI/2;g.add(bar);for(let z of [-.17,.17]){const d=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.07,16),weightMat);d.rotation.z=Math.PI/2;d.position.x=z;g.add(d)}scene.add(g);dumbbells.push(g)}
  const V=(x,y,z)=>new THREE.Vector3(x,y,z);
  function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);mesh.scale.set(1,dir.length(),1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
