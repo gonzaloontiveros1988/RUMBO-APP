@@ -102,7 +102,7 @@ function applyRumboScene(){
 }
 async function loadCityScene(city,day){
  const bg=document.getElementById("rumbo-scene-bg");if(!bg)return;
- const cityKey=String(city||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+ const cityKey=String(city||"").trim().toLowerCase();
  if(["doha","qatar"].includes(cityKey)){citySceneRequest++;bg.innerHTML=sceneSvg("QA",day);bg.setAttribute("aria-label","Doha West Bay skyline");return}
  const request=++citySceneRequest,key=city+"|"+(day?"day":"night"),page=cityCatalogue().find(x=>x.city===city)?.page||city;let data=citySceneCache.get(key);
  if(!data){try{const response=await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(page),{headers:{accept:"application/json"},cache:"force-cache"});if(!response.ok)throw new Error("City image unavailable");const json=await response.json();data={image:json.originalimage?.source||json.thumbnail?.source||"",description:json.description||json.title||city};citySceneCache.set(key,data)}catch(e){data={image:"",description:city};citySceneCache.set(key,data)}}
