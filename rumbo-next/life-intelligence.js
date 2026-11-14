@@ -50,6 +50,7 @@ export function parsePastedRecipe(raw){
  const minutes=Math.min(300,Math.max(1,Number(timeMatch?.[1]||timeMatch?.[2])||30));
  let section="",ingredients=[],steps=[];
  for(let line of lines.slice(1)){
+  if(line===servingsLine||line===timeLine)continue;
   if(heading(line)){section="ingredients";continue}
   if(method(line)){section="steps";continue}
   if(/^(raciones|porciones|servings|serves|personen|dosi|tiempo|time|prep|cocci[oó]n)\s*[:\-]/i.test(line))continue;
