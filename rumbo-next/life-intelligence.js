@@ -53,7 +53,7 @@ export function makeMealWeek(startDate,roster,recipes=RECIPES,preferences={}){
  }
  return week;
 }
-export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){const have=new Set(pantry.map(x=>x.name.toLowerCase()));const sums=new Map();for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){if(have.has(name.toLowerCase()))continue;const old=sums.get(name)||[];old.push(qty);sums.set(name,old)}}return [...sums].map(([name,quantities])=>({name,qty:[...new Set(quantities)].join(" + "),done:false,source:"meal-plan"}))}
+export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){const have=new Set(pantry.map(x=>String(x.name||"").toLowerCase()));const sums=new Map();for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){if(have.has(name.toLowerCase()))continue;const old=sums.get(name)||[];old.push(qty);sums.set(name,old)}}return [...sums].map(([name,quantities])=>({name,qty:[...new Set(quantities)].join(" + "),done:false,source:"meal-plan"}))}
 export function mealCostEstimate(items,prices={}){return items.reduce((sum,x)=>sum+(Number(prices[x.name])||0),0)}
 export function familyWeek(duties,events,startDate){const start=new Date(startDate+"T12:00:00");return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"),duty=duties.filter(x=>x.date===date),dayEvents=events.filter(x=>x.date===date);return {date,duty,events:dayEvents,availability:duty.length?"Roster activity — confirm duty details":"No imported duty — availability unconfirmed"}})}
 const localIsoDate=()=>{const d=new Date(),parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Qatar",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d),v=Object.fromEntries(parts.map(x=>[x.type,x.value]));return v.year+"-"+v.month+"-"+v.day};
@@ -105,11 +105,4 @@ export function pantryExpiryStatus(item,today=localIsoDate()){
  if(item.expiryDate<today)return "expired";
  const delta=Math.round((new Date(item.expiryDate+"T12:00:00")-new Date(today+"T12:00:00"))/86400000);
  return delta<=3?"soon":"fresh";
-}
-export function shoppingFromMeals(meals,recipes=RECIPES,pantry=[]){
- const stock=new Map();
- for(const item of pantry){const key=String(item.name||"").trim().toLowerCase();if(key)stock.set(key,String(item.qty||""));}
- const sums=new Map();
- for(const meal of meals){const r=recipes.find(x=>x.id===meal.recipeId);if(!r)continue;for(const [name,qty] of r.ingredients){const key=name.toLowerCase(),existing=sums.get(key)||{name,quantities:[]};existing.quantities.push(String(qty));sums.set(key,existing);}}
- return [...sums.values()].filter(x=>!stock.has(x.name.toLowerCase())).map(x=>({name:x.name,qty:[...new Set(x.quantities)].join(" + "),done:false,source:"meal-plan"}));
 }
