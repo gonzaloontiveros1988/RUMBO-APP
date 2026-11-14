@@ -655,3 +655,14 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .recipe-visual-copy{display:flex;flex-direction:column;gap:7px}
 .recipe-visual-copy .btn{align-self:flex-start}
 @media(max-width:760px){.fitness-exercise-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.fitness-session-card .form{display:grid;grid-template-columns:1fr 1fr}.fitness-session-card .form .btn.primary{grid-column:1/-1}}
+
+
+/* Active workout and set logging */
+.workout-clock-panel{display:grid;grid-template-columns:minmax(130px,.7fr) 1fr;gap:12px;align-items:center;padding:14px;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:rgba(66,207,207,.06)}
+.workout-clock-value{font-size:30px;font-weight:750;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.workout-clock-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.rest-clock-row{grid-column:1/-1;display:flex;gap:9px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
+.rest-clock-row b{font-variant-numeric:tabular-nums;font-size:16px;margin-left:7px}
+.workout-exercise-row{gap:8px;flex-wrap:wrap}
+.workout-exercise-row .btn{white-space:nowrap}
+@media(max-width:650px){.workout-clock-panel{grid-template-columns:1fr}.workout-clock-actions{justify-content:flex-start}.workout-exercise-row .grow{flex-basis:100%}.rest-clock-row{align-items:flex-start}}
