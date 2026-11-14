@@ -12,7 +12,8 @@ const presets={
  "biceps-curl":{kind:"curl",camera:[3.3,2.3,4.5]},"triceps-pushdown":{kind:"curl",camera:[3.3,2.3,4.5]},"lateral-raise":{kind:"raise",camera:[3.3,2.3,4.5]},"farmer-carry":{kind:"carry",camera:[3.3,2.3,4.5]}, "leg-press":{kind:"squat",camera:[3.5,2.1,4.8]},"leg-curl":{kind:"curl",camera:[3.5,2.1,4.8]},"calf-raise":{kind:"squat",camera:[3.2,2.3,4.5]},"chest-fly":{kind:"press",camera:[3.8,2.0,4.4]},"face-pull":{kind:"pull",camera:[3.4,2.3,4.6]},"pallof-press":{kind:"carry",camera:[3.3,2.3,4.5]},"dead-bug":{kind:"plank",camera:[3.6,2.0,4.6]},"bird-dog":{kind:"plank",camera:[3.6,2.0,4.6]},"mountain-climber":{kind:"plank",camera:[3.6,2.0,4.6]},"cat-cow":{kind:"hinge",camera:[3.2,2.1,4.7]},"thoracic-rotation":{kind:"hinge",camera:[3.2,2.1,4.7]},"hip-flexor-stretch":{kind:"lunge",camera:[3.4,2.2,4.5]},"90-90-hip-switch":{kind:"lunge",camera:[3.4,2.2,4.5]},"ankle-rock":{kind:"lunge",camera:[3.4,2.2,4.5]},"childs-pose":{kind:"plank",camera:[3.6,2.0,4.6]},"jump-rope":{kind:"carry",camera:[3.3,2.3,4.5]},"cycling":{kind:"bridge",camera:[3.4,2.0,4.5]}
 };
 function init(host,id,THREE){
- if(host.dataset.ready==="1")return;const fallback=host.querySelector("svg")?.cloneNode(true);host.dataset.ready="1";
+ if(host.dataset.ready==="1")return ()=>{};
+ host.dataset.ready="1";
  const w=host.clientWidth||360,h=host.clientHeight||220;
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;host.replaceChildren(renderer.domElement);
  const scene=new THREE.Scene();scene.background=null;
@@ -87,38 +88,52 @@ function init(host,id,THREE){
  draw(performance.now());
  const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()});ro.observe(host);
  host.dataset.engine="three";host.setAttribute("aria-label","Modelo humano 3D animado. Arrastra para rotar la cámara y usa la rueda para acercar.");
+ return ()=>{
+  cancelAnimationFrame(raf);ro.disconnect();renderer.dispose();
+  scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});
+  renderer.domElement.remove();
+ };
 }
-let THREE_PROMISE;
+let THREE_PROMISE,activeHost=null,activeDispose=null,activeFallback=null;
 async function boot(){
+ const restoreActive=()=>{
+  if(activeDispose){try{activeDispose()}catch(e){console.warn("RUMBO renderer cleanup",e)}}
+  if(activeHost){
+   activeHost.dataset.ready="0";activeHost.dataset.engine="idle";
+   if(activeFallback){activeHost.replaceChildren(activeFallback);activeFallback.style.display="block";activeFallback.style.opacity="1"}
+  }
+  activeHost=null;activeDispose=null;activeFallback=null;
+ };
  const scan=()=>{
-  document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
-   if(host.dataset.ready==="1"||host.dataset.engine==="fallback")return;
-   host.dataset.engine="loading";
-   if(!window.__RUMBO_THREE__){host.dataset.engine=window.__RUMBO_THREE_FAILED__?"fallback":"loading";return}
-   const fallback=host.querySelector(".exercise-demo-svg")?.cloneNode(true);
-   try{init(host,host.dataset.exercise3d,window.__RUMBO_THREE__)}
-   catch(e){
-    host.dataset.ready="0";host.dataset.engine="fallback";
-    if(fallback){host.replaceChildren(fallback);fallback.style.display="block";fallback.style.opacity="1"}
-    host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");
-    console.error("RUMBO 3D init failed",e);
-   }
-  });
+  const all=[...document.querySelectorAll(".guided-figure[data-exercise-3d]")];
+  const preferred=document.querySelector(".guided-exercise-card .guided-figure[data-exercise-3d], .program-exercise-detail .guided-figure[data-exercise-3d]");
+  const library=document.querySelector(".exercise-library-card .guided-figure[data-exercise-3d]");
+  const target=preferred||library||all[0]||null;
+  if(target===activeHost)return;
+  restoreActive();
+  if(!target||!window.__RUMBO_THREE__||window.__RUMBO_THREE_FAILED__)return;
+  activeHost=target;activeFallback=target.querySelector("svg")?.cloneNode(true)||null;
+  target.dataset.engine="loading";
+  try{activeDispose=init(target,target.dataset.exercise3d,window.__RUMBO_THREE__)}
+  catch(e){
+   target.dataset.ready="0";target.dataset.engine="fallback";
+   if(activeFallback){target.replaceChildren(activeFallback);activeFallback.style.display="block";activeFallback.style.opacity="1"}
+   target.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");
+   console.error("RUMBO 3D init failed",e);activeHost=null;activeDispose=null;activeFallback=null;
+  }
  };
  const root=document.getElementById("view")||document.body;
- const observer=new MutationObserver(scan);observer.observe(root,{childList:true,subtree:true});
+ const observer=new MutationObserver(()=>{if(!window.__RUMBO_SCAN_PENDING__){window.__RUMBO_SCAN_PENDING__=true;requestAnimationFrame(()=>{window.__RUMBO_SCAN_PENDING__=false;scan()})}});
+ observer.observe(root,{childList:true,subtree:true});
  scan();
  try{
   let THREE,lastError;
   for(const url of THREE_URLS){try{THREE=await import(url);break}catch(e){lastError=e;console.warn("RUMBO Three.js source failed",url,e)}}
   if(!THREE)throw lastError||new Error("No se pudo descargar Three.js");
-  window.__RUMBO_THREE__=THREE;
-  scan();
+  window.__RUMBO_THREE__=THREE;scan();
  }catch(e){
   window.__RUMBO_THREE_FAILED__=true;
-  document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
-   host.dataset.engine="fallback";host.dataset.ready="0";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga");
-  });
+  document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="fallback";host.dataset.ready="0";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga")});
   console.error("RUMBO 3D library failed",e);
  }
 }
