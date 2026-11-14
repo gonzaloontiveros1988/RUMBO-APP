@@ -301,7 +301,10 @@ const PROGRAM_EXERCISES={
  "hotel-25":["squat","push-up","reverse-lunge","hip-bridge","bird-dog"],
  "hotel-upper":["push-up","one-arm-row","shoulder-press","side-plank","bird-dog"],
  "hotel-lower":["reverse-lunge","single-leg-rdl","hip-bridge","calf-raise","dead-bug"],
- "cardio-30":[],"cardio-intervals":["mountain-climber"],"mobility-15":[],"hotel-20":[],"recovery-15":[]
+ "cardio-30":["cycling"],"cardio-intervals":["mountain-climber","jump-rope"],
+ "mobility-15":["cat-cow","thoracic-rotation","hip-flexor-stretch","ankle-rock"],
+ "hotel-20":["cat-cow","90-90-hip-switch","thoracic-rotation","childs-pose"],
+ "recovery-15":["childs-pose","hip-flexor-stretch","ankle-rock"]
 };
 function sixWeekProgramMarkup(){
  const sessions=state.trainingProgram?.sessions||[];if(!sessions.length)return '<div class="empty">Configura tu objetivo y crea tu programa para ver aquí las seis semanas.</div>';
@@ -364,6 +367,14 @@ function exerciseDemoSvg(id){
  scenes["plank"]=horizontalPose("rig-floor-motion",[57,102],[[68,105],[160,119]],"M90 110L75 135L60 150M90 110L80 137L68 151","M160 119L210 132L278 148M160 119L210 132L278 148",'<path class="demo-prop" d="M24 153h272"/>');
  scenes["dead-bug"]=horizontalPose("rig-deadbug-motion",[65,136],[[76,138],[158,138]],"M105 138L115 91L139 72M105 138L119 91L97 73","M158 138L199 98L229 75M158 138L199 98L184 66");
  scenes["leg-press"]=horizontalPose("rig-legpress-motion",[87,117],[[99,120],[147,125]],"M111 121L113 145L132 151M111 121L94 139L81 145","M147 125L185 100L235 80M147 125L185 100L235 80",'<path class="demo-prop" d="M68 145l32 -78h30M130 67h55M185 67l28 78M215 145h65"/>');
+ scenes["cat-cow"]=horizontalPose("rig-mobility-motion",[75,107],[[86,110],[175,118]],"M105 116L92 139L83 157M105 116L118 139L130 157","M175 118L215 137L245 157M175 118L215 137L245 157",'<path class="demo-prop" d="M25 160h270"/>');
+ scenes["thoracic-rotation"]=horizontalPose("rig-mobility-motion",[75,107],[[86,110],[175,118]],"M105 116L91 137L78 153M105 116L120 92L144 72","M175 118L215 137L245 157M175 118L215 137L245 157",'<path class="demo-prop" d="M25 160h270"/>');
+ scenes["hip-flexor-stretch"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L132 119L110 159M170 91L195 116L235 116L235 159");
+ scenes["90-90-hip-switch"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L125 118L145 145M170 91L195 118L175 145");
+ scenes["ankle-rock"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L132 119L112 159M170 91L190 119L218 159");
+ scenes["childs-pose"]=horizontalPose("rig-mobility-motion",[80,136],[[90,138],[170,145]],"M112 139L75 145L42 151M112 139L78 151L48 158","M170 145L202 151L225 158M170 145L202 151L225 158",'<path class="demo-prop" d="M25 160h270"/>');
+ scenes["jump-rope"]=pose("rig-cardio-motion","M140 49L122 74L112 93M180 49L198 74L208 93","M150 91L138 124L137 159M170 91L182 124L183 159",'<path class="demo-prop" d="M92 85q68 90 136 0"/>');
+ scenes["cycling"]=horizontalPose("rig-cardio-motion",[90,65],[[100,75],[158,105]],"M120 83L110 111L130 132M120 83L140 104L160 128","M158 105L195 83L220 115M158 105L180 133L220 115",'<circle class="demo-prop" cx="100" cy="143" r="27"/><circle class="demo-prop" cx="230" cy="143" r="27"/><path class="demo-prop" d="M100 143l60 -25 70 25m-70 -25l-8 -36"/>');
  const legacy={
  "squat":'<g class="demo-body demo-squat-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 54L133 69L118 58M160 54L187 69L202 58M160 94L137 126L132 163M160 94L183 126L188 163"/></g>',
  "rdl":'<g class="demo-body demo-hinge-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 53L145 88L145 124M160 53L175 88L175 124M160 94L142 127L137 163M160 94L178 127L183 163"/></g>',
@@ -437,8 +448,8 @@ function training(){
  ${panel("RECENT TRAINING HISTORY",history)}
  </div>
  <section class="panel exercise-library-panel" style="margin-top:14px">
-  <div class="panel-head"><div><div class="kicker">MOVEMENT DATABASE</div><h2>Biblioteca de ejercicios</h2><p class="muted">34 ejercicios organizados por patrón, musculatura y material. Filtra y añade movimientos a tu sesión.</p></div><span class="pill">34 MOVEMENTS</span></div>
-  <details class="exercise-library-details"><summary>Explorar los 34 ejercicios</summary><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">34 ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
+  <div class="panel-head"><div><div class="kicker">MOVEMENT DATABASE</div><h2>Biblioteca de ejercicios</h2><p class="muted">42 ejercicios organizados por patrón, musculatura y material. Filtra y añade movimientos a tu sesión.</p></div><span class="pill">42 MOVEMENTS</span></div>
+  <details class="exercise-library-details"><summary>Explorar los 34 ejercicios</summary><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">42 ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
  </section>`
 ;
 }
