@@ -697,3 +697,29 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .active-set-progress i.done{background:#20bdb6;color:#06202b;border-color:#20bdb6}
 .active-workout-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(135,190,205,.2);color:#a9d4d7;font-weight:700}
 @media(max-width:700px){.active-workout-timer{flex-direction:column}.active-exercise{grid-template-columns:1fr auto}.active-exercise .btn{grid-column:1/-1;width:100%}.active-workout-footer{align-items:stretch;flex-direction:column}.active-workout-footer .btn{width:100%}.active-workout-top{flex-direction:column}}
+
+
+/* Compact six-week training navigation */
+.program-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:16px 0 12px}
+.program-week-tab{border:1px solid rgba(105,178,196,.28);border-radius:12px;background:rgba(7,28,44,.62);color:#b9d5df;padding:12px 8px;font-weight:750;cursor:pointer}
+.program-week-tab.active{background:linear-gradient(135deg,#1eb8b8,#168a9a);color:#052332;border-color:#48d9d2;box-shadow:0 6px 20px rgba(31,191,188,.18)}
+.program-week-summary{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;color:#e4f6fb}
+.program-days{display:grid;gap:9px}
+.program-day{border:1px solid rgba(103,176,198,.25);border-radius:15px;background:rgba(6,25,40,.58);overflow:hidden}
+.program-day.open{border-color:rgba(49,205,198,.55);background:rgba(8,34,49,.88)}
+.program-day-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:12px;padding:15px 17px;border:0;background:transparent;color:#eaf7fb;cursor:pointer}
+.program-day-toggle>span:first-child{display:grid;gap:5px}
+.program-day-toggle small{font:650 10px 'DM Mono',monospace;letter-spacing:.13em;color:#5fd5d0}
+.program-day-toggle b{font-size:15px}
+.program-day-toggle em{font-style:normal;color:#9bbac7;font-size:12px}
+.program-chevron{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(44,189,190,.13);color:#66ded8;font-size:22px}
+.program-day-content{padding:0 16px 16px;border-top:1px solid rgba(104,177,198,.17)}
+.program-day-exercises{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:13px 0}
+.program-exercise-mini{display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(148,190,204,.12)}
+.program-exercise-art{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:linear-gradient(145deg,rgba(38,194,190,.25),rgba(18,82,108,.3));color:#76e3dc;font:700 11px 'DM Mono',monospace}
+.program-exercise-mini .grow{min-width:0}
+.program-exercise-mini b,.program-exercise-mini small{display:block}
+.program-exercise-mini b{font-size:12px}
+.program-exercise-mini small{font-size:10px;color:#9bbac7;margin-top:3px}
+.program-day-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid rgba(104,177,198,.15)}
+@media(max-width:700px){.program-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.program-exercise-mini{align-items:flex-start}.program-day-actions{align-items:stretch;flex-direction:column}.program-day-actions .btn{width:100%}.program-day-exercises{grid-template-columns:1fr}}
