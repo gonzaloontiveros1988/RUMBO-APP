@@ -244,3 +244,12 @@ test("duplicate receipt check matches merchant, date, amount and currency",()=>{
  assert.equal(findDuplicateExpense({name:"CARREFOUR",date:"2026-11-14",amount:123.45,currency:"EUR"},saved),null);
  assert.equal(findDuplicateExpense({name:"CARREFOUR",date:"2026-11-15",amount:123.45,currency:"QAR"},saved),null);
 });
+
+import gatewayAuth from "../api/gateway-auth.js";
+test("AI Gateway auth prefers explicit key then build token then runtime request token",()=>{
+ const getToken=gatewayAuth.getGatewayToken;
+ assert.equal(getToken({headers:{"x-vercel-oidc-token":"runtime"}},{AI_GATEWAY_API_KEY:"key",VERCEL_OIDC_TOKEN:"build"}),"key");
+ assert.equal(getToken({headers:{"x-vercel-oidc-token":"runtime"}},{VERCEL_OIDC_TOKEN:"build"}),"build");
+ assert.equal(getToken({headers:{"x-vercel-oidc-token":"runtime"}},{}),"runtime");
+ assert.equal(getToken({headers:{}},{}),"");
+});
