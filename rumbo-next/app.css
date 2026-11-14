@@ -1000,3 +1000,15 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes jointClimberHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
 @keyframes jointClimberKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(42deg)}}
 @media(prefers-reduced-motion:reduce){.exercise-demo-svg .rig-arm-upper,.exercise-demo-svg .rig-arm-lower,.exercise-demo-svg .rig-leg-upper,.exercise-demo-svg .rig-leg-lower,.exercise-demo-svg .rig-torso{animation:none!important}}
+
+.exercise-demo-svg .rig-joint{fill:#f4c77f;stroke:#fff0ce;stroke-width:1.5}
+.exercise-demo-svg .rig-deadbug-motion .rig-arm-upper{animation:jointDeadbugArm 2.4s ease-in-out infinite}
+.exercise-demo-svg .rig-deadbug-motion .rig-leg-upper{animation:jointDeadbugLeg 2.4s ease-in-out infinite}
+.exercise-demo-svg .rig-legpress-motion .rig-leg-upper{animation:jointLegpressHip 2.2s ease-in-out infinite}
+.exercise-demo-svg .rig-legpress-motion .rig-leg-lower{animation:jointLegpressKnee 2.2s ease-in-out infinite}
+.exercise-demo-svg .rig-floor-motion .rig-torso{transform-box:view-box;transform-origin:160px 119px;animation:jointPlankStability 2.8s ease-in-out infinite}
+@keyframes jointDeadbugArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg)}}
+@keyframes jointDeadbugLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(22deg)}}
+@keyframes jointLegpressHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
+@keyframes jointLegpressKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+@keyframes jointPlankStability{0%,100%{transform:rotate(0)}50%{transform:rotate(1deg)}}
