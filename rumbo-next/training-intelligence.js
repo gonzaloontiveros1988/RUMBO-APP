@@ -75,30 +75,48 @@ export function adaptiveTrainingPlan(duties,workouts,profile={},startDate){
 }
 
 
-export function buildTrainingProgram(profile={},startDate){
+export function buildTrainingProgram(profile={},startDate,duties=[],workouts=[]){
  const start=startDate||new Date().toISOString().slice(0,10);
  const goal=profile.goal||"general",setting=profile.setting||"gym";
  const days=Math.max(2,Math.min(5,Number(profile.daysPerWeek)||3));
  const duration=Math.max(20,Math.min(75,Number(profile.availableMinutes)||45));
+ const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+ const dutyKind=x=>String([x.code,x.kind,x.status,x.type].filter(Boolean).join(" ")).toUpperCase();
+ const isExplicitOff=items=>items.length>0&&items.every(x=>/\b(OFF|DOFF|DAY OFF|REST|LEAVE|VAC|VACATION|ANNUAL LEAVE|AL)\b/.test(dutyKind(x)));
+ const isBlocked=items=>items.length>0&&!isExplicitOff(items);
  const strength=["strength-a","strength-b","strength-c","strength-d","strength-e"];
- const datePlus=(date,n)=>{const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+ const goalRoutine=slot=>{
+  let id;
+  if(goal==="mobility")id="mobility-15";
+  else if(goal==="endurance")id=["cardio-30","strength-a","cardio-30","mobility-15","cardio-30"][slot%5];
+  else if(goal==="fat-loss")id=["strength-a","cardio-30","strength-b","mobility-15","cardio-30"][slot%5];
+  else if(goal==="strength")id=slot===days-1&&days>=4?"mobility-15":strength[slot%strength.length];
+  else id=["strength-a","strength-b","cardio-30","mobility-15","strength-c"][slot%5];
+  if(setting==="hotel"&&id.startsWith("strength"))id="hotel-strength";
+  if(setting==="home"&&id.startsWith("strength"))id="hotel-25";
+  if(setting==="mixed"&&id.startsWith("strength")&&slot%2===1)id="hotel-strength";
+  return id;
+ };
  const sessions=[];
  for(let week=1;week<=6;week++){
-  const phase=week===4?"deload":week<=3?"build":"intensify";
-  for(let day=0;day<days;day++){
-   let id;
-   if(goal==="mobility")id="mobility-15";
-   else if(goal==="endurance"||goal==="fat-loss")id=day%2===0?"cardio-30":"mobility-15";
-   else if(setting==="hotel")id="hotel-strength";
-   else if(setting==="home")id="hotel-25";
-   else id=strength[day%strength.length];
-   const routine=ROUTINES.find(x=>x.id===id);
-   const weekOffset=(week-1)*7;
-   const weekdayOffset=Math.round(day*6/Math.max(1,days-1));
-   const baseDate=datePlus(start,weekOffset+weekdayOffset);
-   const multiplier=phase==="deload"?.65:phase==="intensify"?1.05:1;
-   sessions.push({week,day:day+1,date:baseDate,phase,goal,routineId:id,title:routine.name,type:routine.type,minutes:Math.min(duration,routine.minutes),volumeMultiplier:multiplier,progression:phase==="deload"?"Reduce sets or effort; keep movement comfortable.":phase==="intensify"?"Maintain technique; add a small load only when all target reps are controlled.":"Build consistency; keep 2–3 repetitions in reserve.",status:"planned"});
+  const phase=week===4?"deload":week>=5?"intensify":"build",chosen=[];
+  for(let slot=0;slot<days;slot++){
+   const ideal=Math.round(slot*6/Math.max(1,days-1));
+   const candidates=Array.from({length:7},(_,i)=>i).filter(offset=>{
+    const date=datePlus(start,(week-1)*7+offset),items=(duties||[]).filter(x=>x.date===date);
+    return !isBlocked(items)&&!chosen.some(x=>Math.abs(x.offset-offset)<2);
+   }).sort((a,b)=>Math.abs(a-ideal)-Math.abs(b-ideal));
+   if(!candidates.length)continue;
+   const offset=candidates[0],date=datePlus(start,(week-1)*7+offset),roster=(duties||[]).filter(x=>x.date===date);
+   chosen.push({offset,date,availability:roster.length?"roster-off":"unconfirmed"});
   }
+  chosen.sort((a,b)=>a.offset-b.offset);
+  chosen.forEach((slot,index)=>{
+   const id=goalRoutine(index),routine=ROUTINES.find(x=>x.id===id);if(!routine)return;
+   const recent=(workouts||[]).filter(x=>x.date<slot.date).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,3);
+   const progression=phase==="deload"?"Deload week: reduce volume and keep every repetition comfortable.":phase==="intensify"?"Consolidate progress; increase load only when every repetition is controlled.":"Build consistency and technique; keep 2–3 repetitions in reserve.";
+   sessions.push({week,day:index+1,date:slot.date,phase,goal,routineId:id,title:routine.name,type:routine.type,minutes:Math.min(duration,routine.minutes),volumeMultiplier:phase==="deload"?.65:phase==="intensify"?1.05:1,progression,readinessNote:recent.length?"Review recent session load and recovery before increasing effort.":"Start conservatively and establish a repeatable baseline.",status:"planned",availability:slot.availability,needsRosterConfirmation:slot.availability==="unconfirmed"});
+  });
  }
- return {id:"program-"+start,createdAt:new Date().toISOString(),startDate:start,weeks:6,goal,setting,daysPerWeek:days,sessions};
+ return {id:"program-"+start,createdAt:new Date().toISOString(),startDate:start,weeks:6,goal,setting,daysPerWeek:days,sessions,rosterAware:true};
 }
