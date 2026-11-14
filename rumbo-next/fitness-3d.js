@@ -1,5 +1,5 @@
 // RUMBO 3D exercise viewer. Progressive enhancement: keeps the 2D demo if WebGL/Three.js is unavailable.
-const THREE_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+const THREE_URLS=["https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","https://esm.sh/three@0.170.0"];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 const presets={
@@ -12,7 +12,7 @@ const presets={
  "biceps-curl":{kind:"curl",camera:[3.3,2.3,4.5]},"triceps-pushdown":{kind:"curl",camera:[3.3,2.3,4.5]},"lateral-raise":{kind:"raise",camera:[3.3,2.3,4.5]},"farmer-carry":{kind:"carry",camera:[3.3,2.3,4.5]}, "leg-press":{kind:"squat",camera:[3.5,2.1,4.8]},"leg-curl":{kind:"curl",camera:[3.5,2.1,4.8]},"calf-raise":{kind:"squat",camera:[3.2,2.3,4.5]},"chest-fly":{kind:"press",camera:[3.8,2.0,4.4]},"face-pull":{kind:"pull",camera:[3.4,2.3,4.6]},"pallof-press":{kind:"carry",camera:[3.3,2.3,4.5]},"dead-bug":{kind:"plank",camera:[3.6,2.0,4.6]},"bird-dog":{kind:"plank",camera:[3.6,2.0,4.6]},"mountain-climber":{kind:"plank",camera:[3.6,2.0,4.6]},"cat-cow":{kind:"hinge",camera:[3.2,2.1,4.7]},"thoracic-rotation":{kind:"hinge",camera:[3.2,2.1,4.7]},"hip-flexor-stretch":{kind:"lunge",camera:[3.4,2.2,4.5]},"90-90-hip-switch":{kind:"lunge",camera:[3.4,2.2,4.5]},"ankle-rock":{kind:"lunge",camera:[3.4,2.2,4.5]},"childs-pose":{kind:"plank",camera:[3.6,2.0,4.6]},"jump-rope":{kind:"carry",camera:[3.3,2.3,4.5]},"cycling":{kind:"bridge",camera:[3.4,2.0,4.5]}
 };
 function init(host,id,THREE){
- if(host.dataset.ready==="1")return;host.dataset.ready="1";
+ if(host.dataset.ready==="1")return;const fallback=host.querySelector("svg")?.cloneNode(true);host.dataset.ready="1";
  const w=host.clientWidth||360,h=host.clientHeight||220;
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;host.replaceChildren(renderer.domElement);
  const scene=new THREE.Scene();scene.background=null;
@@ -96,20 +96,22 @@ async function boot(){
    host.dataset.engine="loading";
    if(!window.__RUMBO_THREE__){host.dataset.engine=window.__RUMBO_THREE_FAILED__?"fallback":"loading";return}
    try{init(host,host.dataset.exercise3d,window.__RUMBO_THREE__)}
-   catch(e){host.dataset.ready="0";host.dataset.engine="fallback";host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.warn("RUMBO 3D fallback",e)}
+   catch(e){host.dataset.ready="0";host.dataset.engine="fallback";if(fallback)host.replaceChildren(fallback);host.title="No se pudo iniciar el visor 3D: "+(e&&e.message||"error WebGL");console.error("RUMBO 3D init failed",e)}
   });
  };
  const root=document.getElementById("view")||document.body;
  const observer=new MutationObserver(scan);observer.observe(root,{childList:true,subtree:true});
  scan();
  try{
-  const THREE=await (THREE_PROMISE||=import(THREE_URL));
+  let THREE,lastError;
+  for(const url of THREE_URLS){try{THREE=await import(url);break}catch(e){lastError=e;console.warn("RUMBO Three.js source failed",url,e)}}
+  if(!THREE)throw lastError||new Error("No se pudo descargar Three.js");
   window.__RUMBO_THREE__=THREE;
   scan();
  }catch(e){
   window.__RUMBO_THREE_FAILED__=true;
   document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{
-   host.dataset.engine="fallback";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga");
+   host.dataset.engine="fallback";host.dataset.ready="0";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga");
   });
   console.error("RUMBO 3D library failed",e);
  }
