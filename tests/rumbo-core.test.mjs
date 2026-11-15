@@ -276,7 +276,7 @@ test("fitness library contains 52 distinct, documented exercises with a rendered
  for(const exercise of EXERCISES){
   assert.ok(exercise.name&&exercise.pattern&&exercise.muscles.length&&exercise.equipment.length&&exercise.cues.length>=2,exercise.id+" is missing coaching data");
   const svg=exerciseSequenceSvg(exercise);
-  assert.ok(svg.includes('<svg')&&svg.includes('viewBox="0 0 360 166"')&&svg.includes("INICIO")&&svg.includes("MOVIMIENTO")&&svg.includes("FINAL"),exercise.id+" has no three-phase visual");
+  assert.ok(svg.includes('<svg')&&svg.includes('class="exercise-demo-svg exercise-sequence-svg"')&&svg.includes('viewBox="0 0 360 166"')&&svg.includes("INICIO")&&svg.includes("MOVIMIENTO")&&svg.includes("FINAL"),exercise.id+" has no three-phase visual");
  }
 });
 
