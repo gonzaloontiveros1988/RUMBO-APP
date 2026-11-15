@@ -7,6 +7,7 @@ import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTIN
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
 import {FITNESS_MODEL_URL} from "../rumbo-next/fitness-3d.js";
+import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
@@ -38,6 +39,37 @@ test("workout validation rejects empty and oversized sessions",()=>{
  assert.ok(validateWorkout({date:"2026-11-01",type:"Strength",minutes:0}).length);
  assert.equal(validateWorkout({date:"2026-11-01",type:"Strength",minutes:45}).length,0);
  assert.equal(workoutStats([{minutes:30,type:"Cardio"}]).minutes,30);
+});
+test("Crew Bidding profile defaults to the user's 15-bid destination and layover preferences",()=>{
+ const profile=normalizeCrewBiddingProfile({});
+ assert.deepEqual(profile.primaryDestinations,["MLE","VIE","BUD","ZAG"]);
+ assert.deepEqual(profile.secondaryDestinations,["ALA","BEG","OTP"]);
+ assert.equal(profile.minLayoverHours,24);
+ assert.equal(profile.maxLayoverHours,48);
+ assert.equal(profile.maxBids,15);
+});
+test("Crew Bidding ranking scores preference fit, not award probability",()=>{
+ const profile=normalizeCrewBiddingProfile({});
+ const ranked=rankCrewBids([
+  {id:"other",destination:"LHR",layoverHours:8,blockHours:40,turnaround:true},
+  {id:"top",destination:"MLE",layoverHours:30,blockHours:52,consecutiveDaysOff:2,turnaround:false},
+  {id:"alt",destination:"BEG",layoverHours:30,blockHours:52,turnaround:false}
+ ],profile);
+ assert.equal(ranked[0].id,"top");
+ assert.equal(ranked[0].rank,1);
+ assert.ok(ranked[0].score>ranked[1].score);
+ assert.ok(ranked[2].score<ranked[1].score);
+});
+test("Crew Bidding outcome analytics calculate awarded share and preferred awards",()=>{
+ const summary=summarizeCrewBidHistory([
+  {outcome:"awarded",destinationTier:"primary"},
+  {outcome:"not-awarded",destinationTier:"secondary"},
+  {outcome:"awarded",destinationTier:"other"}
+ ]);
+ assert.equal(summary.decided,3);
+ assert.equal(summary.awarded,2);
+ assert.equal(summary.satisfactionPct,67);
+ assert.equal(summary.preferredAwardPct,50);
 });
 test("roster dates reject impossible calendar values while accepting supported formats",()=>{
  assert.equal(normalizeRosterDate("2026-11-15"),"2026-11-15");
