@@ -6,7 +6,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
-import {FITNESS_MODEL_URL} from "../rumbo-next/fitness-3d.js";
+import {FITNESS_MODEL_URL,classifyExerciseMotion} from "../rumbo-next/fitness-3d.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
@@ -315,6 +315,18 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
+import {EXERCISES} from "../rumbo-next/fitness-engine.js";
+test("Every Fitness library exercise receives a non-generic 3D motion pattern",()=>{
+ const unclassified=EXERCISES.filter(ex=>classifyExerciseMotion(ex.id)==="general").map(ex=>ex.id);
+ assert.deepEqual(unclassified,[]);
+});
+test("3D motion classifier covers vertical pull, hip extension, core, mobility and cardio",()=>{
+ assert.equal(classifyExerciseMotion("lat-pulldown"),"vertical-pull");
+ assert.equal(classifyExerciseMotion("hip-thrust"),"bridge");
+ assert.equal(classifyExerciseMotion("plank"),"core");
+ assert.equal(classifyExerciseMotion("cat-cow"),"mobility");
+ assert.equal(classifyExerciseMotion("cycling"),"cardio");
+});
 test("Fitness 3D viewer uses a different rigged human asset and no longer loads Sam",()=>{
  assert.match(FITNESS_MODEL_URL,/Michelle\.glb$/);
  assert.doesNotMatch(FITNESS_MODEL_URL,/sam/i);
