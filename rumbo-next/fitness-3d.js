@@ -33,12 +33,16 @@ function createExerciseMotion(THREE,model,exerciseId){
  const rest=new Map();Object.values(groups).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
  const key=(exerciseId||"").toLowerCase();
  let kind="squat";
- if(/deadlift|romanian|\brdl\b|hip-hinge|good-morning/.test(key))kind="hinge";
+ if(/deadlift|romanian|\brdl\b|hip-hinge|good-morning|single-leg-rdl/.test(key))kind="hinge";
  else if(/lunge|split-squat|bulgarian|step-up/.test(key))kind="lunge";
- else if(/bench|push-up|chest-press|chest-fly/.test(key))kind="horizontal-push";
+ else if(/bench|push-up|chest-press|chest-fly|db-press|incline-db-press/.test(key))kind="horizontal-push";
  else if(/shoulder-press|overhead|lateral-raise/.test(key))kind="vertical-push";
  else if(/row|face-pull/.test(key))kind="horizontal-pull";
  else if(/lat-pulldown|pull-up/.test(key))kind="vertical-pull";
+ else if(/hip-thrust|hip-bridge|glute-bridge/.test(key))kind="bridge";
+ else if(/plank|dead-bug|bird-dog|pallof|mountain-climber|side-plank/.test(key))kind="core";
+ else if(/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor/.test(key))kind="mobility";
+ else if(/cycling|jump-rope|farmer-carry/.test(key))kind="cardio";
  const q=new THREE.Quaternion(),e=new THREE.Euler();
  const apply=(bone,rx=0,ry=0,rz=0,side=1)=>{
   if(!bone||!rest.has(bone))return;
@@ -77,6 +81,21 @@ function createExerciseMotion(THREE,model,exerciseId){
   }else if(kind==="vertical-pull"){
    apply(groups.upperL,-.72*d);apply(groups.upperR,-.72*d);
    apply(groups.lowerL,.32*d);apply(groups.lowerR,.32*d);
+  }else if(kind==="bridge"){
+   apply(groups.thighL,-.42*d);apply(groups.thighR,-.42*d);
+   apply(groups.spine1,-.22*d);apply(groups.spine2,-.20*d);apply(groups.spine3,-.12*d);
+   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y+=.18*d}
+  }else if(kind==="core"){
+   apply(groups.spine1,.10*d);apply(groups.spine2,.08*d);
+   apply(groups.upperL,-.22*d);apply(groups.upperR,-.22*d);
+   apply(groups.thighL,.16*d);apply(groups.thighR,.16*d);
+  }else if(kind==="mobility"){
+   apply(groups.spine1,.22*d);apply(groups.spine2,.18*d);apply(groups.spine3,.12*d);
+   apply(groups.neck,-.10*d);apply(groups.head,.08*d);
+  }else if(kind==="cardio"){
+   apply(groups.thighL,-.48*d);apply(groups.thighR,.48*d);
+   apply(groups.calfL,.62*d);apply(groups.calfR,-.62*d);
+   apply(groups.upperL,.18*d);apply(groups.upperR,-.18*d);
   }
  };
  return {update,kind,boneCount:rest.size,groups:Object.keys(groups).filter(k=>groups[k]),dispose(){for(const [bone,r] of rest){bone.quaternion.copy(r.q);bone.position.copy(r.p)}}};
