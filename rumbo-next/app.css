@@ -1127,7 +1127,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-sequence-svg text{font-family:Manrope,system-ui,sans-serif}
 .guided-figure:has(.exercise-sequence-svg),.exercise-library-art:has(.exercise-sequence-svg){background:linear-gradient(145deg,rgba(10,32,48,.98),rgba(17,54,68,.92));}
 .guided-figure .exercise-sequence-svg{width:100%;height:auto}
-.exercise-library-art .exercise-sequence-svg{width:100%;height:auto;min-height:145px};display:block!important
+.exercise-library-art .exercise-sequence-svg{width:100%;height:auto;min-height:145px;display:block!important}
 .demo-caption{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(113,209,203,.2);border-radius:999px;background:rgba(35,163,157,.1);color:#8ce5dc;font-size:10px;font-weight:800;letter-spacing:.08em}
 .demo-caption:before{content:"";width:6px;height:6px;border-radius:50%;background:#8ce5dc}
 @media(max-width:620px){.exercise-sequence-svg{min-height:150px}.guided-figure .exercise-sequence-svg{min-height:145px}}
