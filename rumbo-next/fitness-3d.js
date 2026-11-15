@@ -23,114 +23,44 @@ const MOTION_RULES=[
 ];
 function createExerciseMotion(THREE,model,exerciseId){
  const bones=new Map();model.traverse(o=>{if(o.isBone)bones.set(o.name,o)});
- const g={
-  pelvis:bones.get("pelvis"),s1:bones.get("spine_01"),s2:bones.get("spine_02"),s3:bones.get("spine_03"),
-  neck:bones.get("neck_01"),head:bones.get("head"),
-  hipL:bones.get("thigh_l"),hipR:bones.get("thigh_r"),kneeL:bones.get("calf_l"),kneeR:bones.get("calf_r"),
-  shoulderL:bones.get("upperarm_l"),shoulderR:bones.get("upperarm_r"),elbowL:bones.get("lowerarm_l"),elbowR:bones.get("lowerarm_r"),
-  clavL:bones.get("clavicle_l"),clavR:bones.get("clavicle_r"),ankleL:bones.get("foot_l"),ankleR:bones.get("foot_r")
- };
+ const g={pelvis:bones.get("pelvis"),spine1:bones.get("spine_01"),spine2:bones.get("spine_02"),spine3:bones.get("spine_03"),hipL:bones.get("thigh_l"),hipR:bones.get("thigh_r"),kneeL:bones.get("calf_l"),kneeR:bones.get("calf_r"),shoulderL:bones.get("upperarm_l"),shoulderR:bones.get("upperarm_r"),elbowL:bones.get("lowerarm_l"),elbowR:bones.get("lowerarm_r")};
  const rest=new Map();Object.values(g).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
  const id=(exerciseId||"").toLowerCase();
- let kind="squat", unilateral=false, tempo=3.4;
- if(/squat|leg-press|tempo-squat/.test(id))kind="squat";
- else if(/lunge|split-squat|step-up|lateral-step-down/.test(id)){kind="lunge";unilateral=true}
- else if(/deadlift|\brdl\b|hip-hinge|good-morning|single-leg-rdl|pull-through/.test(id)){kind="hinge";unilateral=/single-leg/.test(id)}
- else if(/bench|push-up|chest-press|chest-fly|db-press|incline-db-press/.test(id))kind="horizontal-push";
- else if(/shoulder-press|overhead/.test(id))kind="vertical-push";
- else if(/lateral-raise|band-external-rotation/.test(id))kind="shoulder";
- else if(/row|face-pull/.test(id))kind="horizontal-pull";
- else if(/lat-pulldown|pull-up/.test(id))kind="vertical-pull";
- else if(/hip-thrust|hip-bridge|glute-bridge/.test(id))kind="bridge";
- else if(/leg-curl|hamstring-curl/.test(id))kind="knee-flexion";
- else if(/calf-raise/.test(id))kind="calf-raise";
- else if(/biceps-curl/.test(id))kind="elbow-flexion";
- else if(/triceps-pushdown/.test(id))kind="elbow-extension";
- else if(/pallof/.test(id))kind="anti-rotation";
- else if(/plank|dead-bug|bird-dog|reverse-crunch|side-plank|mountain-climber/.test(id))kind="core";
- else if(/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor|90-90/.test(id))kind="mobility";
- else if(/cycling|jump-rope|farmer-carry|suitcase-carry/.test(id))kind="cardio";
- else if(/reverse-crunch/.test(id))kind="core";
- if(/plank|side-plank|farmer-carry|suitcase-carry/.test(id))tempo=4.8;
- if(/cat-cow|childs-pose|stretch|mobility|90-90|ankle-rock/.test(id))tempo=5.2;
- const q=new THREE.Quaternion(),e=new THREE.Euler();
- const set=(name,x=0,y=0,z=0,side=1)=>{
+ const kind=id==="squat"?"goblet-squat":id==="leg-press"?"leg-press":id==="bench-press"?"bench-press":id==="rdl"?"deadlift":id==="db-press"?"dumbbell-bench":id==="biceps-curl"?"biceps-curl":/squat/.test(id)?"squat":/deadlift|rdl|hip-hinge|good-morning/.test(id)?"hinge":/bench|chest-press|push-up/.test(id)?"horizontal-push":/curl/.test(id)?"elbow-flexion":/lunge|step-up/.test(id)?"lunge":/row/.test(id)?"row":/press/.test(id)?"press":"general";
+ const duration=kind==="leg-press"?4.4:kind==="bench-press"||kind==="dumbbell-bench"?3.8:3.5;
+ const axisWorld=new THREE.Vector3(1,0,0),axisParent=new THREE.Vector3(),delta=new THREE.Quaternion();
+ const apply=(name,angle)=>{
   const bone=g[name],r=bone&&rest.get(bone);if(!r)return;
-  e.set(x*side,y*side,z*side,"XYZ");q.setFromEuler(e);bone.quaternion.copy(r.q).multiply(q);
+  bone.parent?.updateWorldMatrix(true,false);
+  const parentQ=bone.parent?bone.parent.getWorldQuaternion(new THREE.Quaternion()):new THREE.Quaternion();
+  axisParent.copy(axisWorld).applyQuaternion(parentQ.invert()).normalize();
+  delta.setFromAxisAngle(axisParent,angle);bone.quaternion.copy(delta).multiply(r.q);
  };
- const movePelvis=(y=0,z=0)=>{
-  const bone=g.pelvis,r=bone&&rest.get(bone);if(!r)return;
-  bone.position.copy(r.p);bone.position.y+=y;bone.position.z+=z;
- };
+ const setPelvis=(y=0,z=0)=>{const bone=g.pelvis,r=bone&&rest.get(bone);if(!r)return;bone.position.copy(r.p);bone.position.y+=y;bone.position.z+=z};
+ const smooth=t=>t*t*(3-2*t);
+ const phase=t=>{const p=(t%duration)/duration;if(p<.40)return smooth(p/.40);if(p<.52)return 1;if(p<.92)return 1-smooth((p-.52)/.40);return 0};
  const update=time=>{
-  const cycle=(time%tempo)/tempo;
-  // Controlled eccentric phase, short transition, then concentric return.
-  const raw=cycle<.46?cycle/.46:cycle<.56?1:(1-(cycle-.56)/.44);
-  const t=raw*raw*(3-2*raw),d=Math.sin(t*Math.PI/2);
-  const side=unilateral?Math.sin(time*Math.PI*2/tempo)>=0?1:-1:1;
-  // Clear the previous frame's pose before composing the new movement.
   for(const [bone,r] of rest){bone.quaternion.copy(r.q);bone.position.copy(r.p)}
-  if(kind==="squat"){
-   set("hipL",-.72*d);set("hipR",-.72*d);set("kneeL",1.02*d);set("kneeR",1.02*d);
-   set("s1",.12*d);set("s2",.08*d);set("s3",.04*d);
-   set("shoulderL",-.12*d);set("shoulderR",-.12*d);movePelvis(-.17*d);
-  }else if(kind==="lunge"){
-   set("hipL",-.58*d,0,0,side);set("kneeL",.86*d,0,0,side);
-   set("hipR",.12*d,0,0,-side);set("kneeR",-.10*d,0,0,-side);
-   set("s1",.08*d);set("s2",.04*d);movePelvis(-.09*d);
-  }else if(kind==="hinge"){
-   set("hipL",-.36*d);set("hipR",-.36*d);set("kneeL",.14*d);set("kneeR",.14*d);
-   set("s1",.25*d);set("s2",.20*d);set("s3",.12*d);
-   set("shoulderL",-.12*d);set("shoulderR",-.12*d);set("elbowL",.10*d);set("elbowR",.10*d);
-   movePelvis(0,.035*d);
-  }else if(kind==="horizontal-push"){
-   set("shoulderL",-.52*d);set("shoulderR",-.52*d);set("elbowL",.82*d);set("elbowR",.82*d);
-   set("clavL",-.06*d);set("clavR",-.06*d);set("s1",-.035*d);
-  }else if(kind==="vertical-push"){
-   set("shoulderL",-.88*d);set("shoulderR",-.88*d);set("elbowL",.20*d);set("elbowR",.20*d);
-   set("clavL",-.10*d);set("clavR",-.10*d);set("s1",.035*d);
-  }else if(kind==="shoulder"){
-   set("shoulderL",-.58*d,0,-.10*d);set("shoulderR",-.58*d,0,.10*d);
-   set("elbowL",-.06*d);set("elbowR",-.06*d);set("clavL",-.10*d);set("clavR",-.10*d);
-  }else if(kind==="horizontal-pull"){
-   set("shoulderL",.48*d);set("shoulderR",.48*d);set("elbowL",-.58*d);set("elbowR",-.58*d);
-   set("s1",.045*d);set("s2",.025*d);
-  }else if(kind==="vertical-pull"){
-   set("shoulderL",-.76*d);set("shoulderR",-.76*d);set("elbowL",.42*d);set("elbowR",.42*d);
-   set("s1",.07*d);movePelvis(0,-.025*d);
-  }else if(kind==="bridge"){
-   set("hipL",-.42*d);set("hipR",-.42*d);set("kneeL",.18*d);set("kneeR",.18*d);
-   set("s1",-.16*d);set("s2",-.16*d);set("s3",-.09*d);movePelvis(.16*d);
-  }else if(kind==="knee-flexion"){
-   set("kneeL",.78*d);set("kneeR",.78*d);set("hipL",-.05*d);set("hipR",-.05*d);
-  }else if(kind==="calf-raise"){
-   set("ankleL",-.34*d);set("ankleR",-.34*d);movePelvis(.055*d);
-  }else if(kind==="elbow-flexion"){
-   set("elbowL",-.88*d);set("elbowR",-.88*d);set("shoulderL",-.04*d);set("shoulderR",-.04*d);
-  }else if(kind==="elbow-extension"){
-   set("elbowL",.76*d);set("elbowR",.76*d);set("shoulderL",-.08*d);set("shoulderR",-.08*d);
-  }else if(kind==="anti-rotation"){
-   set("shoulderL",-.20*d);set("shoulderR",-.20*d);set("s1",.07*d,0,.18*d);set("s2",0,0,.12*d);
-  }else if(kind==="core"){
-   set("s1",.12*d);set("s2",.08*d);set("hipL",.14*d);set("hipR",.14*d);
-   set("shoulderL",-.20*d);set("shoulderR",-.20*d);
-   if(/mountain-climber/.test(id)){set("hipL",-.50*d);set("hipR",.38*d);set("kneeL",.62*d);set("kneeR",-.35*d)}
-   if(/bird-dog|dead-bug/.test(id)){set("shoulderL",-.42*d);set("shoulderR",.10*d);set("hipL",.30*d);set("hipR",-.28*d)}
-   if(/reverse-crunch/.test(id)){set("hipL",-.52*d);set("hipR",-.52*d);set("kneeL",.65*d);set("kneeR",.65*d);movePelvis(.08*d)}
-  }else if(kind==="mobility"){
-   set("s1",.20*d);set("s2",.18*d);set("s3",.12*d);set("neck",-.08*d);set("head",.06*d);
-   if(/thoracic-rotation/.test(id)){set("s1",.04*d,0,.28*d);set("s2",0,0,.22*d)}
-   if(/cat-cow/.test(id)){set("s1",.30*d);set("s2",.24*d);set("s3",.16*d);set("head",-.12*d)}
-   if(/hip-flexor|childs-pose|90-90/.test(id)){set("hipL",-.18*d);set("hipR",.12*d)}
-  }else if(kind==="cardio"){
-   const stride=Math.sin(time*Math.PI*2/tempo);
-   set("hipL",-.42*stride);set("hipR",.42*stride);set("kneeL",.58*Math.max(0,stride));set("kneeR",.58*Math.max(0,-stride));
-   set("shoulderL",.14*stride);set("shoulderR",-.14*stride);set("elbowL",-.08*stride);set("elbowR",.08*stride);
-  }
+  const d=phase(time);
+  if(kind==="goblet-squat"||kind==="squat"){
+   apply("hipL",-.58*d);apply("hipR",-.58*d);apply("kneeL",1.02*d);apply("kneeR",1.02*d);
+   apply("spine1",.12*d);apply("spine2",.09*d);apply("spine3",.04*d);apply("shoulderL",-.10*d);apply("shoulderR",-.10*d);setPelvis(-.12*d);
+  }else if(kind==="leg-press"){
+   apply("hipL",-.24*(1-d));apply("hipR",-.24*(1-d));apply("kneeL",.92*(1-d));apply("kneeR",.92*(1-d));apply("spine1",-.025);apply("spine2",-.015);setPelvis(-.025);
+  }else if(kind==="deadlift"||kind==="hinge"){
+   apply("hipL",.42*d);apply("hipR",.42*d);apply("kneeL",.12*d);apply("kneeR",.12*d);
+   apply("spine1",-.035*d);apply("spine2",-.025*d);apply("spine3",-.015*d);apply("shoulderL",.05*d);apply("shoulderR",.05*d);setPelvis(0,.035*d);
+  }else if(kind==="bench-press"||kind==="dumbbell-bench"||kind==="horizontal-push"){
+   apply("shoulderL",-.42*d);apply("shoulderR",-.42*d);apply("elbowL",.82*(1-d));apply("elbowR",.82*(1-d));apply("spine1",-.015);apply("spine2",-.01);
+  }else if(kind==="biceps-curl"||kind==="elbow-flexion"){
+   apply("elbowL",-.92*d);apply("elbowR",-.92*d);apply("shoulderL",-.035);apply("shoulderR",-.035);
+  }else if(kind==="lunge"){apply("hipL",-.48*d);apply("kneeL",.78*d);apply("hipR",.08*d);apply("kneeR",-.06*d);setPelvis(-.07*d)}
+  else if(kind==="row"){apply("shoulderL",.42*d);apply("shoulderR",.42*d);apply("elbowL",-.58*d);apply("elbowR",-.58*d)}
+  else if(kind==="press"){apply("shoulderL",-.65*d);apply("shoulderR",-.65*d);apply("elbowL",.22*(1-d));apply("elbowR",.22*(1-d))}
+  else{apply("spine1",.035*Math.sin(time*2));apply("shoulderL",.08*Math.sin(time*2));apply("shoulderR",-.08*Math.sin(time*2))}
  };
  return {update,kind,boneCount:rest.size,groups:Object.keys(g).filter(k=>g[k]),dispose(){for(const [bone,r] of rest){bone.quaternion.copy(r.q);bone.position.copy(r.p)}}};
 }
-
 function makeViewer(host,exerciseId){
  if(host.dataset.rumboHumanReady==="1")return ()=>{};
  host.dataset.rumboHumanReady="1";
@@ -145,7 +75,7 @@ function makeViewer(host,exerciseId){
  viewport.appendChild(renderer.domElement);
  host.style.cssText+=";height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;width:100%!important;min-width:0!important";
  host.replaceChildren(viewport);
- const scene=new THREE.Scene();
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b2233);
  scene.add(new THREE.HemisphereLight(0xe8f7ff,0x243445,2.2));
  const key=new THREE.DirectionalLight(0xfff1df,3.1);key.position.set(-3,5,4);key.castShadow=true;scene.add(key);
  const fill=new THREE.DirectionalLight(0x62d9dd,1.25);fill.position.set(3,2,-3);scene.add(fill);
