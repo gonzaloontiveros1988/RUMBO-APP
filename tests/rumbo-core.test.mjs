@@ -6,7 +6,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
-import {parseRosterText} from "../rumbo-next/roster-import.js";
+import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
  assert.equal(validateSector({date:"2026-11-01",from:"DOH",to:"LHR",hours:7}).length,2);
@@ -37,6 +37,18 @@ test("workout validation rejects empty and oversized sessions",()=>{
  assert.ok(validateWorkout({date:"2026-11-01",type:"Strength",minutes:0}).length);
  assert.equal(validateWorkout({date:"2026-11-01",type:"Strength",minutes:45}).length,0);
  assert.equal(workoutStats([{minutes:30,type:"Cardio"}]).minutes,30);
+});
+test("roster dates reject impossible calendar values while accepting supported formats",()=>{
+ assert.equal(normalizeRosterDate("2026-11-15"),"2026-11-15");
+ assert.equal(normalizeRosterDate("15/11/2026"),"2026-11-15");
+ assert.equal(normalizeRosterDate("20261115"),"2026-11-15");
+ assert.equal(normalizeRosterDate("31/02/2026"),"");
+ assert.equal(normalizeRosterDate("2026-13-01"),"");
+ assert.equal(normalizeRosterDate("2026-02-29"),"");
+});
+test("logbook rejects impossible calendar dates",()=>{
+ assert.ok(validateSector({date:"2026-02-30",from:"OTHH",to:"EGLL",hours:7}).length);
+ assert.equal(validateSector({date:"2024-02-29",from:"OTHH",to:"EGLL",hours:7}).length,0);
 });
 test("CSV parser handles quoted comma fields and European date",()=>{
  const rows=parseRosterText('Date,Flight,Route\n01/11/2026,QR123,"DOH, LHR"');
