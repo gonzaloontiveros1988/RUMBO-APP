@@ -18,6 +18,7 @@ test("Fitness 3D viewer is loaded and targets the exact guided exercise data att
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
  assert.match(app,/import\s+["']\.\/fitness-3d\.js["']/);
  assert.ok(viewer.includes('document.querySelectorAll(".guided-figure[data-exercise3d]")'));
+ assert.ok(!viewer.includes("data-exercise-3d"));
  assert.ok(app.includes("data-exercise3d="));
  assert.match(html,/fitness-3d-integration-v6/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
