@@ -823,7 +823,7 @@ $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",da
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
 window.rumboCloudSync=initRumboCloudSync({
  getLocalState:()=>state,
- hasLocalContent:()=>Object.values(state).some(value=>Array.isArray(value)?value.length>0:value&&typeof value==="object"?Object.keys(value).length>0:false),
+ hasLocalContent:()=>["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","receiptDraftItems","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes"].some(key=>Array.isArray(state[key])&&state[key].length>0)||Object.keys(state.budgets||{}).length>0,
  onRemoteState:(remote)=>{
   try{state=normalizeState(remote);localStorage.setItem(KEY,JSON.stringify(state));render();toast("RUMBO actualizado desde otro dispositivo.")}catch(error){console.error("Remote RUMBO state rejected",error);toast("No se pudo aplicar la sincronización remota.")}
  }
