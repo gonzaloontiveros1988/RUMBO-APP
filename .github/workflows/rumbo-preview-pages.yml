@@ -5,7 +5,6 @@ on:
     branches:
       - redesign/rumbo-os-v4
       - fix/rumbo-v4-fitness-recipes-recovery
-      - feature/fitness-human-model-rebuild
     paths:
       - 'rumbo-next/**'
       - '.github/workflows/rumbo-preview-pages.yml'
