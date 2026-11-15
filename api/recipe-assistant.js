@@ -40,7 +40,7 @@ function parseJson(text){
  return JSON.parse(raw.slice(start,end+1));
 }
 
-async function searchMealDbFallback(query,servings,category){
+async function searchMealDbFallback(query,servings,category,cuisine=""){
  const q=String(query||"").toLowerCase();
  const aliases=[
   [/paella|marisco|seafood/,"seafood"],[/gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|chicken/,"chicken"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"],[/verdura|vegetal|vegetable/,"vegetable"]
@@ -53,6 +53,9 @@ async function searchMealDbFallback(query,servings,category){
  // Run title and ingredient lookups concurrently; the old sequential loop could take 30–40 seconds.
  const titleResults=await Promise.allSettled(terms.map(term=>getJson("https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term))));
  for(const result of titleResults)if(result.status==="fulfilled")for(const meal of result.value?.meals||[])if(meal?.idMeal)found.set(meal.idMeal,meal);
+ const areaMap={Spanish:["Spanish"],Italian:["Italian"],German:["German"],American:["American"],Mediterranean:["Spanish","Italian","Greek","Turkish","Moroccan"],Asian:["Chinese","Japanese","Thai","Vietnamese","Indian","Malaysian"],Japanese:["Japanese"],Indian:["Indian"],Thai:["Thai"],Greek:["Greek"]};
+ const areas=areaMap[cuisine]||[];
+ if(areas.length){const areaResults=await Promise.allSettled(areas.map(area=>getJson("https://www.themealdb.com/api/json/v1/1/filter.php?a="+encodeURIComponent(area))));for(const result of areaResults)if(result.status==="fulfilled")for(const item of (result.value?.meals||[]).slice(0,8))if(item?.idMeal&&!found.has(item.idMeal))found.set(item.idMeal,{idMeal:item.idMeal,strMeal:item.strMeal,strMealThumb:item.strMealThumb})}
  if(found.size<3){
   const ingredients=[...new Set(terms.filter(x=>["shrimp","squid","chicken","rice","pasta","salmon","tuna","beef","chickpeas","lentils","egg","potato","vegetable"].includes(x)))];
   const ingredientResults=await Promise.allSettled(ingredients.slice(0,3).map(ingredient=>getJson("https://www.themealdb.com/api/json/v1/1/filter.php?i="+encodeURIComponent(ingredient))));
@@ -88,15 +91,15 @@ module.exports = async function handler(req,res){
  if(origin){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin")}
  const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});
  const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
- const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch";
+ const query=String(body.query||"").trim().slice(0,MAX_QUERY),servings=Math.max(1,Math.min(12,Number(body.servings)||4)),category=["Breakfast","Lunch","Dinner"].includes(body.category)?body.category:"Lunch",cuisine=String(body.cuisine||"").trim().slice(0,40);
  if(query.length<3)return send(res,400,{error:"Escribe qué plato o ingrediente quieres buscar."});
  try{
-  const webResults=await searchWeb(query).catch(()=>[]);
+  const webResults=await searchWeb(query+(cuisine?" "+cuisine+" cuisine":"")).catch(()=>[]);
   const sourceContext=await Promise.all(webResults.slice(0,3).map(async(x,i)=>({id:i+1,...x,pageRecipe:await fetchRecipePage(x.url)})));
   const gatewayToken=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
   if(!gatewayToken){
    const fallback=sourceContext.map((x,i)=>normalizeStructuredPage({...x.pageRecipe,url:x.url,title:x.title},i,servings,category)).filter(Boolean);
-   const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category);
+   const mealDb= fallback.length?[]:await searchMealDbFallback(query,servings,category,cuisine);
    const recipes=fallback.length?fallback:mealDb;
    if(!recipes.length)return send(res,200,{recipes:[],webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:"public-recipe-search",notice:"No se ha encontrado una receta fiable para esa búsqueda. Prueba con el nombre del plato en inglés o con un ingrediente principal. La creación original con IA necesita configurar AI_GATEWAY_API_KEY."});
    return send(res,200,{recipes:recipes.slice(0,2),webResults:sourceContext.map(x=>({title:x.title,url:x.url,snippet:x.snippet})),model:fallback.length?"structured-recipe-fallback":"themealdb-fallback",notice:"Modo de compatibilidad: recetas publicadas recuperadas sin autenticación de IA. Las calorías y macros no están disponibles en la fuente y no se han inventado. La creación de recetas originales con IA se activará al configurar AI_GATEWAY_API_KEY."});
