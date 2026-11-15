@@ -714,7 +714,18 @@ bind("searchRecipes",async()=>{
   }
   state.recipeSearchResults=results;state.recipeSearchNotice=results.length?results.length+" recetas encontradas. Comprueba la fuente y los ingredientes antes de incorporarlas. Los macros no disponibles se muestran como no verificados.":(responses.every(x=>x.status==="rejected")?"No se pudo conectar con el catálogo público. Comprueba la conexión y vuelve a intentarlo.":"No hay coincidencias exactas. Prueba con un nombre más corto, un ingrediente principal o «Todas las cocinas».");
   state.selectedRecipeCandidate=null;save();render();if(results.length)toast(results.length+" recetas recuperadas para revisar.");
- }catch(error){state.recipeSearchNotice=error.message||"No se pudo completar la búsqueda.";save();render();toast(state.recipeSearchNotice)}
+ }catch(error){
+  const terms=q.split(/[\\s,;]+/).filter(x=>x.length>2);
+  const local=allRecipes().filter(r=>{
+   const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+   return terms.some(t=>hay.includes(t.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()));
+  }).slice(0,12).map(r=>({...r,origin:r.origin||"local",sourceTitle:r.sourceTitle||"RUMBO recipe library"}));
+  state.recipeSearchResults=local;state.selectedRecipeCandidate=null;
+  state.recipeSearchNotice=local.length
+   ?"El catálogo externo no respondió ("+(error.message||"conexión") +"). Te mostramos "+local.length+" coincidencias de tu biblioteca local para que puedas seguir."
+   :"No se pudo conectar al catálogo externo y no hay coincidencias locales. Puedes importar una receta pegando el texto o probar otro ingrediente.";
+  save();render();toast(state.recipeSearchNotice);
+ }
  finally{const current=$("#searchRecipes");if(current){current.disabled=false;current.textContent="Buscar recetas"}}
 });
 document.querySelectorAll("[data-recipe-candidate]").forEach(e=>e.onclick=()=>{state.selectedRecipeCandidate=e.dataset.recipeCandidate;save();render()});
