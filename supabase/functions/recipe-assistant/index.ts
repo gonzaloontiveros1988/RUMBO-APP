@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
     if (ingredientsList.length < 2 || !steps.length) continue;
     recipes.push({
       id: "themealdb-" + meal.idMeal, name: String(meal.strMeal || "Recipe"), category,
-      minutes: 30, servings, image: meal.strMealThumb || "", imageVerified: !!meal.strMealThumb,
+      minutes: null, servings, image: meal.strMealThumb || "", imageVerified: !!meal.strMealThumb,
       ingredients: ingredientsList, steps, origin: "web",
       sourceUrl: meal.strSource || ("https://www.themealdb.com/meal/" + meal.idMeal),
       sourceTitle: "TheMealDB · " + String(meal.strMeal || "Recipe"),
