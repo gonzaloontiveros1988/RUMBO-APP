@@ -209,10 +209,15 @@ export function initRumboCloudSync(options = {}) {
     if (currentUser) synchronize();
     else setStatus("Solo en este dispositivo", "local");
   });
-  client.auth.onAuthStateChange((_event, session) => {
+  client.auth.onAuthStateChange((event, session) => {
     currentUser = session?.user || null;
-    if (currentUser) queueMicrotask(() => synchronize());
-    else setStatus("Solo en este dispositivo", "local");
+    if (currentUser && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) queueMicrotask(() => synchronize());
+    else if (!currentUser && event === "SIGNED_OUT") setStatus("Solo en este dispositivo", "local");
   });
+  window.addEventListener("online", () => {
+    if (currentUser) synchronize();
+    else setStatus("Conexión recuperada · solo local", "local");
+  });
+  window.addEventListener("offline", () => setStatus("Sin conexión · cambios locales pendientes", "waiting"));
   return { schedule, synchronize, getUser: () => currentUser };
 }
