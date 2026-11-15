@@ -211,7 +211,7 @@ async function boot(){
    }
   },{root:null,rootMargin:"180px 0px",threshold:.01});
   const scan=()=>{
-   const hosts=new Set(document.querySelectorAll(".guided-figure[data-exercise-3d]"));
+   const hosts=new Set(document.querySelectorAll(".guided-figure[data-exercise3d]"));
    for(const [host,dispose] of mounted){if(!host.isConnected){dispose();mounted.delete(host)}}
    hosts.forEach(host=>{if(!mounted.has(host)&&!pending.has(host))observer.observe(host)});
   };
