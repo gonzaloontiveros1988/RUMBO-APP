@@ -592,7 +592,7 @@ bind("addWorkout",()=>{let workout={date:$("#workDate").value,type:$("#workType"
   airportJournal:(state.airportNotes||[]).map(x=>({airport:x.code,rating:x.rating||"",tags:x.tags||[],notes:x.notes||""}))
  };
  try{
-  const response=await fetch("https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app/api/rumbo-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q,context})});
+  const token=await window.rumboCloudSync?.getAccessToken?.();if(!token)throw new Error("Inicia sesión en RUMBO Cloud para utilizar RUMBO AI.");const response=await fetch("https://nptghdnbdzvrvgdiaxzn.supabase.co/functions/v1/rumbo-ai",{method:"POST",headers:{"Content-Type":"application/json","apikey":"sb_publishable_FiZ3-rmiX4ofRALNlqv-sg_i90ss6j","Authorization":"Bearer "+token},body:JSON.stringify({question:q,context}),signal:AbortSignal.timeout(30000)});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||("AI request failed ("+response.status+")"));
   const answer=String(data.answer||"");out.innerHTML="<b>RUMBO AI · "+esc(data.model||"AI Gateway")+"</b><p>"+esc(answer).replace(/\n/g,"<br>")+"</p><p class='muted'>Respuesta generada con el contexto local enviado para esta consulta. Verifica los datos antes de actuar.</p>";
@@ -676,7 +676,7 @@ bind("searchRecipes",async()=>{
  try{
   // Primary path: server-side recipe search; browser catalog remains a compatibility fallback.
   try{
-   const response=await fetch("/api/recipe-assistant",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({query,servings,category,cuisine}),signal:AbortSignal.timeout(22000)});
+   const response=await fetch("https://nptghdnbdzvrvgdiaxzn.supabase.co/functions/v1/recipe-assistant",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json","apikey":"sb_publishable_FiZ3-rmiX4ofRALNlqv-sg_i90ss6j"},body:JSON.stringify({query,servings,category,cuisine}),signal:AbortSignal.timeout(22000)});
    const data=await response.json().catch(()=>({}));
    if(response.ok&&Array.isArray(data.recipes)&&data.recipes.length){
     const results=data.recipes.filter(r=>r&&r.name&&Array.isArray(r.ingredients)&&Array.isArray(r.steps)).map((r,i)=>({...r,id:r.id||"rumbo-recipe-"+Date.now()+"-"+i,category:r.category||category,servings:Number(r.servings)||servings,minutes:Number(r.minutes)||30,origin:r.origin||"web",sourceTitle:r.sourceTitle||"RUMBO Recipe Assistant"}));
