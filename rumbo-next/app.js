@@ -767,8 +767,8 @@ bind("searchRecipes",async()=>{
   if(!results.length){
    const localTerms=[...new Set([query,...ingredientTerms])].map(x=>x.toLowerCase());
    for(const r of allRecipes()){
-    const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
-    if(localTerms.some(t=>hay.includes(t.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")))){
+    const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    if(localTerms.some(t=>hay.includes(t.normalize("NFD").replace(/[\u0300-\u036f]/g,"")))){
      results.push({...r,origin:r.origin||"local",sourceTitle:r.sourceTitle||"RUMBO recipe library"});
     }
     if(results.length>=12)break;
@@ -777,10 +777,10 @@ bind("searchRecipes",async()=>{
   state.recipeSearchResults=results;state.recipeSearchNotice=results.length?results.length+" recetas encontradas. Comprueba la fuente y los ingredientes antes de incorporarlas. Los macros no disponibles se muestran como no verificados.":(responses.every(x=>x.status==="rejected")?"No se pudo conectar con el catálogo público. Comprueba la conexión y vuelve a intentarlo.":"No hay coincidencias exactas. Prueba con un nombre más corto, un ingrediente principal o «Todas las cocinas».");
   state.selectedRecipeCandidate=null;save();render();if(results.length)toast(results.length+" recetas recuperadas para revisar.");
  }catch(error){
-  const terms=query.toLowerCase().split(/[\\s,;]+/).filter(x=>x.length>2);
+  const terms=query.toLowerCase().split(/[\s,;]+/).filter(x=>x.length>2);
   const local=allRecipes().filter(r=>{
-   const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
-   return terms.some(t=>hay.includes(t.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()));
+   const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+   return terms.some(t=>hay.includes(t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()));
   }).slice(0,12).map(r=>({...r,origin:r.origin||"local",sourceTitle:r.sourceTitle||"RUMBO recipe library"}));
   state.recipeSearchResults=local;state.selectedRecipeCandidate=null;
   state.recipeSearchNotice=local.length
