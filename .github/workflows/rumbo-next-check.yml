@@ -48,7 +48,8 @@ jobs:
           node --check rumbo-next/fitness-engine.js
           node --check rumbo-next/cloud-sync.js
           node --check tests/rumbo-core.test.mjs
-          node --test tests/rumbo-core.test.mjs
+          node --check tests/recipe-assistant.test.mjs
+          node --test tests/rumbo-core.test.mjs tests/recipe-assistant.test.mjs
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
