@@ -69,14 +69,7 @@ function mountCloudUI() {
   });
   $("rumboCloudSignIn").addEventListener("click", signIn);
   $("rumboCloudSignUp").addEventListener("click", signUp);
-  $("rumboCloudSignOut").addEventListener("click", async () => {
-    await client.auth.signOut();
-    currentUser = null;
-    if (channel) await client.removeChannel(channel);
-    channel = null;
-    setStatus("Solo en este dispositivo", "local");
-    setAuthUI(false);
-  });
+  $("rumboCloudSignOut").addEventListener("click", signOut);
   $("rumboCloudPassword").addEventListener("keydown", (event) => {
     if (event.key === "Enter") signIn();
   });
