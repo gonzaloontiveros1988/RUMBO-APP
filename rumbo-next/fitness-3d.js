@@ -96,7 +96,7 @@ function makeViewer(host,exerciseId){
  const onMove=e=>{if(!drag)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.35,.5);lastX=e.clientX;lastY=e.clientY};
  const onWheel=e=>{zoom=clamp(zoom+e.deltaY*.001,.75,1.35)};
  renderer.domElement.addEventListener("pointerdown",onDown);renderer.domElement.addEventListener("pointerup",onUp);renderer.domElement.addEventListener("pointercancel",onUp);renderer.domElement.addEventListener("pointermove",onMove);renderer.domElement.addEventListener("wheel",onWheel,{passive:true});
- const resize=new ResizeObserver(()=>{const ww=host.clientWidth,hh=host.clientHeight;if(!ww||!hh)return;renderer.setSize(ww,hh);camera.aspect=ww/hh;camera.updateProjectionMatrix()});resize.observe(host);
+ const resize=new ResizeObserver(()=>{const ww=viewport.clientWidth,hh=viewport.clientHeight;if(!ww||!hh)return;renderer.setSize(ww,hh);camera.aspect=ww/hh;camera.updateProjectionMatrix()});resize.observe(viewport);
  const loader=new GLTFLoader();
  loader.load(MODEL_URL,gltf=>{
   if(disposed)return;
