@@ -1154,3 +1154,15 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-art svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-width:100%;min-height:145px}
 .guided-figure svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-height:260px}
 @media(max-width:760px){.rumbo-cloud-trigger{font-size:0;padding:10px}.rumbo-cloud-trigger span:nth-child(2){font-size:0}.rumbo-cloud-panel{right:-6px}.exercise-library-art svg.exercise-sequence-svg{min-height:175px}}
+
+/* Crew Bidding planner */
+.crew-bidding-profile,.crew-bid-entry,.crew-bid-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.crew-bid-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(112px,150px) 34px;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line,rgba(148,163,184,.18))}
+.crew-bid-rank{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--surface-2,rgba(148,163,184,.12));font-weight:700;font-size:12px}
+.crew-bid-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.crew-bid-main b{font-size:13px}
+.crew-bid-main small{color:var(--muted,#8b9aaa);font-size:11px;line-height:1.4}
+.crew-bidding-profile label,.crew-bid-entry label{display:flex;flex-direction:column;gap:5px;min-width:0}
+.crew-bidding-profile .check-label{display:flex;flex-direction:row;align-items:center;gap:8px}
+.crew-bidding-profile .check-label input{width:auto}
+@media(max-width:680px){.crew-bid-row{grid-template-columns:30px minmax(0,1fr) 34px;gap:7px}.crew-bid-row select{grid-column:2;grid-row:2}.crew-bid-row button{grid-column:3;grid-row:1}.crew-bid-main{grid-column:2;grid-row:1}}
