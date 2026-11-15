@@ -169,6 +169,30 @@ function init(host,id,THREE){
    if(k==="carry"){armL=V(chest.x-.2,chest.y-.55,-.25);armR=V(chest.x-.2,chest.y-.55,.25)}
    P.le=armL;P.re=armR;P.lw=V(armL.x-.08,armL.y-.28,-.28);P.rw=V(armR.x-.08,armR.y-.28,.28);
   }
+  // Exercise-specific motion overrides: avoid routing distinct movements through one generic animation.
+  const wave=phase(p);
+  if(id==="biceps-curl"){
+   const elbowY= P.chest.y-.22+.34*wave;
+   P.le=V(P.chest.x-.28,elbowY,-.27);P.re=V(P.chest.x-.28,elbowY,.27);
+   P.lw=V(P.le.x-.03,P.le.y+.25+.10*wave,-.27);P.rw=V(P.re.x-.03,P.re.y+.25+.10*wave,.27);
+  } else if(id==="lateral-raise"){
+   const lift=.48*wave;
+   P.le=V(P.chest.x-.30-lift,P.chest.y-.10+lift,-.28);P.re=V(P.chest.x-.30-lift,P.chest.y-.10+lift,.28);
+   P.lw=V(P.le.x-.10,P.le.y+.02,-.28);P.rw=V(P.re.x-.10,P.re.y+.02,.28);
+  } else if(id==="shoulder-press"){
+   const lift=.48*wave;
+   P.le=V(P.chest.x-.30,P.chest.y+.02+lift*.48,-.28);P.re=V(P.chest.x-.30,P.chest.y+.02+lift*.48,.28);
+   P.lw=V(P.chest.x-.28,P.chest.y+.12+lift,-.28);P.rw=V(P.chest.x-.28,P.chest.y+.12+lift,.28);
+  } else if(id==="hip-thrust"||id==="hip-bridge"){
+   const lift=.24*wave;P.pelvis.y=.55+lift;P.chest.y=.52+lift*.72;
+   P.ls.y=P.chest.y-.05;P.rs.y=P.chest.y-.05;
+  } else if(id==="split-squat"||id==="step-up"||id==="reverse-lunge"){
+   const bend=.30*wave;P.pelvis.y=1-bend;P.chest.y=P.pelvis.y+.46;
+   P.lk.y=P.pelvis.y-.40;P.rk.y=P.pelvis.y-.43+.12*wave;
+  } else if(id==="rdl"||id==="single-leg-rdl"||id==="cable-pull-through"){
+   const hinge=.38*wave;P.pelvis.x=.22*wave;P.chest.x=-hinge;P.head.x=-hinge-.04;
+   P.lw.y=P.pelvis.y-.48;P.rw.y=P.pelvis.y-.48;
+  }
   P.spine=P.chest.clone().lerp(P.pelvis,.4);
   return P;
  }
@@ -176,10 +200,10 @@ function init(host,id,THREE){
  Object.assign(toolbar.style,{position:"absolute",left:"8px",right:"8px",bottom:"7px",zIndex:"5",padding:"7px",borderRadius:"10px",background:"rgba(4,17,29,.9)",color:"#dff7f5",font:"10px system-ui",backdropFilter:"blur(8px)"});
  host.style.position="relative";host.appendChild(toolbar);
  const timeline=toolbar.querySelector("[data-timeline]"),phaseLabel=toolbar.querySelector("[data-phase]"),anglesLabel=toolbar.querySelector("[data-angles]"),playBtn=toolbar.querySelector("[data-play]"),compareBtn=toolbar.querySelector("[data-compare]");
- toolbar.querySelectorAll("[data-camera]").forEach(b=>b.addEventListener("click",()=>{cameraMode=b.dataset.camera;az=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;el=0}));
+ toolbar.querySelectorAll("[data-camera]").forEach(b=>b.addEventListener("click",()=>{cameraMode=b.dataset.camera;az=0;el=0;toolbar.querySelectorAll("[data-camera]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}));
  toolbar.querySelector("[data-speed]").addEventListener("change",e=>playbackRate=Number(e.target.value)||1);
  playBtn.addEventListener("click",()=>{paused=!paused;playBtn.textContent=paused?"▶ Reproducir":"Ⅱ Pausa"});
- compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar panel":"Comparar técnica";phaseLabel.textContent=compareMode?"Comparación activada · ángulos articulares en vivo":"Fase: inicio";anglesLabel.textContent=compareMode?"Observa rodilla, codo y cadera durante el recorrido":"Rodilla —° · Codo —° · Cadera —°";toolbar.classList.toggle("is-comparing",compareMode)});
+ compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar aviso":"Comparar técnica";phaseLabel.textContent=compareMode?"Aviso: comparación visual aún no disponible":"Fase: inicio";anglesLabel.textContent=compareMode?"Los ángulos mostrados son geométricos estimados, no una evaluación biomecánica validada":"Rodilla —° · Codo —° · Cadera —°";toolbar.classList.toggle("is-comparing",compareMode)});
  timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;elapsed=progress*2.4;paused=true;playBtn.textContent="▶ Reproducir"});
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
  let raf;let elapsed=0;
@@ -222,7 +246,7 @@ function init(host,id,THREE){
   anglesLabel.textContent="Rodilla "+Math.round(knee)+"° · Codo "+Math.round(elbow)+"° · Cadera "+Math.round(hipAngle)+"°";
   toolbar.classList.toggle("is-comparing",compareMode);
   const target=V(0,1,0),radius=4.9*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
-  const a=az===0?viewAz:az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
+  const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }
  draw(performance.now());
  const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()});ro.observe(host);
