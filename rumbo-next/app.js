@@ -729,7 +729,7 @@ bind("searchRecipes",async()=>{
   const responses=await Promise.allSettled(requests.map(get)),found=new Map();
   for(const result of responses)if(result.status==="fulfilled")for(const meal of result.value?.meals||[])if(meal?.idMeal&&!found.has(meal.idMeal))found.set(meal.idMeal,meal);
   if(cuisine&&found.size===0&&areas.length)throw new Error("El catálogo no devolvió platos de esa cocina. Prueba «Todas las cocinas» o cambia el término.");
-  const candidates=[...found.values()].slice(0,16);
+  const candidates=[...found.values()].slice(0,28);
   const details=await Promise.allSettled(candidates.map(x=>get(base+"lookup.php?i="+encodeURIComponent(x.idMeal))));
   const results=[];
   for(const detail of details){if(detail.status!=="fulfilled")continue;const m=detail.value?.meals?.[0];if(!m)continue;
@@ -738,6 +738,16 @@ bind("searchRecipes",async()=>{
    if(ingredients.length<2||steps.length<1)continue;
    results.push({id:"themealdb-"+m.idMeal,name:m.strMeal,category,minutes:30,servings,image:m.strMealThumb||"",imageVerified:!!m.strMealThumb,ingredients,steps,origin:"web",sourceUrl:m.strSource||("https://www.themealdb.com/meal/"+m.idMeal),sourceTitle:"TheMealDB · "+m.strMeal,sourceSnippet:"Receta pública. No hay macros verificados disponibles; RUMBO no inventa valores."});
    if(results.length>=8)break;
+  }
+  if(!results.length){
+   const localTerms=[...new Set([query,...ingredientTerms])].map(x=>x.toLowerCase());
+   for(const r of allRecipes()){
+    const hay=[r.name,r.category,...(r.ingredients||[]).map(x=>x[0]),...(r.tags||[])].join(" ").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    if(localTerms.some(t=>hay.includes(t.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")))){
+     results.push({...r,origin:r.origin||"local",sourceTitle:r.sourceTitle||"RUMBO recipe library"});
+    }
+    if(results.length>=12)break;
+   }
   }
   state.recipeSearchResults=results;state.recipeSearchNotice=results.length?results.length+" recetas encontradas. Comprueba la fuente y los ingredientes antes de incorporarlas. Los macros no disponibles se muestran como no verificados.":(responses.every(x=>x.status==="rejected")?"No se pudo conectar con el catálogo público. Comprueba la conexión y vuelve a intentarlo.":"No hay coincidencias exactas. Prueba con un nombre más corto, un ingrediente principal o «Todas las cocinas».");
   state.selectedRecipeCandidate=null;save();render();if(results.length)toast(results.length+" recetas recuperadas para revisar.");
