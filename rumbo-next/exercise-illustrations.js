@@ -112,7 +112,7 @@ function points(f,k){
  return P[f][k];
 }
 function drawFigure(f,k,cx){
- const p=points(f,k),x=v=>cx+v[0],y=v=>76+v[1];
+ const p=points(f,k),x=v=>cx+v[0],y=v=>55+v[1];
  const seg=(a,b,w,col)=>'<path d="M'+x(a)+' '+y(a)+'L'+x(b)+' '+y(b)+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" fill="none"/>';
  const joint=v=>'<circle cx="'+x(v)+'" cy="'+y(v)+'" r="4.2" fill="'+C.joint+'" stroke="#fff0d2" stroke-width="1"/>';
  const body='<path d="M'+x(p.sh)+' '+y(p.sh)+' Q'+(cx-2)+' '+(y(p.sh)+19)+' '+x(p.hip)+' '+y(p.hip)+'" stroke="'+C.body+'" stroke-width="18" stroke-linecap="round" fill="none"/>';
@@ -120,7 +120,7 @@ function drawFigure(f,k,cx){
  const leg=seg(p.hip,p.knee,13,C.body)+seg(p.knee,p.ankle,10,C.body);
  const head='<circle cx="'+x(p.head)+'" cy="'+y(p.head)+'" r="10" fill="'+C.body+'" stroke="#c8fff8" stroke-width="2"/>';
  const otherArm=seg([p.sh[0]+3,p.sh[1]+1],[p.el[0]+8,p.el[1]-2],8,C.shade)+seg([p.el[0]+8,p.el[1]-2],[p.hand[0]+9,p.hand[1]-3],7,C.shade);
- const otherLeg=seg([p.hip[0]+3,p.hip[1]+1],[p.knee[0]+8,p.knee[1]],[9],C.shade);
+ const otherLeg=seg([p.hip[0]+3,p.hip[1]+1],[p.knee[0]+8,p.knee[1]],9,C.shade)+seg([p.knee[0]+8,p.knee[1]],[p.ankle[0]+9,p.ankle[1]],7,C.shade);
  const load=(f==="curl"||f==="raise"||f==="carry"||f==="hinge"||f==="squat"||f==="lunge"||f==="overhead")?'<g stroke="'+C.joint+'" stroke-width="4" stroke-linecap="round"><path d="M'+(x(p.hand)-7)+' '+(y(p.hand)-3)+'h14"/><path d="M'+(x(p.hand)-5)+' '+(y(p.hand)-8)+'v10M'+(x(p.hand)+5)+' '+(y(p.hand)-8)+'v10"/></g>':"";
  return '<g>'+head+body+otherArm+arm+otherLeg+leg+joint(p.sh)+joint(p.hip)+joint(p.el)+joint(p.knee)+load+'</g>';
 }
