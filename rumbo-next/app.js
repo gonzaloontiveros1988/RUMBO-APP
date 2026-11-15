@@ -681,6 +681,16 @@ bind("searchRecipes",async()=>{
  button.disabled=true;button.textContent="Buscando…";let status=$("#recipeSearchStatus");if(!status){status=document.createElement("p");status.className="muted";status.id="recipeSearchStatus";button.parentElement.after(status)}status.textContent="Buscando coincidencias por plato, ingredientes y cocina…";
  const q=query.toLowerCase();
  try{
+  // Primary path: server-side recipe search; browser catalog remains a compatibility fallback.
+  try{
+   const response=await fetch("/api/recipe-assistant",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({query,servings,category,cuisine}),signal:AbortSignal.timeout(22000)});
+   const data=await response.json().catch(()=>({}));
+   if(response.ok&&Array.isArray(data.recipes)&&data.recipes.length){
+    const results=data.recipes.filter(r=>r&&r.name&&Array.isArray(r.ingredients)&&Array.isArray(r.steps)).map((r,i)=>({...r,id:r.id||"rumbo-recipe-"+Date.now()+"-"+i,category:r.category||category,servings:Number(r.servings)||servings,minutes:Number(r.minutes)||30,origin:r.origin||"web",sourceTitle:r.sourceTitle||"RUMBO Recipe Assistant"}));
+    if(results.length){state.recipeSearchResults=results;state.recipeSearchNotice=(data.notice||"Recetas recuperadas. Revisa ingredientes, preparación y fuente antes de guardarlas.")+(data.model?" · Fuente: "+data.model:"");state.selectedRecipeCandidate=null;save();render();toast(results.length+" recetas recuperadas.");return;}
+   }
+   if(data.notice)status.textContent=data.notice+" · Probando catálogo alternativo…";
+  }catch(apiError){console.warn("RUMBO recipe API unavailable; using public catalog fallback",apiError)}
   const base="https://www.themealdb.com/api/json/v1/1/",clean=q.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   const aliases=[[/carbonara/,"spaghetti"],[/bolognesa|bolognese/,"beef"],[/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/,"shrimp"],[/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/,"squid"],[/pollo|pechuga|chicken/,"chicken"],[/arroz|rice/,"rice"],[/pasta|espagueti|macarr[oó]n|spaghetti|fettuccine|ravioli|lasagna|lasa[nñ]a/,"pasta"],[/salm[oó]n|salmon/,"salmon"],[/at[uú]n|tuna/,"tuna"],[/ternera|carne|beef/,"beef"],[/garbanzo|chickpea/,"chickpeas"],[/lenteja|lentil/,"lentils"],[/huevo|egg/,"egg"],[/patata|papa|potato/,"potato"]];
   const ingredientTerms=[...new Set([...aliases.filter(([re])=>re.test(clean)).map(([,v])=>v),...(/carbonara/.test(clean)?["pasta"]:[])])];
