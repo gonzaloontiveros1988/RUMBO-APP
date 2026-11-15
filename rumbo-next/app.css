@@ -1131,3 +1131,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .demo-caption{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(113,209,203,.2);border-radius:999px;background:rgba(35,163,157,.1);color:#8ce5dc;font-size:10px;font-weight:800;letter-spacing:.08em}
 .demo-caption:before{content:"";width:6px;height:6px;border-radius:50%;background:#8ce5dc}
 @media(max-width:620px){.exercise-sequence-svg{min-height:150px}.guided-figure .exercise-sequence-svg{min-height:145px}}
+
+.fitness-evidence-note{position:relative;z-index:1;display:grid;gap:6px;margin-top:12px;padding:13px 15px;border:1px solid rgba(101,199,194,.22);border-radius:12px;background:rgba(20,87,91,.13)}
+.fitness-evidence-note b{font:800 10px 'DM Mono',monospace;letter-spacing:.12em;color:#86e5dc}
+.fitness-evidence-note span{color:#b9ced7;font-size:12px;line-height:1.65}
