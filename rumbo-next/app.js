@@ -7,6 +7,7 @@ import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.
 import {parseWaderCsv} from "./wader-import.js";
 import {cityCatalogue,cityForAirport} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
+import {initRumboCloudSync} from "./cloud-sync.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",wellness:"◈",lifestyle:"♡",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["wellness","Fitness & Nutrition"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
 const KEY="rumbo3_local_v1";let state=load();if(Array.isArray(state.mealPlan)&&state.mealPlan.length&&state.nutritionMenuVersion!==3){const menuStart=state.mealWeekStart||state.mealPlan.map(x=>x.date).filter(Boolean).sort()[0]||today();state.mealPlan=makeMealWeek(menuStart,state.duties||[],allRecipes());state.mealWeekStart=menuStart;state.nutritionMenuVersion=3;save()}let active="home";let wellnessTab="training";let pendingPdf=null;let flightMapInstance=null;let workoutClockInterval=null;let restClockInterval=null;let guidedClockInterval=null;
@@ -119,7 +120,7 @@ function initRumboScene(){
 function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[]}}
 function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));window.rumboCloudSync?.schedule(state)}
 function allRecipes(){return [...RECIPES,...(state.customRecipes||[])]}
 function recipeById(id){return allRecipes().find(x=>x.id===id)}
 function esc(x=""){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -828,6 +829,12 @@ function showStartupError(message){const host=$("#view");if(host){host.innerHTML
 window.addEventListener("error",e=>showStartupError((e.message||"Error JavaScript")+"\nArchivo: "+(e.filename||"no indicado")+"\nLínea: "+(e.lineno||"?")+" · Columna: "+(e.colno||"?")));window.addEventListener("unhandledrejection",e=>showStartupError(e.reason?.stack||e.reason?.message||String(e.reason||"Error al cargar un módulo")));
 $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});initRumboScene();try{render()}catch(err){console.error(err);showStartupError(err?.stack||err?.message||String(err))}
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
+window.rumboCloudSync=initRumboCloudSync({
+ getLocalState:()=>state,
+ onRemoteState:(remote)=>{
+  try{state=normalizeState(remote);localStorage.setItem(KEY,JSON.stringify(state));render();toast("RUMBO actualizado desde otro dispositivo.")}catch(error){console.error("Remote RUMBO state rejected",error);toast("No se pudo aplicar la sincronización remota.")}
+ }
+});
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
 // Nutrition diary, allergen preferences and pantry expiry release checkpoint.
