@@ -1104,3 +1104,20 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
 @media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
 @media(max-width:430px){.exercise-library-art .rumbo-human-viewport{height:280px!important;min-height:280px!important;flex-basis:280px!important}}
+
+/* RUMBO Fitness 3D — responsive, consistently framed human demos */
+.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
+.exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
+.exercise-library-art .guided-figure[data-exercise-3d]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .rumbo-human-viewport{height:244px!important;min-height:244px!important;flex-basis:244px!important}
+.exercise-library-art .rumbo-human-status,.exercise-library-art .rumbo-human-controls{display:none!important}
+.exercise-library-copy{min-width:0}
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
+.guided-exercise-visual .guided-figure[data-exercise-3d],.program-detail-body .guided-figure[data-exercise-3d]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:400px!important;min-height:400px!important;flex-basis:400px!important}
+.guided-exercise-visual .rumbo-human-status,.program-detail-body .rumbo-human-status{margin-top:2px}
+.rumbo-human-viewport canvas{display:block;width:100%;height:100%;outline:0}
+.rumbo-human-controls button{min-width:64px}
+@media(max-width:900px){.exercise-library-grid{grid-template-columns:1fr}.exercise-library-card{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
+@media(max-width:560px){.exercise-library-card{grid-template-columns:minmax(0,1fr);}.exercise-library-art .rumbo-human-viewport{height:260px!important;min-height:260px!important;flex-basis:260px!important}.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important}}
