@@ -2,6 +2,7 @@ import {flightMapData,flightMapSvg,loadAirportDirectory,AIRPORTS} from "./flight
 import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,parsePastedRecipe,nutritionTargets,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile} from "./life-intelligence.js";
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats,buildTrainingProgram} from "./training-intelligence.js";
 import {EXERCISES,exerciseById,suggestNextLoad,validateExerciseEntry} from "./fitness-engine.js";
+import {exerciseSequenceSvg} from "./exercise-illustrations.js";
 import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.js";
 import {parseWaderCsv} from "./wader-import.js";
 import {cityCatalogue,cityForAirport} from "./city-scenes.js";
@@ -313,7 +314,7 @@ function sixWeekProgramMarkup(){
  const tabs=[1,2,3,4,5,6].map(w=>'<button class="program-week-tab '+(selected===w?'active':'')+'" data-program-week="'+w+'">Week '+w+'</button>').join("");
  const items=sessions.filter(x=>x.week===selected);
  const days=items.map(x=>{const key=x.week+"-"+x.day,open=activeDay===key,ids=PROGRAM_EXERCISES[x.routineId]||[];
-  const ex=ids.map((id,i)=>{const e=EXERCISES.find(z=>z.id===id);if(!e)return "";const exerciseKey=key+"|"+id,expanded=activeExercise===exerciseKey;return '<div class="program-exercise-block"><button class="program-exercise-mini program-exercise-trigger" data-program-exercise="'+exerciseKey+'" aria-expanded="'+expanded+'"><span class="program-exercise-art">'+String(i+1).padStart(2,"0")+'</span><span class="grow"><b>'+esc(e.name)+'</b><small>'+esc(e.pattern)+' · '+esc(e.muscles.join(", "))+'</small></span><span class="pill">'+(x.phase==="deload"?"2":"3")+' × '+(i===4?"10":"8")+'</span><span class="program-chevron">'+(expanded?"−":"+")+'</span></button>'+(expanded?'<article class="program-exercise-detail"><div class="program-detail-visual"><div class="program-detail-body"><div class="guided-figure" data-exercise-3d data-exercise3d="'+esc(e.id)+'">'+exerciseDemoSvg(e.id)+'</div></div><div><span class="kicker">EXERCISE GUIDE</span><h3>'+esc(e.name)+'</h3><p>'+esc(e.pattern)+' · '+esc(e.muscles.join(" / "))+'</p><b class="detail-label">EQUIPMENT</b><p>'+esc(e.equipment.join(" · "))+'</p><span class="demo-caption">ANIMACIÓN TÉCNICA · CICLO CONTINUO</span></div></div><div class="program-detail-cues"><b>HOW TO PERFORM</b><ol>'+e.cues.map(cue=>'<li>'+esc(cue)+'</li>').join("")+'</ol></div><div class="program-detail-footer"><span class="pill">'+(x.phase==="deload"?"2":"3")+' sets · '+(i===4?"10":"8")+' reps</span><span class="muted">Tap Start guided workout to log each set with a timer</span></div></article>':'')+'</div>'}).join("");
+  const ex=ids.map((id,i)=>{const e=EXERCISES.find(z=>z.id===id);if(!e)return "";const exerciseKey=key+"|"+id,expanded=activeExercise===exerciseKey;return '<div class="program-exercise-block"><button class="program-exercise-mini program-exercise-trigger" data-program-exercise="'+exerciseKey+'" aria-expanded="'+expanded+'"><span class="program-exercise-art">'+String(i+1).padStart(2,"0")+'</span><span class="grow"><b>'+esc(e.name)+'</b><small>'+esc(e.pattern)+' · '+esc(e.muscles.join(", "))+'</small></span><span class="pill">'+(x.phase==="deload"?"2":"3")+' × '+(i===4?"10":"8")+'</span><span class="program-chevron">'+(expanded?"−":"+")+'</span></button>'+(expanded?'<article class="program-exercise-detail"><div class="program-detail-visual"><div class="program-detail-body"><div class="guided-figure" data-exercise-sequence data-exercise3d="'+esc(e.id)+'">'+exerciseDemoSvg(e.id)+'</div></div><div><span class="kicker">EXERCISE GUIDE</span><h3>'+esc(e.name)+'</h3><p>'+esc(e.pattern)+' · '+esc(e.muscles.join(" / "))+'</p><b class="detail-label">EQUIPMENT</b><p>'+esc(e.equipment.join(" · "))+'</p><span class="demo-caption">SECUENCIA TÉCNICA · 3 FASES</span></div></div><div class="program-detail-cues"><b>HOW TO PERFORM</b><ol>'+e.cues.map(cue=>'<li>'+esc(cue)+'</li>').join("")+'</ol></div><div class="program-detail-footer"><span class="pill">'+(x.phase==="deload"?"2":"3")+' sets · '+(i===4?"10":"8")+' reps</span><span class="muted">Tap Start guided workout to log each set with a timer</span></div></article>':'')+'</div>'}).join("");
   return '<section class="program-day '+(open?'open':'')+'"><button class="program-day-toggle" data-program-day="'+key+'"><span><small>DAY '+x.day+' · '+dateText(x.date)+'</small><b>'+esc(x.title)+'</b><em>'+x.minutes+' min · '+esc(x.phase)+'</em></span><span class="program-chevron">'+(open?'−':'+')+'</span></button>'+(open?'<div class="program-day-content"><div class="program-day-exercises">'+(ex||'<p class="muted">Sesión de cardio o movilidad: sigue el bloque de actividad indicado en tu programa.</p>')+'</div><div class="program-day-actions"><span class="muted">'+esc(x.progression||"Review readiness before starting")+'</span><button class="btn primary" data-start-program-day="'+key+'">Start guided workout</button></div></div>':'')+'</section>';
  }).join("");
  return '<div class="program-tabs" role="tablist" aria-label="Training weeks">'+tabs+'</div><div class="program-week-summary"><b>Week '+selected+' · '+esc(items[0]?.phase||"")+'</b><span class="pill">'+items.length+' sessions</span></div><div class="program-days">'+days+'</div>';
@@ -321,76 +322,8 @@ function sixWeekProgramMarkup(){
 
 
 function exerciseDemoSvg(id){
- const svg='<svg class="exercise-demo-svg" viewBox="0 0 320 190" role="img" aria-label="Demostración biomecánica animada del ejercicio"><path class="demo-floor" d="M18 166H302"/>';
- const limbSegments=(path,kind)=>path.split("M").filter(Boolean).map(chain=>{
-  const pts=Array.from(chain.matchAll(/([0-9.]+)\s+([0-9.]+)/g)).map(m=>[Number(m[1]),Number(m[2])]);
-  if(pts.length<3)return "";
-  const [a,b,c]=pts;
-  return '<g class="rig-'+kind+'-upper" style="transform-origin:'+a[0]+'px '+a[1]+'px"><path class="rig-limb" d="M'+a.join(" ")+'L'+b.join(" ")+'"/></g><g class="rig-'+kind+'-lower" style="transform-origin:'+b[0]+'px '+b[1]+'px"><path class="rig-limb" d="M'+b.join(" ")+'L'+c.join(" ")+'"/></g><circle class="rig-joint" cx="'+a[0]+'" cy="'+a[1]+'" r="5"/><circle class="rig-joint" cx="'+b[0]+'" cy="'+b[1]+'" r="5"/><circle class="rig-joint" cx="'+c[0]+'" cy="'+c[1]+'" r="4"/>';
- }).join("");
- const pose=(motion,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="160" cy="27" r="10"/><path class="rig-torso" d="M160 39L160 91"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g><circle class="rig-joint" cx="160" cy="39" r="4"/></g>';
- const horizontalPose=(motion,head,torso,arms,legs,prop="")=>'<g class="rig-body '+motion+'">'+prop+'<circle class="rig-head" cx="'+head[0]+'" cy="'+head[1]+'" r="10"/><path class="rig-torso" d="M'+torso[0].join(" ")+'L'+torso[1].join(" ")+'"/><g class="rig-arms">'+limbSegments(arms,"arm")+'</g><g class="rig-legs">'+limbSegments(legs,"leg")+'</g></g>';
- const upright="M140 49L125 75L118 58M180 49L195 75L202 58";
- const squatLegs="M150 91L132 119L124 159M170 91L188 119L196 159";
- const scenes={
- "back-squat":pose("rig-squat-motion",upright,squatLegs,'<path class="demo-weight" d="M95 49H225m-8 -7v14m-114 -14v14"/>'),
- "front-squat":pose("rig-squat-motion",'M140 49L132 70L153 77M180 49L188 70L167 77',squatLegs,'<path class="demo-weight" d="M132 75h56"/>'),
- "step-up":pose("rig-step-motion",upright,'M150 91L132 117L125 159M170 91L190 110L213 110L213 159','<path class="demo-prop" d="M195 159h80v-49h-80"/>'),
- "reverse-lunge":pose("rig-lunge-motion",upright,'M150 91L132 117L108 159M170 91L192 119L224 159'),
- "hip-thrust":'<path class="demo-prop" d="M28 150h264"/>'+pose("rig-bridge-motion","M140 119L125 143L105 149M140 119L130 145L118 150","M160 112L207 83L239 148M160 112L207 83L239 148").replace('cx="160" cy="27"','cx="53" cy="137"').replace('d="M160 39L160 91"','d="M64 138L160 116"'),
- "single-leg-rdl":pose("rig-hinge-motion",'M140 49L128 79L116 105M180 49L192 79L204 105','M150 91L136 118L126 159M170 91L190 110L220 83','<path class="demo-weight" d="M108 105h16m-4 -5v10m-8 -10v10M196 105h16m-4 -5v10m-8 -10v10"/>'),
- "leg-curl":'<path class="demo-prop" d="M70 133h180v15H70z"/>'+pose("rig-curl-motion",'M140 49L125 75L118 58M180 49L195 75L202 58','M150 91L132 119L125 134L155 134M170 91L190 119L208 134L185 134'),
- "calf-raise":pose("rig-calf-motion",upright,'M150 91L145 125L145 158M170 91L175 125L175 158'),
- "incline-db-press":pose("rig-press-motion",'M140 49L130 26L126 12M180 49L190 26L194 12',squatLegs,'<path class="demo-weight" d="M118 10h16m-4 -5v10m-8 -10v10M186 10h16m-4 -5v10m-8 -10v10"/>'),
- "push-up":'<path class="demo-prop" d="M24 153h272"/>'+pose("rig-floor-motion",'M140 111L120 133L105 150M140 111L126 135L112 151','M170 111L210 130L252 151M170 111L210 130L252 151').replace('cx="160" cy="27"','cx="57" cy="102"').replace('d="M160 39L160 91"','d="M68 105L160 119"'),
- "chest-fly":pose("rig-fly-motion",'M140 49L115 58L98 78M180 49L205 58L222 78',squatLegs),
- "face-pull":pose("rig-pull-motion",'M140 49L133 70L160 63M180 49L187 70L160 63',squatLegs,'<path class="demo-prop" d="M95 63h28m-5 -6v12m82 -6h28m-5 -6v12"/>'),
- "pull-up":'<path class="demo-prop" d="M75 12h170M95 12v18M225 12v18"/>'+pose("rig-pull-motion",'M140 49L123 29L123 13M180 49L197 29L197 13','M150 91L140 120L151 144M170 91L180 120L169 144'),
- "one-arm-row":pose("rig-hinge-motion",'M140 49L130 78L113 95M180 49L192 75L210 95','M150 91L133 121L124 159M170 91L191 120L202 159','<path class="demo-weight" d="M103 95h20m-4 -6v12m-12 -12v12"/>'),
- "lateral-raise":pose("rig-raise-motion",'M140 49L115 43L92 42M180 49L205 43L228 42',squatLegs,'<circle class="demo-weight" cx="91" cy="42" r="6"/><circle class="demo-weight" cx="229" cy="42" r="6"/>'),
- "biceps-curl":pose("rig-curl-motion",'M140 49L126 70L139 50M180 49L194 70L181 50',squatLegs,'<circle class="demo-weight" cx="139" cy="46" r="6"/><circle class="demo-weight" cx="181" cy="46" r="6"/>'),
- "triceps-pushdown":pose("rig-pull-motion",'M140 49L140 79L140 105M180 49L180 79L180 105',squatLegs,'<path class="demo-prop" d="M115 10h90v10m-45 -10v15"/>'),
- "pallof-press":pose("rig-anti-rotation-motion",'M140 49L130 70L105 70M180 49L190 70L215 70',squatLegs,'<path class="demo-prop" d="M75 70h30"/>'),
- "side-plank":'<path class="demo-prop" d="M25 153h270"/>'+pose("rig-floor-motion",'M140 110L115 129L102 148M140 110L155 128L164 148','M170 110L208 128L250 148M170 110L208 128L250 148').replace('cx="160" cy="27"','cx="77" cy="104"').replace('d="M160 39L160 91"','d="M88 107L160 118"'),
- "bird-dog":'<path class="demo-prop" d="M25 153h270"/>'+pose("rig-floor-motion",'M140 110L112 105L85 94M140 110L126 130L111 148','M170 110L205 127L230 94M170 110L205 133L220 150').replace('cx="160" cy="27"','cx="78" cy="102"').replace('d="M160 39L160 91"','d="M89 105L160 118"'),
- "farmer-carry":pose("rig-carry-motion",'M140 49L140 83L140 113M180 49L180 83L180 113',squatLegs,'<rect class="demo-weight" x="126" y="111" width="16" height="24" rx="4"/><rect class="demo-weight" x="178" y="111" width="16" height="24" rx="4"/>'),
- "mountain-climber":'<path class="demo-prop" d="M24 153h272"/>'+pose("rig-climber-motion",'M140 110L119 133L105 150M140 110L126 135L112 151','M170 110L205 124L225 145M170 110L198 92L216 77').replace('cx="160" cy="27"','cx="57" cy="102"').replace('d="M160 39L160 91"','d="M68 105L160 119"')
- };
- scenes["squat"]=pose("rig-squat-motion",upright,squatLegs);
- scenes["rdl"]=pose("rig-hinge-motion","M140 49L125 75L118 105M180 49L195 75L202 105","M150 91L132 119L124 159M170 91L188 119L196 159");
- scenes["bench-press"]=horizontalPose("rig-press-motion",[75,117],[[87,120],[176,127]],"M108 120L123 76L153 76M108 120L139 76L169 76","M176 127L219 112L263 142M176 127L212 137L253 157",'<path class="demo-prop" d="M55 137h205m-215 0v29m225 -29v29"/><path class="demo-weight" d="M115 58h95"/>');
- scenes["db-press"]=horizontalPose("rig-press-motion",[75,117],[[87,120],[176,127]],"M108 120L112 75L112 54M108 120L151 75L151 54","M176 127L219 112L263 142M176 127L212 137L253 157",'<path class="demo-prop" d="M55 137h205m-215 0v29m225 -29v29"/><circle class="demo-weight" cx="112" cy="49" r="7"/><circle class="demo-weight" cx="151" cy="49" r="7"/>');
- scenes["row"]=pose("rig-hinge-motion","M140 49L125 75L153 80M180 49L195 75L167 80","M150 91L136 128L94 128M170 91L191 132L233 132",'<path class="demo-weight" d="M210 88h35"/>');
- scenes["lat-pulldown"]=pose("rig-pull-motion","M140 49L125 30L125 15M180 49L195 30L195 15","M150 91L139 125L126 147M170 91L181 125L194 147",'<path class="demo-prop" d="M72 12h176M92 12v140M228 12v140"/>');
- scenes["shoulder-press"]=pose("rig-press-motion","M140 49L129 25L129 8M180 49L191 25L191 8",squatLegs,'<circle class="demo-weight" cx="129" cy="8" r="7"/><circle class="demo-weight" cx="191" cy="8" r="7"/>');
- scenes["hip-bridge"]=horizontalPose("rig-bridge-motion",[65,139],[[76,141],[166,128]],"M92 142L89 157L111 160M92 142L80 155L62 157","M166 128L205 91L237 143M166 128L205 91L237 143",'<path class="demo-prop" d="M30 153h260"/>');
- scenes["split-squat"]=pose("rig-lunge-motion",upright,"M150 91L133 122L106 163M170 91L193 119L225 143");
- scenes["plank"]=horizontalPose("rig-floor-motion",[57,102],[[68,105],[160,119]],"M90 110L75 135L60 150M90 110L80 137L68 151","M160 119L210 132L278 148M160 119L210 132L278 148",'<path class="demo-prop" d="M24 153h272"/>');
- scenes["dead-bug"]=horizontalPose("rig-deadbug-motion",[65,136],[[76,138],[158,138]],"M105 138L115 91L139 72M105 138L119 91L97 73","M158 138L199 98L229 75M158 138L199 98L184 66");
- scenes["leg-press"]=horizontalPose("rig-legpress-motion",[87,117],[[99,120],[147,125]],"M111 121L113 145L132 151M111 121L94 139L81 145","M147 125L185 100L235 80M147 125L185 100L235 80",'<path class="demo-prop" d="M68 145l32 -78h30M130 67h55M185 67l28 78M215 145h65"/>');
- scenes["cat-cow"]=horizontalPose("rig-mobility-motion",[75,107],[[86,110],[175,118]],"M105 116L92 139L83 157M105 116L118 139L130 157","M175 118L215 137L245 157M175 118L215 137L245 157",'<path class="demo-prop" d="M25 160h270"/>');
- scenes["thoracic-rotation"]=horizontalPose("rig-mobility-motion",[75,107],[[86,110],[175,118]],"M105 116L91 137L78 153M105 116L120 92L144 72","M175 118L215 137L245 157M175 118L215 137L245 157",'<path class="demo-prop" d="M25 160h270"/>');
- scenes["hip-flexor-stretch"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L132 119L110 159M170 91L195 116L235 116L235 159");
- scenes["90-90-hip-switch"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L125 118L145 145M170 91L195 118L175 145");
- scenes["ankle-rock"]=pose("rig-mobility-motion","M140 49L125 75L118 58M180 49L195 75L202 58","M150 91L132 119L112 159M170 91L190 119L218 159");
- scenes["childs-pose"]=horizontalPose("rig-mobility-motion",[80,136],[[90,138],[170,145]],"M112 139L75 145L42 151M112 139L78 151L48 158","M170 145L202 151L225 158M170 145L202 151L225 158",'<path class="demo-prop" d="M25 160h270"/>');
- scenes["jump-rope"]=pose("rig-cardio-motion","M140 49L122 74L112 93M180 49L198 74L208 93","M150 91L138 124L137 159M170 91L182 124L183 159",'<path class="demo-prop" d="M92 85q68 90 136 0"/>');
- scenes["cycling"]=horizontalPose("rig-cardio-motion",[90,65],[[100,75],[158,105]],"M120 83L110 111L130 132M120 83L140 104L160 128","M158 105L195 83L220 115M158 105L180 133L220 115",'<circle class="demo-prop" cx="100" cy="143" r="27"/><circle class="demo-prop" cx="230" cy="143" r="27"/><path class="demo-prop" d="M100 143l60 -25 70 25m-70 -25l-8 -36"/>');
- const legacy={
- "squat":'<g class="demo-body demo-squat-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 54L133 69L118 58M160 54L187 69L202 58M160 94L137 126L132 163M160 94L183 126L188 163"/></g>',
- "rdl":'<g class="demo-body demo-hinge-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 94"/><path class="demo-limb" d="M160 53L145 88L145 124M160 53L175 88L175 124M160 94L142 127L137 163M160 94L178 127L183 163"/></g>',
- "bench-press":'<g class="demo-body demo-bench-motion"><circle class="demo-head" cx="75" cy="117" r="10"/><path class="demo-torso" d="M87 120L176 127"/><path class="demo-limb" d="M176 127L219 112L263 142M108 120L123 76L153 76M108 120L139 76L169 76"/></g>',
- "db-press":'<g class="demo-body demo-bench-motion"><circle class="demo-head" cx="75" cy="117" r="10"/><path class="demo-torso" d="M87 120L176 127"/><path class="demo-limb" d="M176 127L219 112L263 142M108 120L112 75L112 54M108 120L151 75L151 54"/></g>',
- "row":'<g class="demo-body demo-row-motion"><circle class="demo-head" cx="137" cy="43" r="10"/><path class="demo-torso" d="M145 54L174 103"/><path class="demo-limb" d="M151 67L185 95L213 91M174 103L136 128L94 128M174 103L191 132L233 132"/></g>',
- "lat-pulldown":'<g class="demo-body demo-pulldown-motion"><circle class="demo-head" cx="160" cy="75" r="10"/><path class="demo-torso" d="M160 87L160 127"/><path class="demo-limb" d="M160 93L125 53L125 34M160 93L195 53L195 34M160 127L139 147L126 147M160 127L181 147L194 147"/></g>',
- "shoulder-press":'<g class="demo-body demo-shoulder-motion"><circle class="demo-head" cx="160" cy="30" r="11"/><path class="demo-torso" d="M160 43L160 101"/><path class="demo-limb" d="M160 55L129 42L129 18M160 55L191 42L191 18M160 101L140 132L137 163M160 101L180 132L183 163"/></g>',
- "hip-bridge":'<g class="demo-body demo-bridge-motion"><circle class="demo-head" cx="65" cy="139" r="9"/><path class="demo-torso" d="M76 141L166 128"/><path class="demo-limb" d="M166 128L205 91L237 143M166 128L205 91L237 143"/></g>',
- "split-squat":'<g class="demo-body demo-lunge-motion"><circle class="demo-head" cx="160" cy="28" r="10"/><path class="demo-torso" d="M160 40L160 91"/><path class="demo-limb" d="M160 53L137 76L134 93M160 53L183 76L186 93M160 91L133 122L106 163M160 91L193 119L225 143"/></g>',
- "plank":'<g class="demo-body demo-plank-motion"><circle class="demo-head" cx="63" cy="99" r="9"/><path class="demo-torso" d="M74 103L194 119"/><path class="demo-limb" d="M91 106L73 137L58 149M194 119L239 136L278 148"/></g>',
- "dead-bug":'<g class="demo-body demo-deadbug-motion"><circle class="demo-head" cx="65" cy="136" r="9"/><path class="demo-torso" d="M76 138L158 138"/><path class="demo-limb" d="M105 138L115 91L139 72M158 138L199 98L229 75"/></g>',
- "leg-press":'<g class="demo-body demo-legpress-motion"><circle class="demo-head" cx="87" cy="117" r="9"/><path class="demo-torso" d="M99 120L147 125"/><path class="demo-limb" d="M147 125L185 100L235 80M147 125L185 100L235 80"/></g>'
- };
- return svg+(scenes[id]||legacy[id]||legacy.squat)+'</svg>';
+ const exercise=EXERCISES.find(item=>item.id===id);
+ return exerciseSequenceSvg(exercise||{id,name:"Ejercicio",pattern:"Movement",equipment:[]});
 }
 function guidedExercisePanel(){
  const g=state.guidedProgramSession;if(!g)return '<div class="empty">La sesión guiada no está inicializada.</div>';
