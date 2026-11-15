@@ -15,11 +15,23 @@ function init(host,id,THREE){
  if(host.dataset.ready==="1")return ()=>{};
  host.dataset.ready="1";
  const w=host.clientWidth||360,h=host.clientHeight||220;
- const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;host.replaceChildren(renderer.domElement);
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;host.replaceChildren(renderer.domElement);
  const scene=new THREE.Scene();scene.background=null;
  const camera=new THREE.PerspectiveCamera(34,w/h,.1,100);const preset=presets[id]||{kind:"squat",camera:[3.2,2.3,4.6]};camera.position.set(...preset.camera);camera.lookAt(0,1.05,0);
- scene.add(new THREE.HemisphereLight(0xd9f4ff,0x233746,2.0));const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(3,5,4);key.castShadow=true;scene.add(key);
- const floor=new THREE.Mesh(new THREE.CircleGeometry(2.4,64),new THREE.MeshStandardMaterial({color:0x18384a,roughness:.8,transparent:true,opacity:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=.015;scene.add(floor);
+ scene.add(new THREE.HemisphereLight(0xe4f8ff,0x172b3c,2.15));
+ const key=new THREE.DirectionalLight(0xfff4e8,3.1);key.position.set(-3.5,6,4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-3;key.shadow.camera.right=3;key.shadow.camera.top=3;key.shadow.camera.bottom=-3;key.shadow.bias=-.00025;scene.add(key);
+ const fill=new THREE.DirectionalLight(0x66dce0,1.05);fill.position.set(4,2,-3);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0x8ab9ff,1.35);rim.position.set(-2,3,-4);scene.add(rim);
+ const floorMat=new THREE.MeshStandardMaterial({color:0x142e40,roughness:.92,metalness:.04});
+ const floor=new THREE.Mesh(new THREE.CircleGeometry(3.2,80),floorMat);floor.rotation.x=-Math.PI/2;floor.position.y=-.012;floor.receiveShadow=true;scene.add(floor);
+ const platform=new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.62,.055,80),new THREE.MeshStandardMaterial({color:0x1c5263,roughness:.68,metalness:.18}));
+ platform.position.y=.025;platform.receiveShadow=true;scene.add(platform);
+ const rimRing=new THREE.Mesh(new THREE.TorusGeometry(1.49,.012,8,96),new THREE.MeshStandardMaterial({color:0x36c6c4,emissive:0x0a5557,emissiveIntensity:.45,metalness:.5,roughness:.38}));
+ rimRing.rotation.x=Math.PI/2;rimRing.position.y=.057;scene.add(rimRing);
+ const grid=new THREE.GridHelper(6,30,0x326477,0x254556);grid.position.y=-.008;grid.material.transparent=true;grid.material.opacity=.18;scene.add(grid);
  const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
  const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
  const equipmentMat=mat(0x40596a,.72);
@@ -37,6 +49,10 @@ function init(host,id,THREE){
  const ball=new THREE.SphereGeometry(1,32,24), limbGeo=new THREE.CapsuleGeometry(.075,.78,8,16);
  const nodes={};function node(name,material,r=.09,scale=[1,1,1]){const m=new THREE.Mesh(ball,material);m.scale.set(r*scale[0],r*scale[1],r*scale[2]);m.castShadow=true;m.receiveShadow=true;scene.add(m);nodes[name]=m}
  node("head",skin,.145,[.82,1.12,.9]);node("neck",skin,.075,[.9,1.15,.9]);
+ const faceMat=mat(0x342b2a,.72),hairMat=mat(0x302a2a,.88);
+ node("hair",hairMat,.125,[.91,.48,.96]);node("earL",skin,.035,[.8,1.1,.8]);node("earR",skin,.035,[.8,1.1,.8]);
+ node("eyeL",faceMat,.012,[1,.8,.7]);node("eyeR",faceMat,.012,[1,.8,.7]);
+ node("nose",skin,.025,[.8,1.3,.8]);
  node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
  node("abdomen",shirt,.15,[.92,1.35,.76]);node("gluteL",shorts,.13,[1.1,.9,.85]);node("gluteR",shorts,.13,[1.1,.9,.85]);
  node("shoulderL",shirt,.105,[1.15,1,.95]);node("shoulderR",shirt,.105,[1.15,1,.95]);
@@ -138,6 +154,10 @@ function init(host,id,THREE){
   if(nodes.elbowL){nodes.elbowL.position.copy(P.le);nodes.elbowR.position.copy(P.re)}
   if(nodes.kneeL){nodes.kneeL.position.copy(P.lk);nodes.kneeR.position.copy(P.rk)}
   if(nodes.head)nodes.head.position.copy(P.head);
+  if(nodes.hair)nodes.hair.position.copy(P.head).add(V(0,.095,0));
+  if(nodes.earL){nodes.earL.position.copy(P.head).add(V(0,-.015,-.116));nodes.earR.position.copy(P.head).add(V(0,-.015,.116))}
+  if(nodes.eyeL){nodes.eyeL.position.copy(P.head).add(V(-.105,.025,-.075));nodes.eyeR.position.copy(P.head).add(V(-.105,.025,.075))}
+  if(nodes.nose)nodes.nose.position.copy(P.head).add(V(-.14,-.025,0));
   [["upperArmL","ls","le"],["lowerArmL","le","lw"],["upperArmR","rs","re"],["lowerArmR","re","rw"],["thighL","lh","lk"],["shinL","lk","la"],["thighR","rh","rk"],["shinR","rk","ra"]].forEach(([b,a,c])=>segment(bones[b],P[a],P[c]));
   if(P.lw){nodes.handL.position.copy(P.lw);nodes.handR.position.copy(P.rw);nodes.footL.position.copy(P.la).add(V(.07,-.035,0));nodes.footR.position.copy(P.ra).add(V(.07,-.035,0))}
   dumbbells.forEach((d,i)=>{const w=P[i===0?"lw":"rw"];d.position.copy(w);d.visible=(id==="rdl"||id==="squat"&&i===0||["curl","raise","carry"].includes(preset.kind))});
