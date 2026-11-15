@@ -1,6 +1,6 @@
 const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
-const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
+const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-fitness-preview.vercel.app","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
 
 const buckets = new Map();
 function limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
@@ -9,7 +9,7 @@ function clean(s=""){return String(s).replace(/<[^>]*>/g," ").replace(/&amp;/g,"
 function decodeRedirect(href){try{const u=new URL(href,"https://duckduckgo.com");return u.searchParams.get("uddg")||u.href}catch{return href}}
 async function searchWeb(query){
  const url="https://html.duckduckgo.com/html/?q="+encodeURIComponent(query+" receta ingredientes preparación");
- const r=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 (compatible; RUMBORecipeAssistant/1.0)"}});
+ const r=await fetch(url,{headers:{"User-Agent":"Mozilla/5.0 (compatible; RUMBORecipeAssistant/1.0)"},signal:AbortSignal.timeout(6000)});
  if(!r.ok)throw new Error("No se pudo consultar el buscador web.");
  const html=await r.text(),items=[],re=/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/a>/gi;
  let m;while((m=re.exec(html))&&items.length<6){const href=decodeRedirect(m[1]);if(!/^https?:/.test(href)||/duckduckgo\.com/.test(href))continue;items.push({title:clean(m[2]),url:href,snippet:clean(m[3])})}
@@ -26,7 +26,7 @@ async function fetchRecipePage(url){
 async function commonsImage(query){
  try{
   const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent("filetype:bitmap "+query+" food")+"&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=900&format=json";
-  const r=await fetch(url,{headers:{"User-Agent":"RUMBORecipeAssistant/1.0 (recipe image matching)"}});
+  const r=await fetch(url,{headers:{"User-Agent":"RUMBORecipeAssistant/1.0 (recipe image matching)"},signal:AbortSignal.timeout(4500)});
   if(!r.ok)return null;const data=await r.json(),pages=Object.values(data?.query?.pages||{});
   const words=query.toLowerCase().split(/\W+/).filter(x=>x.length>3);
   const ranked=pages.map(p=>{const title=String(p.title||"").toLowerCase(),score=words.filter(w=>title.includes(w)).length;return {score,url:p.imageinfo?.[0]?.thumburl||p.imageinfo?.[0]?.url,description:p.title}}).filter(x=>x.url&&x.score>=Math.min(2,words.length)).sort((a,b)=>b.score-a.score);
@@ -49,26 +49,18 @@ async function searchMealDbFallback(query,servings,category){
  for(const [re,term] of aliases)if(re.test(q))keywords.push(term);
  if(/paella|marisco|seafood/.test(q))keywords.push("seafood rice","Spanish");
  const terms=[...new Set(keywords.map(x=>String(x).trim()).filter(Boolean))].slice(0,6),found=new Map();
- const getJson=async url=>{const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.1 recipe lookup"},signal:AbortSignal.timeout(6500)});if(!response.ok)return null;return response.json()};
- for(const term of terms){
-  try{const data=await getJson("https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term));for(const meal of data?.meals||[])if(meal?.idMeal)found.set(meal.idMeal,meal)}catch{}
-  if(found.size>=5)break;
- }
- // Ingredient search catches dishes whose title does not contain the ingredient.
+ const getJson=async url=>{const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"RUMBO/4.2 recipe lookup"},signal:AbortSignal.timeout(4500)});if(!response.ok)return null;return response.json()};
+ // Run title and ingredient lookups concurrently; the old sequential loop could take 30–40 seconds.
+ const titleResults=await Promise.allSettled(terms.map(term=>getJson("https://www.themealdb.com/api/json/v1/1/search.php?s="+encodeURIComponent(term))));
+ for(const result of titleResults)if(result.status==="fulfilled")for(const meal of result.value?.meals||[])if(meal?.idMeal)found.set(meal.idMeal,meal);
  if(found.size<3){
   const ingredients=[...new Set(terms.filter(x=>["shrimp","squid","chicken","rice","pasta","salmon","tuna","beef","chickpeas","lentils","egg","potato","vegetable"].includes(x)))];
-  for(const ingredient of ingredients.slice(0,3)){
-   try{
-    const data=await getJson("https://www.themealdb.com/api/json/v1/1/filter.php?i="+encodeURIComponent(ingredient));
-    for(const item of (data?.meals||[]).slice(0,5))if(item?.idMeal&&!found.has(item.idMeal))found.set(item.idMeal,{idMeal:item.idMeal,strMeal:item.strMeal,strMealThumb:item.strMealThumb});
-   }catch{}
-  }
+  const ingredientResults=await Promise.allSettled(ingredients.slice(0,3).map(ingredient=>getJson("https://www.themealdb.com/api/json/v1/1/filter.php?i="+encodeURIComponent(ingredient))));
+  for(const result of ingredientResults)if(result.status==="fulfilled")for(const item of (result.value?.meals||[]).slice(0,5))if(item?.idMeal&&!found.has(item.idMeal))found.set(item.idMeal,{idMeal:item.idMeal,strMeal:item.strMeal,strMealThumb:item.strMealThumb});
  }
- const meals=[...found.values()].slice(0,6),details=[];
- for(const item of meals){
-  if(item.strInstructions){details.push(item);continue}
-  try{const data=await getJson("https://www.themealdb.com/api/json/v1/1/lookup.php?i="+encodeURIComponent(item.idMeal));if(data?.meals?.[0])details.push(data.meals[0])}catch{}
- }
+ const meals=[...found.values()].slice(0,6);
+ const detailResults=await Promise.allSettled(meals.map(item=>item.strInstructions?Promise.resolve({meals:[item]}):getJson("https://www.themealdb.com/api/json/v1/1/lookup.php?i="+encodeURIComponent(item.idMeal))));
+ const details=detailResults.filter(x=>x.status==="fulfilled").flatMap(x=>x.value?.meals?.[0]?[x.value.meals[0]]:[]);
  return details.slice(0,4).map((meal,index)=>{
   const ingredients=[];
   for(let i=1;i<=20;i++){const name=String(meal["strIngredient"+i]||"").trim(),measure=String(meal["strMeasure"+i]||"").trim();if(name)ingredients.push([name.slice(0,90),measure.slice(0,70)||"To taste",0,0,0,0])}
