@@ -73,3 +73,5 @@ jobs:
           test -s rumbo-next/cloud-sync.js
           test -s rumbo-next/sw.js
           test -s tests/rumbo-core.test.mjs
+          test -s supabase/functions/recipe-assistant/index.ts
+          test -s supabase/functions/rumbo-ai/index.ts
