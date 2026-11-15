@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import {flightMapData} from "../rumbo-next/flight-map.js";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -9,6 +10,17 @@ import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
 import {FITNESS_MODEL_URL,classifyExerciseMotion} from "../rumbo-next/fitness-3d.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
+
+
+test("Fitness 3D viewer is loaded and targets the exact guided exercise data attribute",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const viewer=readFileSync(new URL("../rumbo-next/fitness-3d.js",import.meta.url),"utf8");
+ const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
+ assert.match(app,/import\s+["']\.\/fitness-3d\.js["']/);
+ assert.match(viewer,/querySelectorAll\(["']\.guided-figure\\[data-exercise3d\\]["']\)/);
+ assert.match(app,/class="guided-figure"[^>]*data-exercise3d=/);
+ assert.match(html,/fitness-3d-integration-v6/);
+});
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
  assert.equal(validateSector({date:"2026-11-01",from:"DOH",to:"LHR",hours:7}).length,2);
