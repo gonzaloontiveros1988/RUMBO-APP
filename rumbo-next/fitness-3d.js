@@ -54,6 +54,12 @@ function init(host,id,THREE){
  node("eyeL",faceMat,.012,[1,.8,.7]);node("eyeR",faceMat,.012,[1,.8,.7]);
  node("nose",skin,.025,[.8,1.3,.8]);
  node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
+ const torsoCore=new THREE.Mesh(new THREE.CapsuleGeometry(.19,.43,10,24),shirt);torsoCore.castShadow=true;torsoCore.receiveShadow=true;scene.add(torsoCore);
+ const collar=new THREE.Mesh(new THREE.TorusGeometry(.078,.018,10,28),mat(0x9be7e1,.5));collar.rotation.x=Math.PI/2;scene.add(collar);
+ node("pecL",shirt,.12,[1.25,.72,.68]);node("pecR",shirt,.12,[1.25,.72,.68]);
+ node("deltoidL",shirt,.095,[1.1,1,.9]);node("deltoidR",shirt,.095,[1.1,1,.9]);
+ node("bicepsL",skin,.082,[.9,1.35,.92]);node("bicepsR",skin,.082,[.9,1.35,.92]);
+ node("forearmL",skin,.067,[.92,1.35,.92]);node("forearmR",skin,.067,[.92,1.35,.92]);
  node("abdomen",shirt,.15,[.92,1.35,.76]);node("gluteL",shorts,.13,[1.1,.9,.85]);node("gluteR",shorts,.13,[1.1,.9,.85]);
  node("shoulderL",shirt,.105,[1.15,1,.95]);node("shoulderR",shirt,.105,[1.15,1,.95]);
  node("elbowL",skin,.068);node("elbowR",skin,.068);node("kneeL",shorts,.078,[1,.9,.92]);node("kneeR",shorts,.078,[1,.9,.92]);
@@ -64,8 +70,13 @@ function init(host,id,THREE){
  ["upperArmL","lowerArmL","upperArmR","lowerArmR","thighL","shinL","thighR","shinR"].forEach(n=>bone(n,n.startsWith("thigh")?shorts:skin,n.startsWith("thigh")?.105:.07));
  const dumbbells=[];for(let s of [-1,1]){const g=new THREE.Group();const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.32,12),weightMat);bar.rotation.z=Math.PI/2;g.add(bar);for(let z of [-.17,.17]){const d=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.07,16),weightMat);d.rotation.z=Math.PI/2;d.position.x=z;g.add(d)}scene.add(g);dumbbells.push(g)}
  const V=(x,y,z)=>new THREE.Vector3(x,y,z);
- function segment(mesh,a,b){const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);const arm=mesh===bones.upperArmL||mesh===bones.upperArmR||mesh===bones.lowerArmL||mesh===bones.lowerArmR;
- mesh.scale.set(arm ? .92 : 1,Math.max(.05,dir.length()-.12),arm?.92:1);mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize())}
+ function segment(mesh,a,b){
+ const mid=a.clone().add(b).multiplyScalar(.5),dir=b.clone().sub(a);mesh.position.copy(mid);
+ const name=Object.keys(bones).find(k=>bones[k]===mesh)||"";
+ const width=name.startsWith("thigh")?1.48:name.startsWith("shin")?1.12:name.startsWith("upperArm")?1.12:.94;
+ mesh.scale.set(width,Math.max(.05,dir.length()-.075),width);
+ mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize());
+}
  let dragging=false,lastX=0,lastY=0,az=0,el=0,dist=1;renderer.domElement.addEventListener("pointerdown",e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener("pointerup",()=>dragging=false);renderer.domElement.addEventListener("pointermove",e=>{if(!dragging)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.5,.65);lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener("wheel",e=>{dist=clamp(dist+e.deltaY*.002,.72,1.6)},{passive:true});
  const phase=(t)=>.5-.5*Math.cos(t*Math.PI*2);
  function pose(p){
@@ -146,6 +157,13 @@ function init(host,id,THREE){
  function draw(now){raf=requestAnimationFrame(draw);const p=((now-start)/2400)%1,P=pose(p);
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
+  const torsoDir=P.chest.clone().sub(P.pelvis),torsoMid=P.chest.clone().lerp(P.pelvis,.5);
+  torsoCore.position.copy(torsoMid);torsoCore.quaternion.setFromUnitVectors(V(0,1,0),torsoDir.clone().normalize());
+  collar.position.copy(P.neck).add(V(0,.035,0));
+  if(nodes.pecL){nodes.pecL.position.copy(P.chest).add(V(-.035,-.055,-.13));nodes.pecR.position.copy(P.chest).add(V(-.035,-.055,.13))}
+  if(nodes.deltoidL){nodes.deltoidL.position.copy(P.ls);nodes.deltoidR.position.copy(P.rs)}
+  if(nodes.bicepsL){nodes.bicepsL.position.copy(P.ls).lerp(P.le,.52);nodes.bicepsR.position.copy(P.rs).lerp(P.re,.52)}
+  if(nodes.forearmL){nodes.forearmL.position.copy(P.le).lerp(P.lw,.52);nodes.forearmR.position.copy(P.re).lerp(P.rw,.52)}
   if(nodes.pelvis)nodes.pelvis.position.copy(P.pelvis);
   if(nodes.neck)nodes.neck.position.copy(P.neck);
   if(nodes.abdomen){nodes.abdomen.position.copy(P.chest).lerp(P.pelvis,.48);nodes.abdomen.quaternion.copy(nodes.chest.quaternion)}
