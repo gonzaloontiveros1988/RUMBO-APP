@@ -14,8 +14,7 @@ function limited(ip: string) {
   const now = Date.now();
   const recent = (buckets.get(ip) || []).filter(t => now - t < 60_000);
   if (recent.length >= 5) return true;
-  recent.push(now);
-  buckets.set(ip, recent);
+  recent.push(now); buckets.set(ip, recent);
   if (buckets.size > 2000) for (const [key, times] of buckets) if (!times.some(t => now - t < 60_000)) buckets.delete(key);
   return false;
 }
@@ -23,7 +22,12 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
   const auth = req.headers.get("Authorization") || "";
-  if (!/^Bearer\\s+.+/i.test(auth)) return json(401, { error: "Inicia sesión en RUMBO Cloud para utilizar RUMBO AI." });
+  const apiKey = req.headers.get("apikey") || "";
+  if (!/^Bearer\s+.+/i.test(auth) || !apiKey) return json(401, { error: "Inicia sesión en RUMBO Cloud para utilizar RUMBO AI." });
+  const authCheck = await fetch("https://nptghdnbdzvrvgdiaxzn.supabase.co/auth/v1/user", {
+    headers: { apikey: apiKey, Authorization: auth }, signal: AbortSignal.timeout(7000)
+  }).catch(() => null);
+  if (!authCheck?.ok) return json(401, { error: "Tu sesión de RUMBO ha caducado. Vuelve a iniciar sesión." });
   const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (limited(ip)) return json(429, { error: "Has alcanzado el límite temporal de RUMBO AI. Espera un minuto." });
   let body: Record<string, unknown>;
@@ -51,15 +55,10 @@ Deno.serve(async (req: Request) => {
     const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: "Bearer " + gatewayToken, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: "PREGUNTA:\\n" + question + "\\n\\nCONTEXTO RUMBO (datos locales):\\n" + context }
-        ],
-        temperature: 0.2,
-        max_tokens: 1200
-      }),
+      body: JSON.stringify({ model: MODEL, messages: [
+        { role: "system", content: system },
+        { role: "user", content: "PREGUNTA:\\n" + question + "\\n\\nCONTEXTO RUMBO (datos locales):\\n" + context }
+      ], temperature: 0.2, max_tokens: 1200 }),
       signal: AbortSignal.timeout(25_000)
     });
     const data = await response.json().catch(() => ({}));
