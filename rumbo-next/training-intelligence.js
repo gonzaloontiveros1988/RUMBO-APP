@@ -16,6 +16,10 @@ export const ROUTINES=[
  {id:"strength-h",name:"Strength · Posterior chain",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Hip thrust · 3×8–10","Single-leg Romanian deadlift · 3×8 each side","Seated leg curl · 3×12","Standing calf raise · 3×12–15","Farmer carry · 3×30 seconds"]},
  {id:"strength-i",name:"Strength · Push / pull",type:"Strength",minutes:45,setting:"Gym",level:"Intermediate",blocks:["Barbell bench press · 3×6–8","Seated cable row · 3×8–10","Dumbbell shoulder press · 3×8","Cable face pull · 3×12–15","Dumbbell biceps curl · 3×10–12"]},
  {id:"strength-j",name:"Strength · Unilateral & stability",type:"Strength",minutes:40,setting:"Gym",level:"Intermediate",blocks:["Dumbbell step-up · 3×8 each side","Goblet squat · 3×10","Cable chest fly · 3×12","Side plank · 3×30 seconds each side","Bird dog · 3×8 each side"]},
+ {id:"upper-a",name:"Strength · Upper A",type:"Strength",minutes:50,setting:"Gym",level:"Intermediate",blocks:["Barbell bench press · 3×6–8","Seated cable row · 3×8–10","Dumbbell shoulder press · 2×8–10","Lat pulldown · 3×8–12","Dumbbell biceps curl · 2×10–12","Cable triceps pushdown · 2×10–12"]},
+ {id:"lower-a",name:"Strength · Lower A",type:"Strength",minutes:50,setting:"Gym",level:"Intermediate",blocks:["Back squat · 3×6–8","Romanian deadlift · 3×8–10","Reverse lunge · 2×8–10 each side","Seated leg curl · 2×10–12","Standing calf raise · 2×12–15","Dead bug · 2×10 each side"]},
+ {id:"upper-b",name:"Strength · Upper B",type:"Strength",minutes:50,setting:"Gym",level:"Intermediate",blocks:["Incline dumbbell press · 3×8–10","Chest-supported dumbbell row · 3×8–12","Dumbbell lateral raise · 3×12–15","Assisted pull-up · 2×6–10","Cable face pull · 2×12–15","Hammer curl · 2×10–12"]},
+ {id:"lower-b",name:"Strength · Lower B",type:"Strength",minutes:50,setting:"Gym",level:"Intermediate",blocks:["Leg press · 3×8–12","Barbell hip thrust · 3×8–10","Dumbbell step-up · 2×8 each side","Leg curl · 2×10–12","Single-leg calf raise · 2×10–12 each side","Pallof press · 2×10 each side"]},
  {id:"hotel-upper",name:"Travel · Upper body & core",type:"Hotel session",minutes:30,setting:"Hotel",level:"Intermediate",blocks:["Push-up variation · 3×8–12","Backpack single-arm row · 3×10","Pike push-up or shoulder press · 3×8","Side plank · 3×25 seconds","Bird dog · 3×8 each side"]},
  {id:"hotel-lower",name:"Travel · Lower body",type:"Hotel session",minutes:30,setting:"Hotel",level:"Intermediate",blocks:["Reverse lunge · 3×10 each side","Single-leg hip hinge · 3×8 each side","Glute bridge · 3×12","Calf raise · 3×15","Dead bug · 3×10 each side"]},
  {id:"cardio-intervals",name:"Cardio · Intervals",type:"Cardio",minutes:30,setting:"Any",level:"Intermediate",blocks:["Warm-up · 5 min easy","Intervals · 8 rounds of 1 min brisk / 1 min easy","Cool down · 5 min"]}
@@ -98,6 +102,7 @@ export function buildTrainingProgram(profile={},startDate,duties=[],workouts=[])
   if(goal==="mobility")id="mobility-15";
   else if(goal==="endurance")id=["cardio-30","strength-a","cardio-30","mobility-15","cardio-30"][slot%5];
   else if(goal==="fat-loss")id=["strength-a","cardio-30","strength-b","mobility-15","cardio-30"][slot%5];
+  else if(goal==="strength"&&days>=4)id=["upper-a","lower-a","upper-b","lower-b"][slot%4];
   else if(goal==="strength")id=strength[slot%strength.length];
   else id=["strength-a","strength-b","cardio-30","mobility-15","strength-c"][slot%5];
   if(setting==="hotel"&&id.startsWith("strength"))id=slot%2===0?"hotel-strength":"hotel-lower";
