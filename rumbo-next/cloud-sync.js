@@ -186,7 +186,7 @@ function subscribe() {
   if (channel) client.removeChannel(channel);
   channel = client.channel("rumbo-state-" + currentUser.id)
     .on("postgres_changes", {
-      event: "UPDATE", schema: "public", table: STATE_TABLE,
+      event: "*", schema: "public", table: STATE_TABLE,
       filter: "user_id=eq." + currentUser.id
     }, (payload) => {
       const row = payload.new;
