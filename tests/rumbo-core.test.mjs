@@ -315,7 +315,6 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
-import {EXERCISES} from "../rumbo-next/fitness-engine.js";
 test("Every Fitness library exercise receives a non-generic 3D motion pattern",()=>{
  const unclassified=EXERCISES.filter(ex=>classifyExerciseMotion(ex.id)==="general").map(ex=>ex.id);
  assert.deepEqual(unclassified,[]);
