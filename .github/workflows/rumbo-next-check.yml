@@ -46,6 +46,7 @@ jobs:
           node --check rumbo-next/reminders.js
           node --check rumbo-next/training-intelligence.js
           node --check rumbo-next/fitness-engine.js
+          node --check rumbo-next/cloud-sync.js
           node --check tests/rumbo-core.test.mjs
           node --test tests/rumbo-core.test.mjs
           node --check rumbo-next/flight-map.js
@@ -68,5 +69,6 @@ jobs:
           test -s rumbo-next/exercise-illustrations.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
+          test -s rumbo-next/cloud-sync.js
           test -s rumbo-next/sw.js
           test -s tests/rumbo-core.test.mjs
