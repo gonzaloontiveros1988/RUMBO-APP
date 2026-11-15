@@ -1057,3 +1057,15 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 }
 .guided-figure[data-exercise-3d] canvas{position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
 .guided-figure[data-exercise-3d][data-engine="three"]{border-color:rgba(74,218,211,.3)}
+
+
+/* RUMBO biomechanics viewer controls */
+.rumbo-biomech-controls{box-sizing:border-box;display:flex;flex-direction:column;gap:5px;max-width:100%}
+.rumbo-biomech-row{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.rumbo-camera-group,.rumbo-speed-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.rumbo-biomech-controls button,.rumbo-biomech-controls select{font:600 10px system-ui;color:#dff7f5;background:#15384b;border:1px solid rgba(100,220,215,.3);border-radius:6px;padding:5px 7px}
+.rumbo-biomech-controls button:focus-visible,.rumbo-biomech-controls select:focus-visible,.rumbo-biomech-controls input:focus-visible{outline:2px solid #70e5db;outline-offset:2px}
+.rumbo-biomech-controls button:hover,.rumbo-biomech-controls .is-comparing button[data-compare]{background:#17616a}
+.rumbo-biomech-controls input[type=range]{width:100%;height:4px;accent-color:#54d4ca;margin:3px 0}
+.rumbo-biomech-readout{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;color:#9bd4d4;font-size:9px}
+@media(max-width:520px){.rumbo-biomech-controls{left:4px!important;right:4px!important;bottom:4px!important}.rumbo-biomech-controls button,.rumbo-biomech-controls select{font-size:9px;padding:4px 5px}.rumbo-biomech-readout{font-size:8px}}
