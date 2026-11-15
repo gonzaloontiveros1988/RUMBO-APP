@@ -23,32 +23,40 @@ const MOTION_RULES=[
 ];
 function createExerciseMotion(THREE,model,exerciseId){
  const bones=[];model.traverse(o=>{if(o.isBone)bones.push(o)});
- const classify=n=>{
-  n=n.toLowerCase().replace(/[^a-z0-9]/g,"");
-  if(/(thigh|upleg|femur)/.test(n))return "thigh";
-  if(/(shin|calf|lowerleg)/.test(n))return "shin";
-  if(/(upperarm|armupper|humerus|shoulder)/.test(n))return "upperarm";
-  if(/(forearm|lowerarm|elbow)/.test(n))return "forearm";
-  if(/(spine|abdomen|chest|torso|pelvis)/.test(n))return "spine";
+ const classify=raw=>{
+  const n=raw.toLowerCase().replace(/[^a-z0-9]/g,"");
+  if(/(upleg|thigh|femur)/.test(n))return "thigh";
+  if(/(lowerleg|shin|calf|leg$)/.test(n)&&!/(upleg)/.test(n))return "shin";
+  if(/(upperarm|armupper|humerus|shoulder)/.test(n)||(/arm/.test(n)&&!/forearm|lowerarm/.test(n)))return "upperarm";
+  if(/(forearm|lowerarm)/.test(n))return "forearm";
+  if(/(spine|abdomen|chest|torso)/.test(n))return "spine";
+  if(/(pelvis|hips|hip)/.test(n))return "pelvis";
   return null;
  };
- const rig=bones.map(b=>({bone:b,group:classify(b.name),rest:b.quaternion.clone()})).filter(x=>x.group);
+ const rig=bones.map(b=>({bone:b,group:classify(b.name),rest:b.quaternion.clone(),restPosition:b.position.clone()})).filter(x=>x.group);
  const rule=MOTION_RULES.find(x=>x.test.test(exerciseId||""))||MOTION_RULES[0];
- const axis=new THREE.Vector3(1,0,0),delta=new THREE.Quaternion(),euler=new THREE.Euler();
- const sides=rig.map(x=>({...x,side:/\.l$|left/i.test(x.bone.name)?-1:/\.r$|right/i.test(x.bone.name)?1:0}));
+ const delta=new THREE.Quaternion(),euler=new THREE.Euler();
+ const sides=rig.map(x=>({...x,side:/^(mixamorig)?l(?!ower)|left|\.l($|\.)/i.test(x.bone.name)?-1:/^(mixamorig)?r|right|\.r($|\.)/i.test(x.bone.name)?1:0}));
+ const originalPositions=sides.map(x=>x.restPosition.clone());
  const update=(time)=>{
-  const cycle=(time%3.2)/3.2, wave=Math.sin(cycle*Math.PI*2), smooth=(1-Math.cos(cycle*Math.PI*2))*.5;
+  const cycle=(time%3.6)/3.6;
+  // Controlled 2-phase repetition: eccentric descent, brief bottom, concentric return.
+  const phase=cycle<.48?cycle/.48:cycle<.58?1:(1-(cycle-.58)/.42);
+  const smooth=phase*phase*(3-2*phase);
+  const depth=Math.sin(smooth*Math.PI/2);
   for(const item of sides){
    const amp=rule.groups[item.group];if(!amp)continue;
-   const side=item.side||1;
-   const scale=(item.group==="spine"?1:side);
-   euler.set(amp[0]*smooth*scale,amp[1]*smooth*scale,amp[2]*smooth*scale,"XYZ");
+   const side=item.side||1,scale=item.group==="spine"||item.group==="pelvis"?1:side;
+   euler.set(amp[0]*depth*scale,amp[1]*depth*scale,amp[2]*depth*scale,"XYZ");
    delta.setFromEuler(euler);
    item.bone.quaternion.copy(item.rest).multiply(delta);
+   if(item.group==="pelvis"&&rule.id==="squat")item.bone.position.y=item.restPosition.y-.13*depth;
+   if(item.group==="pelvis"&&rule.id==="hinge")item.bone.position.y=item.restPosition.y-.035*depth;
   }
  };
- return {update,kind:rule.id,boneCount:rig.length,dispose(){for(const x of rig)x.bone.quaternion.copy(x.rest)}};
+ return {update,kind:rule.id,boneCount:rig.length,groups:[...new Set(rig.map(x=>x.group))],dispose(){for(const x of sides){x.bone.quaternion.copy(x.rest);x.bone.position.copy(x.restPosition)}}};
 }
+
 function makeViewer(host,exerciseId){
  if(host.dataset.rumboHumanReady==="1")return ()=>{};
  host.dataset.rumboHumanReady="1";
@@ -92,7 +100,7 @@ function makeViewer(host,exerciseId){
   model.rotation.y=Math.PI;
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
   scene.add(model);
-  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);if(!exerciseMotion.boneCount){status.textContent="MODELO CARGADO · RIG SIN HUESOS RECONOCIDOS";status.style.background="#7a4b20dd"}
+  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="RIG SIN HUESOS RECONOCIDOS";status.style.background="#7a4b20dd"}else{status.textContent="MOVIMIENTO · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" HUESOS"}
   host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";host.dataset.humanBones=String(model.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
   status.textContent="MODELO 3D · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO");status.style.background="#0d554dcc";
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302dcc";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
