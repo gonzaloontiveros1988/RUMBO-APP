@@ -1083,3 +1083,12 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-figure-stage .rumbo-biomech-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
 .guided-figure-stage .rumbo-biomech-controls [data-timeline]{display:block;width:100%;margin:7px 0 2px}
 @media(max-width:650px){.guided-figure-stage>.guided-figure{height:230px;min-height:230px}}
+
+
+/* Fitness 3D: give the human viewer the full row; never squeeze it into the old thumbnail column. */
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;}
+.guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important;}
+.guided-exercise-title{width:100%;}
+.guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important;}
+.guided-figure[data-exercise-3d] .rumbo-human-viewport{width:100%!important;}
+@media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-3d] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
