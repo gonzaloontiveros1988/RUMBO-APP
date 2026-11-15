@@ -85,12 +85,12 @@ function createExerciseMotion(THREE,model,exerciseId){
 function makeViewer(host,exerciseId){
  if(host.dataset.rumboHumanReady==="1")return ()=>{};
  host.dataset.rumboHumanReady="1";
- const w=Math.max(240,host.clientWidth||360),h=Math.max(260,host.clientHeight||320);
+ const w=Math.max(280,host.clientWidth||420),h=380;
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- const viewport=document.createElement("div");viewport.className="rumbo-human-viewport";viewport.style.cssText="position:relative;width:100%;height:190px;min-height:190px;overflow:hidden;border-radius:14px";viewport.appendChild(renderer.domElement);host.style.cssText+=";height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important;gap:7px!important";host.replaceChildren(viewport);
+ const viewport=document.createElement("div");viewport.className="rumbo-human-viewport";viewport.style.cssText="position:relative;flex:0 0 380px;width:100%;height:380px;min-height:380px;overflow:hidden;border-radius:16px;background:radial-gradient(ellipse at 50% 38%,#1b4357 0%,#0b2233 65%,#071724 100%)";viewport.appendChild(renderer.domElement);host.style.cssText+=";height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;width:100%!important";host.replaceChildren(viewport);
  const scene=new THREE.Scene();
  scene.add(new THREE.HemisphereLight(0xe8f7ff,0x243445,2.0));
  const key=new THREE.DirectionalLight(0xfff1df,3.0);key.position.set(-3,5,4);key.castShadow=true;scene.add(key);
@@ -100,22 +100,14 @@ function makeViewer(host,exerciseId){
  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.03,.012,8,80),new THREE.MeshStandardMaterial({color:0x36c6c4,emissive:0x0a5557,emissiveIntensity:.4}));
  ring.rotation.x=Math.PI/2;ring.position.y=.012;scene.add(ring);
  const camera=new THREE.PerspectiveCamera(32,w/h,.1,100);camera.position.set(2.7,1.9,4.1);camera.lookAt(0,.95,0);
- const stage=document.createElement("div");stage.className="rumbo-human-stage";stage.style.cssText="position:absolute;inset:0;pointer-events:none";
- const status=document.createElement("div");status.textContent="Cargando modelo humano…";status.style.cssText="position:absolute;left:10px;top:10px;padding:6px 9px;border-radius:8px;background:#102c3dcc;color:#a9f2ed;font:600 10px system-ui;letter-spacing:.08em";
- stage.appendChild(status);viewport.appendChild(stage);
- const controls=document.createElement("div");controls.style.cssText="position:relative;left:auto;bottom:auto;display:flex;gap:5px;z-index:4;flex-wrap:wrap;justify-content:center;width:100%;padding:2px 0";
+ const status=document.createElement("div");status.textContent="CARGANDO MODELO HUMANO…";status.style.cssText="position:relative;order:2;width:100%;box-sizing:border-box;padding:7px 10px;border:1px solid #285365;border-radius:8px;background:#0b2636;color:#a9f2ed;font:600 10px system-ui;letter-spacing:.08em;text-align:center";host.appendChild(status);
+ const controls=document.createElement("div");controls.style.cssText="position:relative;order:3;display:flex;gap:7px;z-index:4;flex-wrap:wrap;justify-content:center;width:100%;padding:2px 0";
  const button=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.style.cssText="border:1px solid #43808c;border-radius:7px;padding:6px 8px;background:#12384a;color:#dffcff;font:600 11px system-ui;cursor:pointer";b.addEventListener("click",fn);controls.appendChild(b);return b};
  host.appendChild(controls);
  let model=null,mixer=null,clipAction=null,exerciseMotion=null,paused=false,rate=1,az=0,el=.08,zoom=1,drag=false,lastX=0,lastY=0,raf=0,disposed=false,last=performance.now(),motionTime=0;
  button("Frontal",()=>{az=0;el=.08});button("Lateral",()=>{az=Math.PI/2;el=.08});button("Posterior",()=>{az=Math.PI;el=.08});
  const pauseButton=button("Ⅱ Pausa",()=>{paused=!paused;pauseButton.textContent=paused?"▶ Reanudar":"Ⅱ Pausa"});
  button("−",()=>{rate=clamp(rate-.25,.5,2)});button("Velocidad 1×",()=>{rate=rate>=2?.5:rate+.25});
- const skeletonPanel=document.createElement("div");
- skeletonPanel.style.cssText="display:none;position:relative;width:100%;max-height:220px;overflow:auto;box-sizing:border-box;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf7;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap;box-shadow:0 8px 28px #0009";
- host.appendChild(skeletonPanel);
- const skeletonButton=button("Esqueleto · esperando",()=>{skeletonPanel.style.display=skeletonPanel.style.display==="none"?"block":"none"});
- skeletonButton.disabled=true;skeletonButton.style.opacity=".6";
-
  const onDown=e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
  const onUp=()=>drag=false;
  const onMove=e=>{if(!drag)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.35,.5);lastX=e.clientX;lastY=e.clientY};
@@ -130,25 +122,14 @@ function makeViewer(host,exerciseId){
   const scale=1.72/Math.max(size.y,.001);model.scale.setScalar(scale);model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
   model.rotation.y=Math.PI;
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
-  const allBones=[];model.traverse(o=>{if(o.isBone)allBones.push(o)});
-  const boneLines=allBones.map((bone,index)=>{
-   const parent=bone.parent?.isBone?bone.parent.name:"(raíz / nodo)";
-   const key=bone.name.toLowerCase().replace(/[^a-z0-9]/g,"");
-   const group=/(upleg|thigh|femur)/.test(key)?"THIGH":/(lowerleg|shin|calf|leg$)/.test(key)?"SHIN":/(upperarm|armupper|humerus|shoulder)/.test(key)?"UPPER ARM":/(forearm|lowerarm)/.test(key)?"FOREARM":/(spine|abdomen|chest|torso)/.test(key)?"TORSO":/(pelvis|hips|hip)/.test(key)?"PELVIS":"—";
-   return String(index+1).padStart(2,"0")+"  "+bone.name+"\n    parent: "+parent+"  |  map: "+group;
-  });
-  skeletonPanel.textContent="SKELETON DIAGNOSTICS\nBones: "+allBones.length+"\nSkinned meshes: "+(()=>{let n=0;model.traverse(o=>{if(o.isSkinnedMesh)n++});return n})()+"\n\n"+boneLines.join("\n\n");
-  skeletonButton.textContent="Esqueleto · "+allBones.length;
-  skeletonButton.disabled=false;skeletonButton.style.opacity="1";
-
   scene.add(model);
-  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="RIG SIN HUESOS RECONOCIDOS";status.style.background="#7a4b20dd"}else{status.textContent="MOVIMIENTO · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" HUESOS"}
+  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="NO SE HAN RECONOCIDO ARTICULACIONES";status.style.background="#7a302d"}else{status.textContent="MOVIMIENTO ACTIVO · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" ARTICULACIONES"}
   host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";host.dataset.humanBones=String(model.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
-  status.textContent="MODELO 3D · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO");status.style.background="#0d554dcc";
- },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302dcc";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
- const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=4.15*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.0+radius*(.20+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.91,0);renderer.render(scene,camera)};
+  status.textContent="MOVIMIENTO ACTIVO · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO")+" · "+(exerciseMotion?.boneCount||0)+" ARTICULACIONES";status.style.background="#0b2636";
+ },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302d";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
+ const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=3.25*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.05+radius*(.16+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.88,0);renderer.render(scene,camera)};
  raf=requestAnimationFrame(render);host.dataset.engine="three-glb";
- return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();skeletonPanel.remove();stage.remove();viewport.remove();host.dataset.rumboHumanReady="0"};
+ return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();status.remove();viewport.remove();host.dataset.rumboHumanReady="0"};
 }
 async function boot(){
  try{
