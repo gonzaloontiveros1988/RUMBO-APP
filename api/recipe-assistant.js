@@ -1,6 +1,7 @@
 const MODEL = "alibaba/qwen3.5-flash";
 const MAX_QUERY = 180;
 const ALLOWED_ORIGINS=new Set(["https://gonzaloontiveros1988.github.io","https://rumbo-fitness-preview.vercel.app","https://rumbo-app-sandy.vercel.app","https://rumbo-app-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-os-v4-gonzaloor1988-8991.vercel.app","https://rumbo-app-git-redesign-rumbo-premium-2026-gonzaloor1988-8991.vercel.app"]);
+function isAllowedOrigin(origin){return ALLOWED_ORIGINS.has(origin)||/^https:\/\/rumbo-[a-z0-9-]+-gonzaloor1988-8991\.vercel\.app$/.test(origin);}
 
 const buckets = new Map();
 function limited(ip){const now=Date.now(),items=(buckets.get(ip)||[]).filter(t=>now-t<60000);if(items.length>=5)return true;items.push(now);buckets.set(ip,items);return false;}
@@ -85,7 +86,7 @@ function normalizeRecipe(r,index,source,requestedServings,requestedCategory){
 }
 module.exports = async function handler(req,res){
  const origin=String(req.headers.origin||"");
- if(req.method==="OPTIONS"){if(!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin");res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");res.setHeader("Access-Control-Allow-Headers","Content-Type");return res.status(204).end()}
+ if(req.method==="OPTIONS"){if(!isAllowedOrigin(origin))return send(res,403,{error:"Origen no autorizado."});res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin");res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");res.setHeader("Access-Control-Allow-Headers","Content-Type");return res.status(204).end()}
  if(req.method!=="POST")return send(res,405,{error:"Método no permitido."});
  if(origin&&!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});
  if(origin){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin")}
