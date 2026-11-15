@@ -21,11 +21,11 @@ function init(host,id,THREE){
  }
  const w=host.clientWidth||360,h=host.clientHeight||220;
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
- renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,2.5));renderer.setSize(w,h);renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;host.replaceChildren(renderer.domElement);
  const scene=new THREE.Scene();scene.background=null;
- const camera=new THREE.PerspectiveCamera(34,w/h,.1,100);const preset=presets[id]||{kind:"squat",camera:[3.2,2.3,4.6]};camera.position.set(...preset.camera);camera.lookAt(0,1.05,0);
+ const camera=new THREE.PerspectiveCamera(30,w/h,.1,100);const preset=presets[id]||{kind:"squat",camera:[3.2,2.3,4.6]};camera.position.set(...preset.camera);camera.lookAt(0,1.05,0);
  scene.add(new THREE.HemisphereLight(0xe4f8ff,0x172b3c,2.15));
  const key=new THREE.DirectionalLight(0xfff4e8,3.1);key.position.set(-3.5,6,4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-3;key.shadow.camera.right=3;key.shadow.camera.top=3;key.shadow.camera.bottom=-3;key.shadow.bias=-.00025;scene.add(key);
  const fill=new THREE.DirectionalLight(0x66dce0,1.05);fill.position.set(4,2,-3);scene.add(fill);
@@ -38,7 +38,16 @@ function init(host,id,THREE){
  rimRing.rotation.x=Math.PI/2;rimRing.position.y=.057;scene.add(rimRing);
  const grid=new THREE.GridHelper(6,30,0x326477,0x254556);grid.position.y=-.008;grid.material.transparent=true;grid.material.opacity=.18;scene.add(grid);
  const mat=(color,rough=.58)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
- const skin=mat(0xd7a77f),shirt=mat(0x42c6ce),shorts=mat(0x24475d),jointMat=mat(0xe7c09f),shoe=mat(0x172b39),weightMat=mat(0xb8cbd3,.3);
+ const skin=new THREE.MeshPhysicalMaterial({color:0xc99470,roughness:.48,metalness:0,sheen:.22,sheenColor:0xdba98b,clearcoat:.06,clearcoatRoughness:.7});
+ const shirt=new THREE.MeshPhysicalMaterial({color:0x168f9d,roughness:.72,metalness:0,sheen:.18});
+ const shorts=new THREE.MeshStandardMaterial({color:0x203b50,roughness:.82});
+ const jointMat=new THREE.MeshStandardMaterial({color:0xc99470,roughness:.5});
+ const shoe=mat(0x172b39,.72),weightMat=mat(0xb8cbd3,.28);
+ // Fine procedural skin micro-relief keeps the surface from looking like flat plastic.
+ const skinCanvas=document.createElement("canvas");skinCanvas.width=128;skinCanvas.height=128;
+ const skinCtx=skinCanvas.getContext("2d"),skinPixels=skinCtx.createImageData(128,128);
+ for(let i=0;i<skinPixels.data.length;i+=4){const n=112+Math.floor(Math.random()*28);skinPixels.data[i]=n;skinPixels.data[i+1]=n;skinPixels.data[i+2]=n;skinPixels.data[i+3]=255}
+ skinCtx.putImageData(skinPixels,0,0);const skinBump=new THREE.CanvasTexture(skinCanvas);skinBump.wrapS=skinBump.wrapT=THREE.RepeatWrapping;skinBump.repeat.set(2,2);skinBump.colorSpace=THREE.NoColorSpace;skin.bumpMap=skinBump;skin.bumpScale=.012;
  const equipmentMat=mat(0x40596a,.72);
  const bench=new THREE.Group();
  const benchTop=new THREE.Mesh(new THREE.BoxGeometry(1.48,.12,.48),mat(0x243c50));
@@ -51,7 +60,7 @@ function init(host,id,THREE){
  barbell.position.set(-.43,1.08,0);barbell.visible=id==="bench-press";scene.add(barbell);
  const cablePost=new THREE.Mesh(new THREE.BoxGeometry(.12,1.35,.12),equipmentMat);cablePost.position.set(-.92,.68,0);cablePost.visible=id==="row";scene.add(cablePost);
  const cablePulley=new THREE.Mesh(new THREE.TorusGeometry(.09,.025,8,20),weightMat);cablePulley.position.set(-.86,1.26,0);cablePulley.visible=id==="row";scene.add(cablePulley);
- const ball=new THREE.SphereGeometry(1,32,24), limbGeo=new THREE.CapsuleGeometry(.075,.78,8,16);
+ const ball=new THREE.SphereGeometry(1,48,32), limbGeo=new THREE.CapsuleGeometry(.075,.78,16,32);
  const nodes={};function node(name,material,r=.09,scale=[1,1,1]){const m=new THREE.Mesh(ball,material);m.scale.set(r*scale[0],r*scale[1],r*scale[2]);m.castShadow=true;m.receiveShadow=true;scene.add(m);nodes[name]=m}
  node("head",skin,.145,[.82,1.12,.9]);node("neck",skin,.075,[.9,1.15,.9]);
  const faceMat=mat(0x342b2a,.72),hairMat=mat(0x302a2a,.88);
@@ -60,8 +69,8 @@ function init(host,id,THREE){
  node("nose",skin,.025,[.8,1.3,.8]);
  node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
  const torsoProfile=[new THREE.Vector2(.105,-.49),new THREE.Vector2(.15,-.40),new THREE.Vector2(.185,-.25),new THREE.Vector2(.155,-.08),new THREE.Vector2(.205,.12),new THREE.Vector2(.255,.30),new THREE.Vector2(.19,.43),new THREE.Vector2(.09,.48)];
- const torsoCore=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,32),shirt);torsoCore.castShadow=true;torsoCore.receiveShadow=true;scene.add(torsoCore);
- const upperBack=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),shirt);upperBack.scale.set(.31,.16,.27);upperBack.castShadow=true;scene.add(upperBack);
+ const torsoCore=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,64),shirt);torsoCore.castShadow=true;torsoCore.receiveShadow=true;scene.add(torsoCore);
+ const upperBack=new THREE.Mesh(new THREE.SphereGeometry(1,40,28),shirt);upperBack.scale.set(.31,.16,.27);upperBack.castShadow=true;scene.add(upperBack);
  const handRigs=[];
  for(let side of [-1,1]){
   const hand=new THREE.Group(),palm=new THREE.Mesh(new THREE.SphereGeometry(.073,18,14),skin);palm.scale.set(.72,1.15,.48);hand.add(palm);
@@ -266,7 +275,7 @@ function init(host,id,THREE){
   phaseLabel.textContent="Fase: "+(progress<.25?"descenso / preparación":progress<.5?"posición final":progress<.75?"ascenso / retorno":"reinicio");
   anglesLabel.textContent="Rodilla "+Math.round(knee)+"° · Codo "+Math.round(elbow)+"° · Cadera "+Math.round(hipAngle)+"°";
   toolbar.classList.toggle("is-comparing",compareMode);
-  const target=V(0,1,0),radius=4.9*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
+  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
   const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }catch(error){cancelAnimationFrame(raf);paused=true;host.dataset.engine="error";host.title="Error del visor 3D: "+(error&&error.message||String(error));console.error("RUMBO 3D frame failed",error);const warning=document.createElement("div");warning.textContent="No se pudo dibujar el modelo 3D: "+(error&&error.message||String(error));warning.style.cssText="position:absolute;inset:8px;z-index:8;display:grid;place-items:center;padding:12px;text-align:center;color:#ffd1b8;background:rgba(5,18,29,.92);font:12px system-ui;overflow-wrap:anywhere";host.appendChild(warning);return;}
  }
