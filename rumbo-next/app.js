@@ -449,8 +449,8 @@ function training(){
  ${panel("RECENT TRAINING HISTORY",history)}
  </div>
  <section class="panel exercise-library-panel" style="margin-top:14px">
-  <div class="panel-head"><div><div class="kicker">MOVEMENT DATABASE</div><h2>Biblioteca de ejercicios</h2><p class="muted">42 ejercicios organizados por patrón, musculatura y material. Filtra y añade movimientos a tu sesión.</p></div><span class="pill">42 MOVEMENTS</span></div>
-  <details class="exercise-library-details"><summary>Explorar los 34 ejercicios</summary><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">42 ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
+  <div class="panel-head"><div><div class="kicker">MOVEMENT DATABASE</div><h2>Biblioteca de ejercicios</h2><p class="muted">${EXERCISES.length} ejercicios organizados por patrón, musculatura y material. Filtra y añade movimientos a tu sesión.</p></div><span class="pill">${EXERCISES.length} MOVEMENTS</span></div>
+  <details class="exercise-library-details" open><summary>Explorar los ${EXERCISES.length} ejercicios</summary><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">${EXERCISES.length} ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
  </section>`
 ;
 }
