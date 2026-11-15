@@ -196,8 +196,20 @@ function init(host,id,THREE){
   P.spine=P.chest.clone().lerp(P.pelvis,.4);
   return P;
  }
+
+ // Explicit articulated joint hierarchy for spine and limb chains.
+ const rigRoot=new THREE.Bone();rigRoot.name="pelvis";const rigBones={pelvis:rigRoot};
+ const addRigBone=(name,parent)=>{const b=new THREE.Bone();b.name=name;parent.add(b);rigBones[name]=b;return b};
+ const rigSpine=addRigBone("spine",rigRoot),rigChest=addRigBone("chest",rigSpine),rigNeck=addRigBone("neck",rigChest);addRigBone("head",rigNeck);
+ for(const side of ["L","R"]){const sh=addRigBone("shoulder"+side,rigChest),ua=addRigBone("upperArm"+side,sh),el=addRigBone("elbow"+side,ua),fa=addRigBone("forearm"+side,el);addRigBone("wrist"+side,fa);const hip=addRigBone("hip"+side,rigRoot),th=addRigBone("thigh"+side,hip),kn=addRigBone("knee"+side,th),sn=addRigBone("shin"+side,kn),an=addRigBone("ankle"+side,sn);addRigBone("foot"+side,an)}
+ const rigSkeleton=new THREE.Skeleton(Object.values(rigBones));rigSkeleton.calculateInverses();scene.add(rigRoot);
+ const rigHelper=new THREE.SkeletonHelper(rigRoot);rigHelper.material.color.set(0x72e3dc);rigHelper.material.depthTest=false;rigHelper.material.transparent=true;rigHelper.material.opacity=.9;rigHelper.visible=false;scene.add(rigHelper);
+ const rigParent={pelvis:null,spine:"pelvis",chest:"spine",neck:"chest",head:"neck"},rigPointNames={pelvis:"pelvis",spine:"spine",chest:"chest",neck:"neck",head:"head"};
+ for(const side of ["L","R"])Object.assign(rigParent,{["shoulder"+side]:"chest",["upperArm"+side]:"shoulder"+side,["elbow"+side]:"upperArm"+side,["forearm"+side]:"elbow"+side,["wrist"+side]:"forearm"+side,["hip"+side]:"pelvis",["thigh"+side]:"hip"+side,["knee"+side]:"thigh"+side,["shin"+side]:"knee"+side,["ankle"+side]:"shin"+side,["foot"+side]:"ankle"+side});
+ for(const side of ["L","R"])Object.assign(rigPointNames,{["shoulder"+side]:side==="L"?"ls":"rs",["upperArm"+side]:side==="L"?"ls":"rs",["elbow"+side]:side==="L"?"le":"re",["forearm"+side]:side==="L"?"le":"re",["wrist"+side]:side==="L"?"lw":"rw",["hip"+side]:side==="L"?"lh":"rh",["thigh"+side]:side==="L"?"lh":"rh",["knee"+side]:side==="L"?"lk":"rk",["shin"+side]:side==="L"?"lk":"rk",["ankle"+side]:side==="L"?"la":"ra",["foot"+side]:side==="L"?"la":"ra"});
  const toolbar=document.createElement("div");toolbar.className="rumbo-biomech-controls";toolbar.innerHTML='<div class="rumbo-biomech-row"><div class="rumbo-camera-group"><button type="button" data-camera="front">Frontal</button><button type="button" data-camera="side">Lateral</button><button type="button" data-camera="rear">Posterior</button></div><div class="rumbo-speed-group"><label>Velocidad <select data-speed><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option></select></label><button type="button" data-play>Ⅱ Pausa</button><button type="button" data-compare>Comparar técnica</button></div></div><input data-timeline type="range" min="0" max="1000" value="0" aria-label="Posición de la repetición"><div class="rumbo-biomech-readout"><span data-phase>Fase: inicio</span><span data-angles>Rodilla —° · Codo —° · Cadera —°</span></div>';
  Object.assign(toolbar.style,{position:"absolute",left:"8px",right:"8px",bottom:"7px",zIndex:"5",padding:"7px",borderRadius:"10px",background:"rgba(4,17,29,.9)",color:"#dff7f5",font:"10px system-ui",backdropFilter:"blur(8px)"});
+ const rigToggle=document.createElement("label");rigToggle.className="rumbo-rig-toggle";rigToggle.innerHTML='<input type="checkbox" data-rig-toggle> Mostrar esqueleto articulado';rigToggle.style.cssText="display:flex;align-items:center;gap:5px;margin-top:5px;font:10px system-ui;color:#b9d9df";toolbar.appendChild(rigToggle);rigToggle.querySelector("input").addEventListener("change",e=>{rigHelper.visible=e.target.checked});
  host.style.position="relative";host.appendChild(toolbar);
  const timeline=toolbar.querySelector("[data-timeline]"),phaseLabel=toolbar.querySelector("[data-phase]"),anglesLabel=toolbar.querySelector("[data-angles]"),playBtn=toolbar.querySelector("[data-play]"),compareBtn=toolbar.querySelector("[data-compare]");
  toolbar.querySelectorAll("[data-camera]").forEach(b=>b.addEventListener("click",()=>{cameraMode=b.dataset.camera;az=0;el=0;toolbar.querySelectorAll("[data-camera]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))}));
@@ -208,6 +220,10 @@ function init(host,id,THREE){
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
  let raf;let elapsed=0;
  function draw(now){raf=requestAnimationFrame(draw);const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
+  P.spine=P.chest.clone().lerp(P.pelvis,.42);
+  for(const [name,b] of Object.entries(rigBones)){const key=rigPointNames[name],point=P[key]||P.pelvis,parent=rigParent[name],parentKey=parent?rigPointNames[parent]:null,parentPoint=parent?(P[parentKey]||P.pelvis):null;b.position.copy(parentPoint?point.clone().sub(parentPoint):point)}
+  rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.update();
+
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
   const torsoDir=P.chest.clone().sub(P.pelvis),torsoMid=P.chest.clone().lerp(P.pelvis,.5);
