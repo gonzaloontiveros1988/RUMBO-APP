@@ -65,7 +65,7 @@ function makeViewer(host,exerciseId){
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- host.replaceChildren(renderer.domElement);
+ const viewport=document.createElement("div");viewport.className="rumbo-human-viewport";viewport.style.cssText="position:relative;width:100%;height:190px;min-height:190px;overflow:hidden;border-radius:14px";viewport.appendChild(renderer.domElement);host.style.cssText+=";height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important;gap:7px!important";host.replaceChildren(viewport);
  const scene=new THREE.Scene();
  scene.add(new THREE.HemisphereLight(0xe8f7ff,0x243445,2.0));
  const key=new THREE.DirectionalLight(0xfff1df,3.0);key.position.set(-3,5,4);key.castShadow=true;scene.add(key);
@@ -77,8 +77,8 @@ function makeViewer(host,exerciseId){
  const camera=new THREE.PerspectiveCamera(32,w/h,.1,100);camera.position.set(2.7,1.9,4.1);camera.lookAt(0,.95,0);
  const stage=document.createElement("div");stage.className="rumbo-human-stage";stage.style.cssText="position:absolute;inset:0;pointer-events:none";
  const status=document.createElement("div");status.textContent="Cargando modelo humano…";status.style.cssText="position:absolute;left:10px;top:10px;padding:6px 9px;border-radius:8px;background:#102c3dcc;color:#a9f2ed;font:600 10px system-ui;letter-spacing:.08em";
- stage.appendChild(status);host.appendChild(stage);
- const controls=document.createElement("div");controls.style.cssText="position:absolute;left:8px;bottom:8px;display:flex;gap:5px;z-index:4;flex-wrap:wrap";
+ stage.appendChild(status);viewport.appendChild(stage);
+ const controls=document.createElement("div");controls.style.cssText="position:relative;left:auto;bottom:auto;display:flex;gap:5px;z-index:4;flex-wrap:wrap;justify-content:center;width:100%;padding:2px 0";
  const button=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.style.cssText="border:1px solid #43808c;border-radius:7px;padding:6px 8px;background:#12384a;color:#dffcff;font:600 11px system-ui;cursor:pointer";b.addEventListener("click",fn);controls.appendChild(b);return b};
  host.appendChild(controls);
  let model=null,mixer=null,clipAction=null,exerciseMotion=null,paused=false,rate=1,az=0,el=.08,zoom=1,drag=false,lastX=0,lastY=0,raf=0,disposed=false,last=performance.now(),motionTime=0;
@@ -86,8 +86,8 @@ function makeViewer(host,exerciseId){
  const pauseButton=button("Ⅱ Pausa",()=>{paused=!paused;pauseButton.textContent=paused?"▶ Reanudar":"Ⅱ Pausa"});
  button("−",()=>{rate=clamp(rate-.25,.5,2)});button("Velocidad 1×",()=>{rate=rate>=2?.5:rate+.25});
  const skeletonPanel=document.createElement("div");
- skeletonPanel.style.cssText="display:none;position:absolute;right:8px;top:42px;bottom:52px;width:min(270px,75%);overflow:auto;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf2;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap";
- host.appendChild(skeletonPanel);
+ skeletonPanel.style.cssText="display:none;position:absolute;inset:8px 8px 48px auto;width:min(320px,92%);overflow:auto;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf7;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap;box-shadow:0 8px 28px #0009";
+ viewport.appendChild(skeletonPanel);
  const skeletonButton=button("Esqueleto · esperando",()=>{skeletonPanel.style.display=skeletonPanel.style.display==="none"?"block":"none"});
  skeletonButton.disabled=true;skeletonButton.style.opacity=".6";
 
@@ -123,7 +123,7 @@ function makeViewer(host,exerciseId){
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302dcc";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
  const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=4.15*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.0+radius*(.20+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.91,0);renderer.render(scene,camera)};
  raf=requestAnimationFrame(render);host.dataset.engine="three-glb";
- return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();skeletonPanel.remove();stage.remove();host.dataset.rumboHumanReady="0"};
+ return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();skeletonPanel.remove();stage.remove();viewport.remove();host.dataset.rumboHumanReady="0"};
 }
 async function boot(){
  try{
