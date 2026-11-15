@@ -2,7 +2,7 @@
 // Model: Sam, clothed and rigged, CC0, from Innerscene / MakeHuman- MPFB assets.
 // This file intentionally contains no procedural humanoid made from geometric primitives.
 const THREE_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
-const LOADER_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js";
+const LOADER_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js/+esm";
 const MODEL_URL="https://files.innerscene.com/library/relaxed-walk-sam-3d-person-animated-732f1206/b11d02f72ad777e03d68/relaxed-walk-sam-3d-person-animated.glb";
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let activeHost=null,activeDispose=null,THREE=null,GLTFLoader=null;
@@ -83,6 +83,6 @@ async function boot(){
   mutationObserver.observe(root,{childList:true,subtree:true});
   scan();
   window.__RUMBO_HUMAN_VIEWERS__={mounted,scan,disconnect(){mutationObserver.disconnect();observer.disconnect();for(const dispose of mounted.values())dispose();mounted.clear()}};
- }catch(e){window.__RUMBO_HUMAN_MODEL_ERROR__=String(e);console.error("RUMBO human viewer dependencies failed",e)}
+ }catch(e){window.__RUMBO_HUMAN_MODEL_ERROR__=String(e);console.error("RUMBO human viewer dependencies failed",e);document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.humanModel="dependency-error";host.innerHTML="<div style=\"padding:12px;color:#ffd0c2;font:600 11px system-ui;text-align:center\">ERROR VISOR 3D<br>"+String(e?.message||e).slice(0,180)+"</div>"})}
 }
 if(typeof window!=="undefined")boot();
