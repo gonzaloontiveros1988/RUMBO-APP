@@ -113,16 +113,24 @@ function points(f,k){
 }
 function drawFigure(f,k,cx){
  const p=points(f,k),x=v=>cx+v[0],y=v=>55+v[1];
- const seg=(a,b,w,col)=>'<path d="M'+x(a)+' '+y(a)+'L'+x(b)+' '+y(b)+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" fill="none"/>';
- const joint=v=>'<circle cx="'+x(v)+'" cy="'+y(v)+'" r="4.2" fill="'+C.joint+'" stroke="#fff0d2" stroke-width="1"/>';
- const body='<path d="M'+x(p.sh)+' '+y(p.sh)+' Q'+(cx-2)+' '+(y(p.sh)+19)+' '+x(p.hip)+' '+y(p.hip)+'" stroke="'+C.body+'" stroke-width="18" stroke-linecap="round" fill="none"/>';
- const arm=seg(p.sh,p.el,10,C.body)+seg(p.el,p.hand,8,C.body);
- const leg=seg(p.hip,p.knee,13,C.body)+seg(p.knee,p.ankle,10,C.body);
- const head='<circle cx="'+x(p.head)+'" cy="'+y(p.head)+'" r="10" fill="'+C.body+'" stroke="#c8fff8" stroke-width="2"/>';
- const otherArm=seg([p.sh[0]+3,p.sh[1]+1],[p.el[0]+8,p.el[1]-2],8,C.shade)+seg([p.el[0]+8,p.el[1]-2],[p.hand[0]+9,p.hand[1]-3],7,C.shade);
- const otherLeg=seg([p.hip[0]+3,p.hip[1]+1],[p.knee[0]+8,p.knee[1]],9,C.shade)+seg([p.knee[0]+8,p.knee[1]],[p.ankle[0]+9,p.ankle[1]],7,C.shade);
- const load=(f==="curl"||f==="raise"||f==="carry"||f==="hinge"||f==="squat"||f==="lunge"||f==="overhead")?'<g stroke="'+C.joint+'" stroke-width="4" stroke-linecap="round"><path d="M'+(x(p.hand)-7)+' '+(y(p.hand)-3)+'h14"/><path d="M'+(x(p.hand)-5)+' '+(y(p.hand)-8)+'v10M'+(x(p.hand)+5)+' '+(y(p.hand)-8)+'v10"/></g>':"";
- return '<g>'+head+body+otherArm+arm+otherLeg+leg+joint(p.sh)+joint(p.hip)+joint(p.el)+joint(p.knee)+load+'</g>';
+ const limb=(a,b,top,bottom,col)=>{
+  const ax=x(a),ay=y(a),bx=x(b),by=y(b),dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
+  const r1=top/2,r2=bottom/2;
+  return '<path d="M'+(ax+nx*r1)+' '+(ay+ny*r1)+' Q'+(ax+nx*r1*1.12)+' '+(ay+ny*r1*1.12)+' '+(bx+nx*r2)+' '+(by+ny*r2)+' Q'+bx+' '+by+' '+(bx-nx*r2)+' '+(by-ny*r2)+' Q'+(ax-nx*r1*1.12)+' '+(ay-ny*r1*1.12)+' '+(ax-nx*r1)+' '+(ay-ny*r1)+'Z" fill="'+col+'" stroke="#d8fff7" stroke-opacity=".24" stroke-width="1"/>';
+ };
+ const joint=v=>'<circle cx="'+x(v)+'" cy="'+y(v)+'" r="3.4" fill="'+C.joint+'" stroke="#fff0d2" stroke-width="1"/>';
+ const torso='<path d="M'+(cx-9)+' '+(y(p.sh)-3)+' Q'+(cx-15)+' '+(y(p.sh)+8)+' '+(x(p.hip)-9)+' '+(y(p.hip)-3)+' Q'+x(p.hip)+' '+(y(p.hip)+8)+' '+(x(p.hip)+10)+' '+(y(p.hip)-3)+' Q'+(cx+15)+' '+(y(p.sh)+8)+' '+(cx+9)+' '+(y(p.sh)-3)+' Q'+cx+' '+(y(p.sh)-13)+' '+(cx-9)+' '+(y(p.sh)-3)+'Z" fill="'+C.body+'" stroke="#c8fff8" stroke-opacity=".42" stroke-width="1.2"/>';
+ const shoulder='<ellipse cx="'+cx+'" cy="'+(y(p.sh)+1)+'" rx="12" ry="7" fill="'+C.body+'" stroke="#c8fff8" stroke-opacity=".3"/>';
+ const head='<ellipse cx="'+x(p.head)+'" cy="'+y(p.head)+'" rx="8.8" ry="10.5" fill="'+C.body+'" stroke="#c8fff8" stroke-width="1.5"/><path d="M'+(x(p.head)-5)+' '+(y(p.head)-8)+'q5 -6 11 0" fill="none" stroke="#e8fffb" stroke-opacity=".6" stroke-width="1.5"/>';
+ const armBack=limb([p.sh[0]+3,p.sh[1]+1],[p.el[0]+8,p.el[1]-2],10,8,C.shade)+limb([p.el[0]+8,p.el[1]-2],[p.hand[0]+9,p.hand[1]-3],8,6,C.shade);
+ const armFront=limb(p.sh,p.el,12,8,C.body)+limb(p.el,p.hand,8,6,C.body);
+ const legBack=limb([p.hip[0]+3,p.hip[1]+1],[p.knee[0]+8,p.knee[1]],14,10,C.shade)+limb([p.knee[0]+8,p.knee[1]],[p.ankle[0]+9,p.ankle[1]],10,8,C.shade);
+ const legFront=limb(p.hip,p.knee,17,11,C.body)+limb(p.knee,p.ankle,11,8,C.body);
+ const hand='<circle cx="'+x(p.hand)+'" cy="'+y(p.hand)+'" r="4.2" fill="#f0c6a2"/>';
+ const foot='<path d="M'+(x(p.ankle)-2)+' '+y(p.ankle)+'q7 0 12 3l-1 4h-13q-3 -2 2 -7Z" fill="#e0b69a"/>';
+ const anatomy='<path d="M'+(cx-4)+' '+(y(p.sh)+10)+'q4 10 0 19M'+(cx+4)+' '+(y(p.sh)+10)+'q-4 10 0 19" fill="none" stroke="#238d8b" stroke-width="1.4" opacity=".7"/>';
+ const load=(f==="curl"||f==="raise"||f==="carry"||f==="hinge"||f==="squat"||f==="lunge"||f==="overhead")?'<g stroke="'+C.joint+'" stroke-width="4" stroke-linecap="round"><path d="M'+(x(p.hand)-8)+' '+(y(p.hand)-3)+'h16"/><path d="M'+(x(p.hand)-6)+' '+(y(p.hand)-8)+'v10M'+(x(p.hand)+6)+' '+(y(p.hand)-8)+'v10"/></g>':"";
+ return '<g>'+legBack+armBack+torso+shoulder+legFront+armFront+head+anatomy+joint(p.sh)+joint(p.hip)+joint(p.el)+joint(p.knee)+hand+foot+load+'</g>';
 }
 function equipment(f,cx){
  const y=143;
