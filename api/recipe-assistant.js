@@ -88,7 +88,7 @@ module.exports = async function handler(req,res){
  const origin=String(req.headers.origin||"");
  if(req.method==="OPTIONS"){if(!isAllowedOrigin(origin))return send(res,403,{error:"Origen no autorizado."});res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin");res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");res.setHeader("Access-Control-Allow-Headers","Content-Type");return res.status(204).end()}
  if(req.method!=="POST")return send(res,405,{error:"Método no permitido."});
- if(origin&&!ALLOWED_ORIGINS.has(origin))return send(res,403,{error:"Origen no autorizado."});
+ if(origin&&!isAllowedOrigin(origin))return send(res,403,{error:"Origen no autorizado."});
  if(origin){res.setHeader("Access-Control-Allow-Origin",origin);res.setHeader("Vary","Origin")}
  const ip=String(req.headers["x-forwarded-for"]||"unknown").split(",")[0].trim();if(limited(ip))return send(res,429,{error:"Has realizado varias búsquedas seguidas. Espera un minuto y vuelve a intentarlo."});
  const body=typeof req.body==="string"?(()=>{try{return JSON.parse(req.body)}catch{return {}}})():(req.body||{});
