@@ -351,7 +351,8 @@ async function boot(){
   let THREE,lastError,GLTFLoader;
   for(const url of THREE_URLS){try{THREE=await import(url);break}catch(e){lastError=e;console.warn("RUMBO Three.js source failed",url,e)}}
   if(!THREE)throw lastError||new Error("No se pudo descargar Three.js");
-  try{({GLTFLoader}=await import("https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js"))}catch(loaderError){console.warn("RUMBO GLTFLoader source failed",loaderError)}\n  window.__RUMBO_GLTF_LOADER__=GLTFLoader;window.__RUMBO_THREE__=THREE;scan();
+  try{({GLTFLoader}=await import("https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js"))}catch(loaderError){console.warn("RUMBO GLTFLoader source failed",loaderError)}
+  window.__RUMBO_GLTF_LOADER__=GLTFLoader;window.__RUMBO_THREE__=THREE;scan();
  }catch(e){
   window.__RUMBO_THREE_FAILED__=true;
   document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="fallback";host.dataset.ready="0";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga")});
