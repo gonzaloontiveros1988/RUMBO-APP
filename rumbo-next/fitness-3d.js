@@ -284,11 +284,11 @@ function init(host,id,THREE,GLTFLoader){
  try{
   if(!GLTFLoader)throw new Error("GLTFLoader no disponible");
   const loader=new GLTFLoader();
-  loader.load("https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/CesiumMan/glTF-Binary/CesiumMan.glb",gltf=>{
+  loader.load("https://files.innerscene.com/library/human-base-mesh-with-editable-53-bone-rig-8e7c8ab1/329f39cef2f95a0f0a24/human-base-rigged.glb",gltf=>{
    externalHuman=gltf.scene;
    externalHuman.rotation.y=Math.PI;
    const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
-   const targetHeight=1.82,scale=targetHeight/Math.max(size.y,.001);
+   const targetHeight=1.68,scale=targetHeight/Math.max(size.y,.001);
    externalHuman.scale.setScalar(scale);
    externalHuman.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);
    externalHuman.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
@@ -297,8 +297,8 @@ function init(host,id,THREE,GLTFLoader){
    Object.values(bones).forEach(o=>o.visible=false);
    [torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
    externalLoadState="loaded";host.dataset.model="continuous-rigged-human";
-   host.dataset.modelLicense="CC-BY-4.0";host.dataset.modelCredit="Cesium (2017) / Khronos glTF Sample Assets";
-   if(gltf.animations&&gltf.animations.length){const mixer=new THREE.AnimationMixer(externalHuman);const action=mixer.clipAction(gltf.animations[0]);action.play();externalHuman.userData.rumboMixer=mixer;}
+   host.dataset.modelLicense="CC0-1.0";host.dataset.modelCredit="Innerscene / MakeHuman-MPFB anatomical base mesh";host.dataset.modelBones=String(externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
+   externalHuman.userData.rumboSkeleton=externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton||null;
   },undefined,error=>{externalLoadState="failed";console.warn("RUMBO external human model unavailable; retaining local fallback",error)});
  }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
