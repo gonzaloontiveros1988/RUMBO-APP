@@ -1075,3 +1075,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .calendar .roster-day:hover,.calendar .roster-day.selected{border-color:#54d4ca;background:rgba(39,192,187,.16);box-shadow:inset 0 0 0 1px rgba(84,212,202,.18)}
 .calendar .roster-day:focus-visible{outline:2px solid #70e5db;outline-offset:2px}
 .calendar .roster-day.outside{opacity:.42}
+
+/* Keep 3D transport controls below, never over the exercise image */
+.guided-figure-stage{display:flex;flex-direction:column;align-self:stretch;min-width:0;width:100%;gap:0}
+.guided-figure-stage>.guided-figure{flex:0 0 auto;width:100%;min-height:190px;height:190px}
+.guided-figure-stage>.rumbo-biomech-controls{flex:0 0 auto;position:relative!important;inset:auto!important;width:100%;margin:8px 0 0!important}
+.guided-figure-stage .rumbo-biomech-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.guided-figure-stage .rumbo-biomech-controls [data-timeline]{display:block;width:100%;margin:7px 0 2px}
+@media(max-width:650px){.guided-figure-stage>.guided-figure{height:230px;min-height:230px}}
