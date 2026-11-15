@@ -284,7 +284,7 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 
 
 test("Fitness 3D viewer uses a different rigged human asset and no longer loads Sam",()=>{
- assert.match(FITNESS_MODEL_URL,/Michelle\\.glb$/);
+ assert.match(FITNESS_MODEL_URL,/Michelle\.glb$/);
  assert.doesNotMatch(FITNESS_MODEL_URL,/sam/i);
 });
 test("fitness library contains 52 distinct, documented exercises with a rendered three-phase human guide",()=>{
