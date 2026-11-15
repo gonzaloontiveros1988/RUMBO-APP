@@ -7,6 +7,7 @@ on:
       - feature/fitness-human-model-rebuild
     paths:
       - 'rumbo-next/**'
+      - 'api/**'
       - 'tests/**'
       - '.github/workflows/rumbo-next-check.yml'
   workflow_dispatch:
