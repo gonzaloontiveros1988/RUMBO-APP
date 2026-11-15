@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - redesign/rumbo-os-v4
+      - fix/rumbo-v4-fitness-recipes-recovery
     paths:
       - 'rumbo-next/**'
       - 'tests/**'
@@ -21,6 +22,7 @@ jobs:
           node --check api/rumbo-ai.js
           node --check api/recipe-assistant.js
           node --check rumbo-next/app.js
+          node --check rumbo-next/fitness-3d.js
           node --check rumbo-next/sw.js
           python3 - <<'PY'
           from pathlib import Path
