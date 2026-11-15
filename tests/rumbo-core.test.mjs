@@ -20,6 +20,9 @@ test("Fitness 3D viewer is loaded and targets the exact guided exercise data att
  assert.ok(viewer.includes('document.querySelectorAll(".guided-figure[data-exercise3d]")'));
  assert.ok(app.includes("data-exercise3d="));
  assert.match(html,/fitness-3d-integration-v6/);
+ assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
+ assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
+ assert.ok(app.includes("nutrition:{profile:state.nutritionProfile||{}"));
 });
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
