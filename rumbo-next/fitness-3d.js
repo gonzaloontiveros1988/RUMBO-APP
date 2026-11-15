@@ -219,10 +219,10 @@ function init(host,id,THREE){
  timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;elapsed=progress*2.4;paused=true;playBtn.textContent="▶ Reproducir"});
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
  let raf;let elapsed=0;
- function draw(now){raf=requestAnimationFrame(draw);const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
+ function draw(now){raf=requestAnimationFrame(draw);try{const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
   P.spine=P.chest.clone().lerp(P.pelvis,.42);
   for(const [name,b] of Object.entries(rigBones)){const key=rigPointNames[name],point=P[key]||P.pelvis,parent=rigParent[name],parentKey=parent?rigPointNames[parent]:null,parentPoint=parent?(P[parentKey]||P.pelvis):null;b.position.copy(parentPoint?point.clone().sub(parentPoint):point)}
-  rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.updateMatrixWorld(true);
+  rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.update();
 
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
@@ -263,6 +263,7 @@ function init(host,id,THREE){
   toolbar.classList.toggle("is-comparing",compareMode);
   const target=V(0,1,0),radius=4.9*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
   const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
+ }catch(error){cancelAnimationFrame(raf);paused=true;host.dataset.engine="error";host.title="Error del visor 3D: "+(error&&error.message||String(error));console.error("RUMBO 3D frame failed",error);const warning=document.createElement("div");warning.textContent="No se pudo dibujar el modelo 3D: "+(error&&error.message||String(error));warning.style.cssText="position:absolute;inset:8px;z-index:8;display:grid;place-items:center;padding:12px;text-align:center;color:#ffd1b8;background:rgba(5,18,29,.92);font:12px system-ui;overflow-wrap:anywhere";host.appendChild(warning);return;}
  }
  draw(performance.now());
  const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()});ro.observe(host);
