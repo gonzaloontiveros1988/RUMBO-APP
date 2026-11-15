@@ -275,7 +275,39 @@ function init(host,id,THREE){
   phaseLabel.textContent="Fase: "+(progress<.25?"descenso / preparación":progress<.5?"posición final":progress<.75?"ascenso / retorno":"reinicio");
   anglesLabel.textContent="Rodilla "+Math.round(knee)+"° · Codo "+Math.round(elbow)+"° · Cadera "+Math.round(hipAngle)+"°";
   toolbar.classList.toggle("is-comparing",compareMode);
-  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
+  // Replace the primitive mannequin with a real skinned human base mesh (CC0 / MakeHuman).
+ let anatomicalModel=null, anatomicalBones={};
+ const HUMAN_GLB="https://files.innerscene.com/library/human-base-mesh-with-editable-53-bone-rig-8e7c8ab1/329f39cef2f95a0f0a24/human-base-rigged.glb";
+ const primitiveBody=[...Object.values(nodes),...Object.values(bones),torsoCore,upperBack,collar,...handRigs,...footRigs];
+ primitiveBody.forEach(o=>{if(o)o.visible=false});
+ import("https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js").then(({GLTFLoader})=>{
+  const loader=new GLTFLoader();
+  loader.load(HUMAN_GLB,gltf=>{
+   anatomicalModel=gltf.scene;
+   anatomicalModel.name="RUMBO_Anatomical_Human";
+   anatomicalModel.scale.setScalar(1);
+   anatomicalModel.position.set(0,0,0);
+   anatomicalModel.traverse(o=>{
+    if(o.isBone) anatomicalBones[o.name.toLowerCase().replace(/[^a-z0-9]/g,"")]=o;
+    if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.side=THREE.DoubleSide;o.material.needsUpdate=true}}
+   });
+   scene.add(anatomicalModel);
+   host.dataset.model="anatomical";
+   host.dataset.boneCount=String(Object.keys(anatomicalBones).length);
+   console.info("RUMBO anatomical GLB loaded",Object.keys(anatomicalBones));
+  },undefined,error=>{
+   console.error("RUMBO anatomical GLB load failed",error);
+   host.dataset.model="fallback";
+   host.title="No se pudo cargar el cuerpo anatómico: "+(error?.message||"error de red/CORS");
+   primitiveBody.forEach(o=>{if(o)o.visible=true});
+  });
+ }).catch(error=>{
+  console.error("RUMBO GLTFLoader failed",error);
+  host.dataset.model="fallback";
+  primitiveBody.forEach(o=>{if(o)o.visible=true});
+ });
+
+ const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
   const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }catch(error){cancelAnimationFrame(raf);paused=true;host.dataset.engine="error";host.title="Error del visor 3D: "+(error&&error.message||String(error));console.error("RUMBO 3D frame failed",error);const warning=document.createElement("div");warning.textContent="No se pudo dibujar el modelo 3D: "+(error&&error.message||String(error));warning.style.cssText="position:absolute;inset:8px;z-index:8;display:grid;place-items:center;padding:12px;text-align:center;color:#ffd1b8;background:rgba(5,18,29,.92);font:12px system-ui;overflow-wrap:anywhere";host.appendChild(warning);return;}
  }
