@@ -4,6 +4,7 @@ on:
     branches:
       - redesign/rumbo-os-v4
       - fix/rumbo-v4-fitness-recipes-recovery
+      - feature/fitness-human-model-rebuild
     paths:
       - 'rumbo-next/**'
       - 'tests/**'
@@ -23,6 +24,7 @@ jobs:
           node --check api/recipe-assistant.js
           node --check rumbo-next/app.js
           node --check rumbo-next/fitness-3d.js
+          node --check rumbo-next/exercise-illustrations.js
           node --check rumbo-next/sw.js
           python3 - <<'PY'
           from pathlib import Path
@@ -62,6 +64,7 @@ jobs:
           test -s rumbo-next/reminders.js
           test -s rumbo-next/training-intelligence.js
           test -s rumbo-next/fitness-engine.js
+          test -s rumbo-next/exercise-illustrations.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
           test -s rumbo-next/sw.js
