@@ -9,7 +9,7 @@ const STATE_TABLE = "rumbo_user_state";
 const deviceId = (() => {
   let value = localStorage.getItem(DEVICE_KEY);
   if (!value) {
-    value = crypto.randomUUID();
+    value = globalThis.crypto?.randomUUID?.() || ("rumbo-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2));
     localStorage.setItem(DEVICE_KEY, value);
   }
   return value;
@@ -83,42 +83,72 @@ function mountCloudUI() {
 }
 
 function setAuthUI(signedIn) {
-  $("rumboCloudSignIn").hidden = signedIn;
-  $("rumboCloudSignUp").hidden = signedIn;
-  $("rumboCloudSignOut").hidden = !signedIn;
-  $("rumboCloudEmail").hidden = signedIn;
-  $("rumboCloudPassword").hidden = signedIn;
-  $("rumboCloudHeading").textContent = signedIn ? "Cuenta conectada" : "Tus datos, en todos tus dispositivos";
-  $("rumboCloudMessage").textContent = signedIn
+  const signInButton = $("rumboCloudSignIn"), signUpButton = $("rumboCloudSignUp");
+  const signOutButton = $("rumboCloudSignOut"), emailInput = $("rumboCloudEmail");
+  const passwordInput = $("rumboCloudPassword"), heading = $("rumboCloudHeading");
+  const message = $("rumboCloudMessage");
+  if (!signInButton || !signUpButton || !signOutButton || !emailInput || !passwordInput || !heading || !message) return;
+  signInButton.hidden = signedIn;
+  signUpButton.hidden = signedIn;
+  signOutButton.hidden = !signedIn;
+  emailInput.hidden = signedIn;
+  passwordInput.hidden = signedIn;
+  heading.textContent = signedIn ? "Cuenta conectada" : "Tus datos, en todos tus dispositivos";
+  message.textContent = signedIn
     ? "Cuenta: " + (currentUser?.email || "sesión activa")
     : "Inicia sesión para sincronizar tu información de forma privada.";
 }
 
 async function signIn() {
-  const email = $("rumboCloudEmail").value.trim();
-  const password = $("rumboCloudPassword").value;
+  const email = $("rumboCloudEmail")?.value.trim() || "";
+  const password = $("rumboCloudPassword")?.value || "";
   if (!email || !password) return setStatus("Introduce email y contraseña", "error");
   setStatus("Conectando…", "syncing");
-  const { data, error } = await client.auth.signInWithPassword({ email, password });
-  if (error) return setStatus(error.message, "error");
-  currentUser = data.user;
-  await synchronize();
+  try {
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    currentUser = data.user;
+    await synchronize();
+  } catch (error) {
+    setStatus(error?.message || "No se pudo iniciar sesión", "error");
+  }
+}
+async function signOut() {
+  clearTimeout(timer);
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+  } catch (error) {
+    setStatus(error?.message || "No se pudo cerrar la sesión", "error");
+    return;
+  }
+  currentUser = null;
+  if (channel) await client.removeChannel(channel);
+  channel = null;
+  lastRemoteUpdatedAt = 0;
+  setStatus("Solo en este dispositivo", "local");
+  setAuthUI(false);
 }
 
 async function signUp() {
-  const email = $("rumboCloudEmail").value.trim();
-  const password = $("rumboCloudPassword").value;
+  const email = $("rumboCloudEmail")?.value.trim() || "";
+  const password = $("rumboCloudPassword")?.value || "";
   if (!email || password.length < 8) return setStatus("Usa un email y contraseña de 8 caracteres o más", "error");
   setStatus("Creando cuenta…", "syncing");
-  const { data, error } = await client.auth.signUp({ email, password });
-  if (error) return setStatus(error.message, "error");
-  if (!data.session) {
-    setStatus("Revisa tu correo para confirmar la cuenta", "waiting");
-    $("rumboCloudMessage").textContent = "Te hemos enviado un enlace de confirmación. Después vuelve aquí e inicia sesión.";
-    return;
+  try {
+    const { data, error } = await client.auth.signUp({ email, password });
+    if (error) throw error;
+    if (!data.session) {
+      setStatus("Revisa tu correo para confirmar la cuenta", "waiting");
+      const message = $("rumboCloudMessage");
+      if (message) message.textContent = "Te hemos enviado un enlace de confirmación. Después vuelve aquí e inicia sesión.";
+      return;
+    }
+    currentUser = data.user;
+    await synchronize();
+  } catch (error) {
+    setStatus(error?.message || "No se pudo crear la cuenta", "error");
   }
-  currentUser = data.user;
-  await synchronize();
 }
 
 async function synchronize() {
@@ -182,7 +212,7 @@ function schedule(state) {
   if (!currentUser) return;
   localStorage.setItem(LOCAL_TIME_KEY, String(Date.now()));
   clearTimeout(timer);
-  timer = setTimeout(() => pushState(state).catch((error) => {
+  timer = setTimeout(() => pushState(callbacks.getLocalState?.() || state || {}).catch((error) => {
     console.error("RUMBO cloud save:", error);
     setStatus("No se pudo guardar en la nube", "error");
   }), 900);
@@ -209,7 +239,10 @@ function subscribe() {
       localStorage.setItem(LOCAL_TIME_KEY, String(remoteTime));
       setStatus("Actualizado desde otro dispositivo", "online");
     })
-    .subscribe();
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") setStatus("Sincronizado · " + (currentUser?.email || "cuenta"), "online");
+      else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") setStatus("Conexión en tiempo real interrumpida · reintentando", "waiting");
+    });
 }
 
 export function initRumboCloudSync(options = {}) {
@@ -224,12 +257,28 @@ export function initRumboCloudSync(options = {}) {
   client.auth.onAuthStateChange((event, session) => {
     currentUser = session?.user || null;
     if (currentUser && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) queueMicrotask(() => synchronize());
-    else if (!currentUser && event === "SIGNED_OUT") setStatus("Solo en este dispositivo", "local");
+    else if (!currentUser && event === "SIGNED_OUT") {
+      clearTimeout(timer);
+      if (channel) client.removeChannel(channel);
+      channel = null;
+      lastRemoteUpdatedAt = 0;
+      setStatus("Solo en este dispositivo", "local");
+      setAuthUI(false);
+    }
   });
   window.addEventListener("online", () => {
     if (currentUser) synchronize();
     else setStatus("Conexión recuperada · solo local", "local");
   });
   window.addEventListener("offline", () => setStatus("Sin conexión · cambios locales pendientes", "waiting"));
-  return { schedule, synchronize, getUser: () => currentUser };
+  return {
+    schedule,
+    synchronize,
+    getUser: () => currentUser,
+    getAccessToken: async () => {
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      return data.session?.access_token || null;
+    }
+  };
 }
