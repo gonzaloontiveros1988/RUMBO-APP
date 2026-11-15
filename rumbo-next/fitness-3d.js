@@ -11,7 +11,7 @@ const presets={
  "hip-bridge":{kind:"bridge",camera:[3.4,2.0,4.5]},"incline-push-up":{kind:"plank",camera:[3.6,2.0,4.6]},"chest-supported-row":{kind:"row",camera:[3.3,2.1,4.5]},"cable-pull-through":{kind:"hinge",camera:[3.2,2.1,4.7]},"hamstring-curl":{kind:"curl",camera:[3.5,2.1,4.8]},"standing-calf-raise":{kind:"squat",camera:[3.2,2.3,4.5]},"lateral-step-down":{kind:"lunge",camera:[3.4,2.2,4.5]},"side-plank":{kind:"plank",camera:[3.6,2.0,4.6]},"reverse-crunch":{kind:"bridge",camera:[3.4,2.0,4.5]},"suitcase-carry":{kind:"carry",camera:[3.3,2.3,4.5]},"band-external-rotation":{kind:"raise",camera:[3.3,2.3,4.5]},"single-leg-calf-raise":{kind:"squat",camera:[3.2,2.3,4.5]},"tempo-squat":{kind:"squat",camera:[3.1,2.25,4.5]},"hip-thrust":{kind:"bridge",camera:[3.4,2.0,4.5]},"push-up":{kind:"plank",camera:[3.6,2.0,4.6]},plank:{kind:"plank",camera:[3.6,2.0,4.6]},"side-plank":{kind:"plank",camera:[3.6,2.0,4.6]},
  "biceps-curl":{kind:"curl",camera:[3.3,2.3,4.5]},"triceps-pushdown":{kind:"curl",camera:[3.3,2.3,4.5]},"lateral-raise":{kind:"raise",camera:[3.3,2.3,4.5]},"farmer-carry":{kind:"carry",camera:[3.3,2.3,4.5]}, "leg-press":{kind:"squat",camera:[3.5,2.1,4.8]},"leg-curl":{kind:"curl",camera:[3.5,2.1,4.8]},"calf-raise":{kind:"squat",camera:[3.2,2.3,4.5]},"chest-fly":{kind:"press",camera:[3.8,2.0,4.4]},"face-pull":{kind:"pull",camera:[3.4,2.3,4.6]},"pallof-press":{kind:"carry",camera:[3.3,2.3,4.5]},"dead-bug":{kind:"plank",camera:[3.6,2.0,4.6]},"bird-dog":{kind:"plank",camera:[3.6,2.0,4.6]},"mountain-climber":{kind:"plank",camera:[3.6,2.0,4.6]},"cat-cow":{kind:"hinge",camera:[3.2,2.1,4.7]},"thoracic-rotation":{kind:"hinge",camera:[3.2,2.1,4.7]},"hip-flexor-stretch":{kind:"lunge",camera:[3.4,2.2,4.5]},"90-90-hip-switch":{kind:"lunge",camera:[3.4,2.2,4.5]},"ankle-rock":{kind:"lunge",camera:[3.4,2.2,4.5]},"childs-pose":{kind:"plank",camera:[3.6,2.0,4.6]},"jump-rope":{kind:"carry",camera:[3.3,2.3,4.5]},"cycling":{kind:"bridge",camera:[3.4,2.0,4.5]}
 };
-function init(host,id,THREE){
+function init(host,id,THREE,GLTFLoader){
  if(host.dataset.ready==="1")return ()=>{};
  host.dataset.ready="1";
  let stage=host.parentElement;
@@ -280,6 +280,25 @@ function init(host,id,THREE){
  // users saw only the low-detail SVG fallback. This rig is self-contained in Three.js.
  host.dataset.model="articulated-human";
 
+ // Load a continuous, rigged human character (CC0 asset) instead of the segmented procedural mannequin.
+ let externalHuman=null,externalLoadState="loading";
+ try{
+  const loader=new GLTFLoader();
+  loader.load("https://grab3d.com/dl/man-base-character-rigged/man-base-character-rigged.glb",gltf=>{
+   externalHuman=gltf.scene;
+   const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+   const targetHeight=1.82,scale=targetHeight/Math.max(size.y,.001);
+   externalHuman.scale.setScalar(scale);
+   externalHuman.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);
+   externalHuman.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
+   scene.add(externalHuman);
+   Object.values(nodes).forEach(o=>o.visible=false);
+   Object.values(bones).forEach(o=>o.visible=false);
+   [torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
+   externalLoadState="loaded";host.dataset.model="continuous-rigged-human";
+   host.dataset.modelLicense="CC0";
+  },undefined,error=>{externalLoadState="failed";console.warn("RUMBO external human model unavailable; retaining local fallback",error)});
+ }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
   const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }catch(error){cancelAnimationFrame(raf);paused=true;host.dataset.engine="error";host.title="Error del visor 3D: "+(error&&error.message||String(error));console.error("RUMBO 3D frame failed",error);const warning=document.createElement("div");warning.textContent="No se pudo dibujar el modelo 3D: "+(error&&error.message||String(error));warning.style.cssText="position:absolute;inset:8px;z-index:8;display:grid;place-items:center;padding:12px;text-align:center;color:#ffd1b8;background:rgba(5,18,29,.92);font:12px system-ui;overflow-wrap:anywhere";host.appendChild(warning);return;}
@@ -313,7 +332,7 @@ async function boot(){
   if(!target||!window.__RUMBO_THREE__||window.__RUMBO_THREE_FAILED__)return;
   activeHost=target;activeFallback=target.querySelector("svg")?.cloneNode(true)||null;
   target.dataset.engine="loading";
-  try{activeDispose=init(target,target.dataset.exercise3d,window.__RUMBO_THREE__)}
+  try{activeDispose=init(target,target.dataset.exercise3d,window.__RUMBO_THREE__,window.__RUMBO_GLTF_LOADER__)}
   catch(e){
    target.dataset.ready="0";target.dataset.engine="fallback";
    if(activeFallback){target.replaceChildren(activeFallback);activeFallback.style.display="block";activeFallback.style.opacity="1"}
@@ -326,10 +345,10 @@ async function boot(){
  observer.observe(root,{childList:true,subtree:true});
  scan();
  try{
-  let THREE,lastError;
+  let THREE,lastError,GLTFLoader;
   for(const url of THREE_URLS){try{THREE=await import(url);break}catch(e){lastError=e;console.warn("RUMBO Three.js source failed",url,e)}}
   if(!THREE)throw lastError||new Error("No se pudo descargar Three.js");
-  window.__RUMBO_THREE__=THREE;scan();
+  try{({GLTFLoader}=await import("https://esm.sh/three@0.170.0/examples/jsm/loaders/GLTFLoader.js"))}catch(loaderError){console.warn("RUMBO GLTFLoader source failed",loaderError)}\n  window.__RUMBO_GLTF_LOADER__=GLTFLoader;window.__RUMBO_THREE__=THREE;scan();
  }catch(e){
   window.__RUMBO_THREE_FAILED__=true;
   document.querySelectorAll(".guided-figure[data-exercise-3d]").forEach(host=>{host.dataset.engine="fallback";host.dataset.ready="0";host.title="Visor 3D no disponible: "+(e&&e.message||"error de carga")});
