@@ -61,8 +61,28 @@ async function boot(){
  try{
   [THREE,{GLTFLoader}]=await Promise.all([import(THREE_URL),import(LOADER_URL)]);
   window.__RUMBO_HUMAN_MODEL_READY__=true;
-  const scan=()=>{const hosts=[...document.querySelectorAll(".guided-figure[data-exercise-3d]")];const target=document.querySelector(".guided-exercise-card .guided-figure[data-exercise-3d],.program-exercise-detail .guided-figure[data-exercise-3d]")||hosts[0];if(target===activeHost)return;if(activeDispose)activeDispose();activeHost=target||null;activeDispose=null;if(target){try{activeDispose=makeViewer(target,target.dataset.exercise3d)}catch(e){target.dataset.engine="error";console.error("RUMBO human viewer init failed",e);activeHost=null}}};
-  const root=document.getElementById("view")||document.body;new MutationObserver(()=>requestAnimationFrame(scan)).observe(root,{childList:true,subtree:true});scan();
+  const mounted=new Map();
+  const pending=new WeakSet();
+  const observer=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    if(!entry.isIntersecting)continue;
+    const host=entry.target;observer.unobserve(host);
+    if(mounted.has(host)||pending.has(host))continue;
+    pending.add(host);
+    try{const dispose=makeViewer(host,host.dataset.exercise3d);mounted.set(host,dispose)}
+    catch(e){host.dataset.engine="error";host.dataset.humanModel="init-error";console.error("RUMBO human viewer init failed",e)}
+   }
+  },{root:null,rootMargin:"180px 0px",threshold:.01});
+  const scan=()=>{
+   const hosts=new Set(document.querySelectorAll(".guided-figure[data-exercise-3d]"));
+   for(const [host,dispose] of mounted){if(!host.isConnected){dispose();mounted.delete(host)}}
+   hosts.forEach(host=>{if(!mounted.has(host)&&!pending.has(host))observer.observe(host)});
+  };
+  const root=document.getElementById("view")||document.body;
+  const mutationObserver=new MutationObserver(()=>requestAnimationFrame(scan));
+  mutationObserver.observe(root,{childList:true,subtree:true});
+  scan();
+  window.__RUMBO_HUMAN_VIEWERS__={mounted,scan,disconnect(){mutationObserver.disconnect();observer.disconnect();for(const dispose of mounted.values())dispose();mounted.clear()}};
  }catch(e){window.__RUMBO_HUMAN_MODEL_ERROR__=String(e);console.error("RUMBO human viewer dependencies failed",e)}
 }
 if(typeof window!=="undefined")boot();
