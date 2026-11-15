@@ -54,7 +54,26 @@ function init(host,id,THREE){
  node("eyeL",faceMat,.012,[1,.8,.7]);node("eyeR",faceMat,.012,[1,.8,.7]);
  node("nose",skin,.025,[.8,1.3,.8]);
  node("pelvis",shorts,.19,[1.12,.72,.78]);node("chest",shirt,.23,[1.12,1.12,.78]);
- const torsoCore=new THREE.Mesh(new THREE.CapsuleGeometry(.19,.43,10,24),shirt);torsoCore.castShadow=true;torsoCore.receiveShadow=true;scene.add(torsoCore);
+ const torsoProfile=[new THREE.Vector2(.105,-.49),new THREE.Vector2(.15,-.40),new THREE.Vector2(.185,-.25),new THREE.Vector2(.155,-.08),new THREE.Vector2(.205,.12),new THREE.Vector2(.255,.30),new THREE.Vector2(.19,.43),new THREE.Vector2(.09,.48)];
+ const torsoCore=new THREE.Mesh(new THREE.LatheGeometry(torsoProfile,32),shirt);torsoCore.castShadow=true;torsoCore.receiveShadow=true;scene.add(torsoCore);
+ const upperBack=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),shirt);upperBack.scale.set(.31,.16,.27);upperBack.castShadow=true;scene.add(upperBack);
+ const handRigs=[];
+ for(let side of [-1,1]){
+  const hand=new THREE.Group(),palm=new THREE.Mesh(new THREE.SphereGeometry(.073,18,14),skin);palm.scale.set(.72,1.15,.48);hand.add(palm);
+  for(let finger=0;finger<4;finger++){
+   const len=.07+(3-finger)*.008,offset=(finger-1.5)*.027;
+   const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.012,len,.6,8),skin);digit.position.set(offset,-.095,0);digit.rotation.z=(finger-1.5)*-.07;hand.add(digit);
+   const knuckle=new THREE.Mesh(new THREE.SphereGeometry(.013,10,8),jointMat);knuckle.position.set(offset,-.045,0);hand.add(knuckle);
+  }
+  const thumb=new THREE.Mesh(new THREE.CapsuleGeometry(.014,.055,4,8),skin);thumb.position.set(side*.055,-.005,side*.018);thumb.rotation.z=side*.75;hand.add(thumb);scene.add(hand);handRigs.push(hand);
+ }
+ const footRigs=[];
+ for(let side of [-1,1]){
+  const foot=new THREE.Group(),heel=new THREE.Mesh(new THREE.SphereGeometry(.09,16,12),shoe);heel.scale.set(.8,.52,1.3);foot.add(heel);
+  const toe=new THREE.Mesh(new THREE.SphereGeometry(.092,16,12),shoe);toe.scale.set(.82,.55,1.35);toe.position.x=.09;foot.add(toe);
+  for(let t=0;t<5;t++){const toeTip=new THREE.Mesh(new THREE.SphereGeometry(.018,8,8),shoe);toeTip.position.set(.16,(t-2)*.025,0);foot.add(toeTip)}
+  scene.add(foot);footRigs.push(foot);
+ }
  const collar=new THREE.Mesh(new THREE.TorusGeometry(.078,.018,10,28),mat(0x9be7e1,.5));collar.rotation.x=Math.PI/2;scene.add(collar);
  node("pecL",shirt,.12,[1.25,.72,.68]);node("pecR",shirt,.12,[1.25,.72,.68]);
  node("deltoidL",shirt,.095,[1.1,1,.9]);node("deltoidR",shirt,.095,[1.1,1,.9]);
@@ -159,6 +178,13 @@ function init(host,id,THREE){
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
   const torsoDir=P.chest.clone().sub(P.pelvis),torsoMid=P.chest.clone().lerp(P.pelvis,.5);
   torsoCore.position.copy(torsoMid);torsoCore.quaternion.setFromUnitVectors(V(0,1,0),torsoDir.clone().normalize());
+  upperBack.position.copy(P.chest).lerp(P.pelvis,.12);upperBack.quaternion.copy(torsoCore.quaternion);
+  const wristDirL=P.lw.clone().sub(P.le).normalize(),wristDirR=P.rw.clone().sub(P.re).normalize();
+  handRigs[0].position.copy(P.lw);handRigs[0].quaternion.setFromUnitVectors(V(0,-1,0),wristDirL);
+  handRigs[1].position.copy(P.rw);handRigs[1].quaternion.setFromUnitVectors(V(0,-1,0),wristDirR);
+  footRigs[0].position.copy(P.la).add(V(.035,-.035,-.01));footRigs[1].position.copy(P.ra).add(V(.035,-.035,.01));
+  footRigs[0].quaternion.setFromUnitVectors(V(1,0,0),P.la.clone().sub(P.lk).normalize().negate());
+  footRigs[1].quaternion.copy(footRigs[0].quaternion);
   collar.position.copy(P.neck).add(V(0,.035,0));
   if(nodes.pecL){nodes.pecL.position.copy(P.chest).add(V(-.035,-.055,-.13));nodes.pecR.position.copy(P.chest).add(V(-.035,-.055,.13))}
   if(nodes.deltoidL){nodes.deltoidL.position.copy(P.ls);nodes.deltoidR.position.copy(P.rs)}
