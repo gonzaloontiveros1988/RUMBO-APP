@@ -94,7 +94,7 @@ function makeViewer(host,exerciseId){
   scene.add(model);
   exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);if(!exerciseMotion.boneCount){status.textContent="MODELO CARGADO · RIG SIN HUESOS RECONOCIDOS";status.style.background="#7a4b20dd"}
   host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";host.dataset.humanBones=String(model.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
-  status.textContent="MODELO HUMANO 3D · CC0";status.style.background="#0d554dcc";
+  status.textContent="MODELO 3D · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO");status.style.background="#0d554dcc";
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302dcc";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
  const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=4.15*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.0+radius*(.20+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.91,0);renderer.render(scene,camera)};
  raf=requestAnimationFrame(render);host.dataset.engine="three-glb";
