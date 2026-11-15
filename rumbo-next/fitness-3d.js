@@ -85,6 +85,12 @@ function makeViewer(host,exerciseId){
  button("Frontal",()=>{az=0;el=.08});button("Lateral",()=>{az=Math.PI/2;el=.08});button("Posterior",()=>{az=Math.PI;el=.08});
  const pauseButton=button("Ⅱ Pausa",()=>{paused=!paused;pauseButton.textContent=paused?"▶ Reanudar":"Ⅱ Pausa"});
  button("−",()=>{rate=clamp(rate-.25,.5,2)});button("Velocidad 1×",()=>{rate=rate>=2?.5:rate+.25});
+ const skeletonPanel=document.createElement("div");
+ skeletonPanel.style.cssText="display:none;position:absolute;right:8px;top:42px;bottom:52px;width:min(270px,75%);overflow:auto;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf2;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap";
+ host.appendChild(skeletonPanel);
+ const skeletonButton=button("Esqueleto · esperando",()=>{skeletonPanel.style.display=skeletonPanel.style.display==="none"?"block":"none"});
+ skeletonButton.disabled=true;skeletonButton.style.opacity=".6";
+
  const onDown=e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
  const onUp=()=>drag=false;
  const onMove=e=>{if(!drag)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.35,.5);lastX=e.clientX;lastY=e.clientY};
@@ -99,6 +105,17 @@ function makeViewer(host,exerciseId){
   const scale=1.72/Math.max(size.y,.001);model.scale.setScalar(scale);model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
   model.rotation.y=Math.PI;
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
+  const allBones=[];model.traverse(o=>{if(o.isBone)allBones.push(o)});
+  const boneLines=allBones.map((bone,index)=>{
+   const parent=bone.parent?.isBone?bone.parent.name:"(raíz / nodo)";
+   const key=bone.name.toLowerCase().replace(/[^a-z0-9]/g,"");
+   const group=/(upleg|thigh|femur)/.test(key)?"THIGH":/(lowerleg|shin|calf|leg$)/.test(key)?"SHIN":/(upperarm|armupper|humerus|shoulder)/.test(key)?"UPPER ARM":/(forearm|lowerarm)/.test(key)?"FOREARM":/(spine|abdomen|chest|torso)/.test(key)?"TORSO":/(pelvis|hips|hip)/.test(key)?"PELVIS":"—";
+   return String(index+1).padStart(2,"0")+"  "+bone.name+"\n    parent: "+parent+"  |  map: "+group;
+  });
+  skeletonPanel.textContent="SKELETON DIAGNOSTICS\nBones: "+allBones.length+"\nSkinned meshes: "+(()=>{let n=0;model.traverse(o=>{if(o.isSkinnedMesh)n++});return n})()+"\n\n"+boneLines.join("\n\n");
+  skeletonButton.textContent="Esqueleto · "+allBones.length;
+  skeletonButton.disabled=false;skeletonButton.style.opacity="1";
+
   scene.add(model);
   exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="RIG SIN HUESOS RECONOCIDOS";status.style.background="#7a4b20dd"}else{status.textContent="MOVIMIENTO · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" HUESOS"}
   host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";host.dataset.humanBones=String(model.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
@@ -106,7 +123,7 @@ function makeViewer(host,exerciseId){
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302dcc";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
  const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=4.15*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.0+radius*(.20+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.91,0);renderer.render(scene,camera)};
  raf=requestAnimationFrame(render);host.dataset.engine="three-glb";
- return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();stage.remove();host.dataset.rumboHumanReady="0"};
+ return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();skeletonPanel.remove();stage.remove();host.dataset.rumboHumanReady="0"};
 }
 async function boot(){
  try{
