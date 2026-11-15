@@ -233,7 +233,7 @@ function init(host,id,THREE,GLTFLoader){
  timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;elapsed=progress*2.4;paused=true;playBtn.textContent="▶ Reproducir"});
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
  let raf;let elapsed=0;
- function draw(now){raf=requestAnimationFrame(draw);try{const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
+ function draw(now){raf=requestAnimationFrame(draw);try{const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;if(externalHuman?.userData?.rumboMixer)externalHuman.userData.rumboMixer.update(dt*(paused?0:playbackRate));progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
   P.spine=P.chest.clone().lerp(P.pelvis,.42);
   for(const [name,b] of Object.entries(rigBones)){const key=rigPointNames[name],point=P[key]||P.pelvis,parent=rigParent[name],parentKey=parent?rigPointNames[parent]:null,parentPoint=parent?(P[parentKey]||P.pelvis):null;b.position.copy(parentPoint?point.clone().sub(parentPoint):point)}
   rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.updateMatrixWorld(true);
@@ -280,12 +280,14 @@ function init(host,id,THREE,GLTFLoader){
  // users saw only the low-detail SVG fallback. This rig is self-contained in Three.js.
  host.dataset.model="articulated-human";
 
- // Load a continuous, rigged human character (CC0 asset) instead of the segmented procedural mannequin.
+ // Load Khronos Cesium Man (CC BY 4.0); retain procedural fallback if unavailable.
  let externalHuman=null,externalLoadState="loading";
  try{
+  if(!GLTFLoader)throw new Error("GLTFLoader no disponible");
   const loader=new GLTFLoader();
-  loader.load("https://grab3d.com/dl/man-base-character-rigged/man-base-character-rigged.glb",gltf=>{
+  loader.load("https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/CesiumMan/glTF-Binary/CesiumMan.glb",gltf=>{
    externalHuman=gltf.scene;
+   externalHuman.rotation.y=Math.PI;
    const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
    const targetHeight=1.82,scale=targetHeight/Math.max(size.y,.001);
    externalHuman.scale.setScalar(scale);
@@ -296,7 +298,8 @@ function init(host,id,THREE,GLTFLoader){
    Object.values(bones).forEach(o=>o.visible=false);
    [torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
    externalLoadState="loaded";host.dataset.model="continuous-rigged-human";
-   host.dataset.modelLicense="CC0";
+   host.dataset.modelLicense="CC-BY-4.0";host.dataset.modelCredit="Cesium (2017) / Khronos glTF Sample Assets";
+   if(gltf.animations&&gltf.animations.length){const mixer=new THREE.AnimationMixer(externalHuman);const action=mixer.clipAction(gltf.animations[0]);action.play();externalHuman.userData.rumboMixer=mixer;}
   },undefined,error=>{externalLoadState="failed";console.warn("RUMBO external human model unavailable; retaining local fallback",error)});
  }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
