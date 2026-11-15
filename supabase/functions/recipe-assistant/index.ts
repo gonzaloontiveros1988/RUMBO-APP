@@ -18,22 +18,17 @@ function limited(ip: string) {
   return false;
 }
 function cleanSteps(raw: string) {
-  return String(raw || "").replace(/\\r/g, "").split(/(?<=[.!?])\\s+|\\n+/).map(x => x.trim()).filter(x => x.length > 12).slice(0, 18);
+  return String(raw || "").replace(/\r/g, "").split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(x => x.length > 12).slice(0, 18);
 }
 const aliases: [RegExp, string][] = [
   [/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/i, "shrimp"],
   [/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/i, "squid"],
-  [/pollo|pechuga|chicken/i, "chicken"],
-  [/arroz|rice/i, "rice"],
+  [/pollo|pechuga|chicken/i, "chicken"], [/arroz|rice/i, "rice"],
   [/pasta|espagueti|macarr[oó]n|spaghetti|carbonara/i, "pasta"],
-  [/salm[oó]n|salmon/i, "salmon"],
-  [/at[uú]n|tuna/i, "tuna"],
-  [/ternera|carne|beef/i, "beef"],
-  [/garbanzo|chickpea/i, "chickpeas"],
-  [/lenteja|lentil/i, "lentils"],
-  [/huevo|egg/i, "egg"],
-  [/patata|papa|potato/i, "potato"],
-  [/verdura|vegetal|vegetable/i, "vegetable"]
+  [/salm[oó]n|salmon/i, "salmon"], [/at[uú]n|tuna/i, "tuna"],
+  [/ternera|carne|beef/i, "beef"], [/garbanzo|chickpea/i, "chickpeas"],
+  [/lenteja|lentil/i, "lentils"], [/huevo|egg/i, "egg"],
+  [/patata|papa|potato/i, "potato"], [/verdura|vegetal|vegetable/i, "vegetable"]
 ];
 const areaMap: Record<string, string[]> = {
   Mediterranean: ["Spanish", "Italian", "Greek", "Turkish", "Moroccan"],
@@ -63,9 +58,8 @@ Deno.serve(async (req: Request) => {
   const cuisine = String(body.cuisine || "").slice(0, 32);
   if (query.length < 2) return json(400, { error: "Escribe un plato o ingrediente (mínimo 2 caracteres)." });
   if (!Number.isInteger(servings) || servings < 1 || servings > 12) return json(400, { error: "Las raciones deben estar entre 1 y 12." });
-
   const base = "https://www.themealdb.com/api/json/v1/1/";
-  const normalized = query.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
+  const normalized = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const terms = new Set<string>([query]);
   if (/carbonara/.test(normalized)) { terms.add("spaghetti"); terms.add("carbonara"); }
   if (/bolognesa|bolognese/.test(normalized)) terms.add("bolognese");
@@ -79,8 +73,7 @@ Deno.serve(async (req: Request) => {
   ];
   const responses = await Promise.allSettled(requests);
   const found = new Map<string, any>();
-  for (const result of responses) {
-    if (result.status !== "fulfilled") continue;
+  for (const result of responses) if (result.status === "fulfilled") {
     for (const meal of result.value?.meals || []) if (meal?.idMeal && !found.has(meal.idMeal)) found.set(meal.idMeal, meal);
   }
   const candidates = [...found.values()].slice(0, 14);
@@ -90,25 +83,18 @@ Deno.serve(async (req: Request) => {
     if (result.status !== "fulfilled") continue;
     const meal = result.value?.meals?.[0];
     if (!meal) continue;
-    const list: any[] = [];
+    const ingredientsList: any[] = [];
     for (let i = 1; i <= 20; i++) {
       const name = String(meal["strIngredient" + i] || "").trim();
       const measure = String(meal["strMeasure" + i] || "").trim();
-      if (name) list.push([name, measure || "Al gusto", 0, 0, 0, 0]);
+      if (name) ingredientsList.push([name, measure || "Al gusto", 0, 0, 0, 0]);
     }
     const steps = cleanSteps(meal.strInstructions || "");
-    if (list.length < 2 || !steps.length) continue;
+    if (ingredientsList.length < 2 || !steps.length) continue;
     recipes.push({
-      id: "themealdb-" + meal.idMeal,
-      name: String(meal.strMeal || "Recipe"),
-      category,
-      minutes: 30,
-      servings,
-      image: meal.strMealThumb || "",
-      imageVerified: !!meal.strMealThumb,
-      ingredients: list,
-      steps,
-      origin: "web",
+      id: "themealdb-" + meal.idMeal, name: String(meal.strMeal || "Recipe"), category,
+      minutes: 30, servings, image: meal.strMealThumb || "", imageVerified: !!meal.strMealThumb,
+      ingredients: ingredientsList, steps, origin: "web",
       sourceUrl: meal.strSource || ("https://www.themealdb.com/meal/" + meal.idMeal),
       sourceTitle: "TheMealDB · " + String(meal.strMeal || "Recipe"),
       sourceSnippet: "Receta del catálogo público. Los valores nutricionales no están verificados y no se inventan."
@@ -116,8 +102,7 @@ Deno.serve(async (req: Request) => {
     if (recipes.length >= 8) break;
   }
   return json(200, {
-    recipes,
-    model: "TheMealDB",
+    recipes, model: "TheMealDB",
     notice: recipes.length
       ? recipes.length + " recetas recuperadas del catálogo público. Revisa ingredientes y preparación; los macros no disponibles se muestran como no verificados."
       : "No hay coincidencias en el catálogo público. Prueba con un nombre más corto, un ingrediente principal o cambia la cocina."
