@@ -299,6 +299,10 @@ const PROGRAM_EXERCISES={
  "strength-h":["hip-thrust","single-leg-rdl","leg-curl","calf-raise","farmer-carry"],
  "strength-i":["bench-press","row","shoulder-press","face-pull","biceps-curl"],
  "strength-j":["step-up","squat","chest-fly","side-plank","bird-dog"],
+ "upper-a":["bench-press","row","shoulder-press","lat-pulldown","biceps-curl","triceps-pushdown"],
+ "lower-a":["back-squat","rdl","reverse-lunge","leg-curl","calf-raise","dead-bug"],
+ "upper-b":["incline-db-press","chest-supported-row","lateral-raise","pull-up","face-pull","biceps-curl"],
+ "lower-b":["leg-press","hip-thrust","step-up","hamstring-curl","single-leg-calf-raise","pallof-press"],
  "hotel-strength":["squat","push-up","one-arm-row","hip-bridge","dead-bug"],
  "hotel-25":["squat","push-up","reverse-lunge","hip-bridge","bird-dog"],
  "hotel-upper":["push-up","one-arm-row","shoulder-press","side-plank","bird-dog"],
@@ -374,7 +378,7 @@ function training(){
  <div class="form"><label class="grow">Objetivo principal<select id="fitnessGoal">${goalOptions.map(([v,l])=>`<option value="${v}" ${goal===v?"selected":""}>${l}</option>`).join("")}</select></label><label class="grow">Dónde entrenas<select id="fitnessSetting"><option value="gym" ${setting==="gym"?"selected":""}>Gimnasio</option><option value="home" ${setting==="home"?"selected":""}>Casa</option><option value="hotel" ${setting==="hotel"?"selected":""}>Hotel / viaje</option><option value="mixed" ${setting==="mixed"?"selected":""}>Combinado según roster</option></select></label></div>
  <div class="form"><label class="grow">Sesiones por semana<select id="fitnessDays"><option value="2" ${days===2?"selected":""}>2 días</option><option value="3" ${days===3?"selected":""}>3 días</option><option value="4" ${days===4?"selected":""}>4 días</option><option value="5" ${days===5?"selected":""}>5 días</option></select></label><label class="grow">Duración por sesión<select id="fitnessMinutes"><option value="20" ${minutes===20?"selected":""}>20 minutos</option><option value="30" ${minutes===30?"selected":""}>30 minutos</option><option value="40" ${minutes===40?"selected":""}>40 minutos</option><option value="45" ${minutes===45?"selected":""}>45 minutos</option><option value="60" ${minutes===60?"selected":""}>60 minutos</option></select></label></div>
  <div class="form"><input class="grow" id="fitnessEquipment" placeholder="Equipo, lesiones o movimientos que debamos evitar" value="${esc(profile.equipment||"")}"><button class="btn primary" id="buildSixWeekProgram">${programSessions.length?"Actualizar programa":"Crear mi programa de 6 semanas"}</button></div>
- <div class="fitness-program-principles"><span>01 · Objetivo individual</span><span>02 · Roster real</span><span>03 · Progresión semanal</span><span>04 · Cargas según historial</span></div>
+ <div class="fitness-program-principles"><span>01 · Objetivo individual</span><span>02 · Roster real</span><span>03 · Progresión semanal</span><span>04 · Cargas según historial</span></div><div class="fitness-evidence-note"><b>CRITERIO DE PROGRAMACIÓN · ACSM 2026</b><span>Trabaja los principales grupos musculares al menos 2 veces por semana. Usa 2–3 series por ejercicio como base, rango completo y técnica controlada. Para hipertrofia, ajusta gradualmente el volumen semanal hacia unas 10 series por grupo muscular cuando la recuperación lo permita. La carga se incrementa solo cuando la ejecución y el esfuerzo lo justifican.</span></div>
 </section>
  <div style="margin-top:14px">${panel("TU PROGRAMA · 6 SEMANAS",'<p class="muted">Un único programa progresivo. Abre cada semana y cada sesión para consultar los ejercicios y empezar el entrenamiento guiado.</p>'+sixWeekProgramMarkup())}</div>
  <div class="grid two" style="margin-top:14px">
