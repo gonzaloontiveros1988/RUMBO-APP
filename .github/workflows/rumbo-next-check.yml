@@ -4,6 +4,7 @@ on:
     branches:
       - redesign/rumbo-os-v4
       - fix/rumbo-v4-fitness-recipes-recovery
+      - redesign/rumbo-human-model-v1
     paths:
       - 'rumbo-next/**'
       - 'tests/**'
