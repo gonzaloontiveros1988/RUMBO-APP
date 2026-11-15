@@ -11,16 +11,31 @@ let activeHost=null,activeDispose=null,THREE=null,GLTFLoader=null;
 const MOTION_RULES=[
  {id:"squat",test:/squat|goblet|leg-press|step-up/i,groups:{thigh:[.58,0,0],shin:[-.72,0,0],spine:[-.12,0,0],upperarm:[0,0,.12]}},
  {id:"hinge",test:/deadlift|\brdl\b|hip-hinge|good-morning|single-leg-rdl/i,groups:{thigh:[-.34,0,0],shin:[.12,0,0],spine:[.48,0,0],upperarm:[.12,0,0],forearm:[-.12,0,0]}},
- {id:"lunge",test:/lunge|split-squat|bulgarian|reverse-lunge/i,groups:{thigh:[.48,0,0],shin:[-.52,0,0],spine:[-.08,0,0]}},
+ {id:"lunge",test:/lunge|split-squat|bulgarian|reverse-lunge|lateral-step-down/i,groups:{thigh:[.48,0,0],shin:[-.52,0,0],spine:[-.08,0,0]}},
  {id:"horizontal-push",test:/bench|push-up|chest-press|chest-fly|incline-db-press/i,groups:{upperarm:[-.62,0,0],forearm:[.72,0,0],spine:[-.06,0,0]}},
  {id:"vertical-push",test:/shoulder-press|overhead|lateral-raise/i,groups:{upperarm:[-.9,0,0],forearm:[.28,0,0],spine:[-.08,0,0]}},
  {id:"horizontal-pull",test:/row|face-pull|cable-row/i,groups:{upperarm:[.58,0,0],forearm:[-.62,0,0],spine:[.16,0,0]}},
  {id:"vertical-pull",test:/pull-up|lat-pulldown/i,groups:{upperarm:[-.85,0,0],forearm:[.42,0,0],spine:[.08,0,0]}},
  {id:"bridge",test:/hip-thrust|hip-bridge|glute-bridge/i,groups:{thigh:[-.48,0,0],shin:[.12,0,0],spine:[-.32,0,0]}},
- {id:"core",test:/plank|dead-bug|bird-dog|pallof|side-plank|mountain-climber/i,groups:{spine:[.08,0,0],upperarm:[-.2,0,0],thigh:[.18,0,0],shin:[-.16,0,0]}},
- {id:"mobility",test:/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor/i,groups:{spine:[.32,0,0],upperarm:[-.24,0,0],thigh:[.18,0,0]}},
+ {id:"core",test:/plank|dead-bug|bird-dog|pallof|side-plank|mountain-climber|reverse-crunch|suitcase-carry/i,groups:{spine:[.08,0,0],upperarm:[-.2,0,0],thigh:[.18,0,0],shin:[-.16,0,0]}},
+ {id:"mobility",test:/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor|90-90-hip-switch/i,groups:{spine:[.32,0,0],upperarm:[-.24,0,0],thigh:[.18,0,0]}},
  {id:"cardio",test:/cycling|jump-rope|farmer-carry/i,groups:{thigh:[.42,0,0],shin:[-.58,0,0],upperarm:[.12,0,0],forearm:[-.08,0,0]}}
 ];
+export function classifyExerciseMotion(exerciseId){
+ const id=String(exerciseId||"").toLowerCase();
+ if(id==="squat")return "goblet-squat";
+ if(id==="leg-press")return "leg-press";
+ if(id==="bench-press")return "bench-press";
+ if(id==="db-press")return "dumbbell-bench";
+ if(id==="rdl")return "deadlift";
+ if(id==="biceps-curl")return "biceps-curl";
+ if(/split-squat|step-up|lunge|lateral-step-down/.test(id))return "lunge";
+ if(/triceps-pushdown/.test(id))return "elbow-extension";
+ if(/leg-curl|hamstring-curl/.test(id))return "knee-flexion";
+ if(/calf-raise/.test(id))return "calf-raise";
+ if(/band-external-rotation/.test(id))return "shoulder-rotation";
+ return MOTION_RULES.find(rule=>rule.test.test(id))?.id||"general";
+}
 function createExerciseMotion(THREE,model,exerciseId){
  const bones=new Map();model.traverse(o=>{if(o.isBone)bones.set(o.name,o)});
  const pick=(...names)=>names.map(name=>bones.get(name)).find(Boolean)||null;
@@ -36,12 +51,14 @@ function createExerciseMotion(THREE,model,exerciseId){
   shoulderL:pick("upperarm_l","mixamorigLeftArm","mixamorig:LeftArm","LeftArm"),
   shoulderR:pick("upperarm_r","mixamorigRightArm","mixamorig:RightArm","RightArm"),
   elbowL:pick("lowerarm_l","mixamorigLeftForeArm","mixamorig:LeftForeArm","LeftForeArm"),
-  elbowR:pick("lowerarm_r","mixamorigRightForeArm","mixamorig:RightForeArm","RightForeArm")
+  elbowR:pick("lowerarm_r","mixamorigRightForeArm","mixamorig:RightForeArm","RightForeArm"),
+   ankleL:pick("foot_l","mixamorigLeftFoot","mixamorig:LeftFoot","LeftFoot"),
+   ankleR:pick("foot_r","mixamorigRightFoot","mixamorig:RightFoot","RightFoot")
  };
  const rest=new Map();Object.values(g).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
  const id=(exerciseId||"").toLowerCase();
- const kind=id==="squat"?"goblet-squat":id==="leg-press"?"leg-press":id==="bench-press"?"bench-press":id==="rdl"?"deadlift":id==="db-press"?"dumbbell-bench":id==="biceps-curl"?"biceps-curl":/squat/.test(id)?"squat":/deadlift|rdl|hip-hinge|good-morning/.test(id)?"hinge":/bench|chest-press|push-up/.test(id)?"horizontal-push":/curl/.test(id)?"elbow-flexion":/lunge|step-up/.test(id)?"lunge":/row/.test(id)?"row":/press/.test(id)?"press":"general";
- const duration=kind==="leg-press"?4.4:kind==="bench-press"||kind==="dumbbell-bench"?3.8:3.5;
+ const kind=classifyExerciseMotion(id);
+ const duration=kind==="leg-press"?4.4:kind==="bench-press"||kind==="dumbbell-bench"?3.8:kind==="cardio"?2.8:kind==="mobility"?5.2:3.5;
  const axisWorld=new THREE.Vector3(1,0,0),axisParent=new THREE.Vector3(),delta=new THREE.Quaternion();
  const apply=(name,angle)=>{
   const bone=g[name],r=bone&&rest.get(bone);if(!r)return;
@@ -66,12 +83,35 @@ function createExerciseMotion(THREE,model,exerciseId){
    apply("spine1",-.035*d);apply("spine2",-.025*d);apply("spine3",-.015*d);apply("shoulderL",.05*d);apply("shoulderR",.05*d);setPelvis(0,.035*d);
   }else if(kind==="bench-press"||kind==="dumbbell-bench"||kind==="horizontal-push"){
    apply("shoulderL",-.42*d);apply("shoulderR",-.42*d);apply("elbowL",.82*(1-d));apply("elbowR",.82*(1-d));apply("spine1",-.015);apply("spine2",-.01);
-  }else if(kind==="biceps-curl"||kind==="elbow-flexion"){
-   apply("elbowL",-.92*d);apply("elbowR",-.92*d);apply("shoulderL",-.035);apply("shoulderR",-.035);
-  }else if(kind==="lunge"){apply("hipL",-.48*d);apply("kneeL",.78*d);apply("hipR",.08*d);apply("kneeR",-.06*d);setPelvis(-.07*d)}
-  else if(kind==="row"){apply("shoulderL",.42*d);apply("shoulderR",.42*d);apply("elbowL",-.58*d);apply("elbowR",-.58*d)}
-  else if(kind==="press"){apply("shoulderL",-.65*d);apply("shoulderR",-.65*d);apply("elbowL",.22*(1-d));apply("elbowR",.22*(1-d))}
-  else{apply("spine1",.035*Math.sin(time*2));apply("shoulderL",.08*Math.sin(time*2));apply("shoulderR",-.08*Math.sin(time*2))}
+  }else if(kind==="biceps-curl"){
+    apply("elbowL",-.92*d);apply("elbowR",-.92*d);apply("shoulderL",-.035);apply("shoulderR",-.035);
+   }else if(kind==="elbow-extension"){
+    apply("elbowL",.72*d);apply("elbowR",.72*d);apply("shoulderL",.035);apply("shoulderR",.035);
+   }else if(kind==="knee-flexion"){
+    apply("kneeL",.72*d);apply("kneeR",.72*d);apply("hipL",-.06*d);apply("hipR",-.06*d);
+   }else if(kind==="calf-raise"){
+    apply("ankleL",-.28*d);apply("ankleR",-.28*d);apply("kneeL",.04*d);apply("kneeR",.04*d);
+   }else if(kind==="shoulder-rotation"){
+    apply("shoulderL",.18*d);apply("shoulderR",.18*d);apply("elbowL",.08*d);apply("elbowR",.08*d);
+   }else if(kind==="bridge"){
+    apply("hipL",-.46*d);apply("hipR",-.46*d);apply("kneeL",.18*d);apply("kneeR",.18*d);apply("spine1",-.22*d);apply("spine2",-.10*d);setPelvis(.13*d);
+   }else if(kind==="core"){
+    apply("spine1",.12*d);apply("spine2",-.06*d);apply("hipL",.14*d);apply("hipR",-.14*d);apply("shoulderL",-.18*d);apply("shoulderR",-.18*d);setPelvis(-.035*d);
+   }else if(kind==="mobility"){
+    const wave=Math.sin(time*1.2);apply("spine1",.22*wave);apply("spine2",-.14*wave);apply("spine3",.08*wave);apply("shoulderL",.10*d);apply("shoulderR",-.10*d);
+   }else if(kind==="cardio"){
+    const stride=Math.sin(time*3.1);apply("hipL",-.22*stride);apply("hipR",.22*stride);apply("kneeL",.34*Math.max(0,stride));apply("kneeR",.34*Math.max(0,-stride));apply("shoulderL",.10*stride);apply("shoulderR",-.10*stride);
+   }else if(kind==="lunge"){
+    const side=Math.sin(time*1.4)>=0?1:-1;apply("hipL",-.48*d*(side>0?1:.12));apply("kneeL",.78*d*(side>0?1:.1));apply("hipR",-.48*d*(side<0?1:.12));apply("kneeR",.78*d*(side<0?1:.1));setPelvis(-.07*d);
+   }else if(kind==="horizontal-pull"||kind==="row"){
+    apply("shoulderL",.42*d);apply("shoulderR",.42*d);apply("elbowL",-.58*d);apply("elbowR",-.58*d);
+   }else if(kind==="vertical-pull"){
+    apply("shoulderL",-.76*d);apply("shoulderR",-.76*d);apply("elbowL",.52*d);apply("elbowR",.52*d);
+   }else if(kind==="vertical-push"||kind==="horizontal-push"){
+    apply("shoulderL",-.65*d);apply("shoulderR",-.65*d);apply("elbowL",.22*(1-d));apply("elbowR",.22*(1-d));
+   }else if(kind==="press"){
+    apply("shoulderL",-.65*d);apply("shoulderR",-.65*d);apply("elbowL",.22*(1-d));apply("elbowR",.22*(1-d));
+   }else{apply("spine1",.035*Math.sin(time*2));apply("shoulderL",.08*Math.sin(time*2));apply("shoulderR",-.08*Math.sin(time*2))}
  };
  return {update,kind,boneCount:rest.size,groups:Object.keys(g).filter(k=>g[k]),dispose(){for(const [bone,r] of rest){bone.quaternion.copy(r.q);bone.position.copy(r.p)}}};
 }
