@@ -36,9 +36,19 @@ function createExerciseMotion(THREE,model,exerciseId){
  if(/deadlift|romanian|\brdl\b|hip-hinge|good-morning|single-leg-rdl/.test(key))kind="hinge";
  else if(/lunge|split-squat|bulgarian|step-up/.test(key))kind="lunge";
  else if(/bench|push-up|chest-press|chest-fly|db-press|incline-db-press/.test(key))kind="horizontal-push";
- else if(/shoulder-press|overhead|lateral-raise/.test(key))kind="vertical-push";
+ else if(/shoulder-press|overhead/.test(key))kind="vertical-push";
+ else if(/lateral-raise/.test(key))kind="shoulder-abduction";
  else if(/row|face-pull/.test(key))kind="horizontal-pull";
  else if(/lat-pulldown|pull-up/.test(key))kind="vertical-pull";
+ else if(/hip-thrust|hip-bridge|glute-bridge/.test(key))kind="bridge";
+ else if(/plank|dead-bug|bird-dog|pallof|mountain-climber|side-plank/.test(key))kind="core";
+ else if(/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor|90-90/.test(key))kind="mobility";
+ else if(/cycling|jump-rope|farmer-carry/.test(key))kind="cardio";
+ else if(/leg-curl/.test(key))kind="knee-flexion";
+ else if(/calf-raise/.test(key))kind="calf-raise";
+ else if(/biceps-curl/.test(key))kind="elbow-flexion";
+ else if(/triceps-pushdown/.test(key))kind="elbow-extension";
+ else if(/pallof-press/.test(key))kind="anti-rotation";
  else if(/hip-thrust|hip-bridge|glute-bridge/.test(key))kind="bridge";
  else if(/plank|dead-bug|bird-dog|pallof|mountain-climber|side-plank/.test(key))kind="core";
  else if(/cat-cow|thoracic|stretch|ankle|childs-pose|hip-flexor/.test(key))kind="mobility";
@@ -49,16 +59,16 @@ function createExerciseMotion(THREE,model,exerciseId){
   const r=rest.get(bone);e.set(rx*side,ry*side,rz*side,"XYZ");q.setFromEuler(e);bone.quaternion.copy(r.q).multiply(q);
  };
  const update=time=>{
-  const c=(time%3.6)/3.6;
-  const t=c<.46?c/.46:c<.56?1:(1-(c-.56)/.44);
+  const c=(time%3.2)/3.2;
+  const t=c<.42?c/.42:c<.55?1:(1-(c-.55)/.45);
   const d=Math.sin((t*t*(3-2*t))*Math.PI/2);
   // Named rig joints from the inspected 56-bone hierarchy. Angles are conservative first-pass values.
   if(kind==="squat"){
-   apply(groups.thighL,-.62*d);apply(groups.thighR,-.62*d);
-   apply(groups.calfL,1.05*d);apply(groups.calfR,1.05*d);
+   apply(groups.thighL,-.78*d);apply(groups.thighR,-.78*d);
+   apply(groups.calfL,1.18*d);apply(groups.calfR,1.18*d);
    apply(groups.spine1,.08*d);apply(groups.spine2,.07*d);apply(groups.spine3,.04*d);
    apply(groups.upperL,-.12*d);apply(groups.upperR,-.12*d);
-   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y-=.12*d}
+   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y-=.18*d}
   }else if(kind==="hinge"){
    apply(groups.thighL,-.32*d);apply(groups.thighR,-.32*d);
    apply(groups.spine1,.22*d);apply(groups.spine2,.18*d);apply(groups.spine3,.10*d);
@@ -81,6 +91,35 @@ function createExerciseMotion(THREE,model,exerciseId){
   }else if(kind==="vertical-pull"){
    apply(groups.upperL,-.72*d);apply(groups.upperR,-.72*d);
    apply(groups.lowerL,.32*d);apply(groups.lowerR,.32*d);
+  }else if(kind==="shoulder-abduction"){
+   apply(groups.upperL,-.62*d,0,-.10*d);apply(groups.upperR,-.62*d,0,.10*d);
+   apply(groups.clavL,-.10*d);apply(groups.clavR,-.10*d);
+  }else if(kind==="bridge"){
+   apply(groups.thighL,-.48*d);apply(groups.thighR,-.48*d);
+   apply(groups.spine1,-.18*d);apply(groups.spine2,-.18*d);apply(groups.spine3,-.10*d);
+   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y+=.16*d}
+  }else if(kind==="core"||kind==="anti-rotation"){
+   apply(groups.spine1,kind==="anti-rotation"?.08*d:.12*d,0,kind==="anti-rotation"?.20*d:.0);
+   apply(groups.spine2,0,0,kind==="anti-rotation"?.16*d:.0);
+   apply(groups.upperL,-.24*d);apply(groups.upperR,-.24*d);
+   apply(groups.thighL,.16*d);apply(groups.thighR,.16*d);
+  }else if(kind==="mobility"){
+   apply(groups.spine1,.24*d);apply(groups.spine2,.18*d);apply(groups.spine3,.12*d);
+   apply(groups.neck,-.10*d);apply(groups.head,.08*d);
+  }else if(kind==="cardio"){
+   apply(groups.thighL,-.48*d);apply(groups.thighR,.48*d);
+   apply(groups.calfL,.62*d);apply(groups.calfR,-.62*d);
+   apply(groups.upperL,.18*d);apply(groups.upperR,-.18*d);
+  }else if(kind==="knee-flexion"){
+   apply(groups.calfL,.72*d);apply(groups.calfR,.72*d);
+  }else if(kind==="calf-raise"){
+   apply(groups.footL,-.32*d);apply(groups.footR,-.32*d);
+   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y+=.05*d}
+  }else if(kind==="elbow-flexion"){
+   apply(groups.lowerL,-.88*d);apply(groups.lowerR,-.88*d);
+   apply(groups.upperL,-.08*d);apply(groups.upperR,-.08*d);
+  }else if(kind==="elbow-extension"){
+   apply(groups.lowerL,.72*d);apply(groups.lowerR,.72*d);
   }else if(kind==="bridge"){
    apply(groups.thighL,-.42*d);apply(groups.thighR,-.42*d);
    apply(groups.spine1,-.22*d);apply(groups.spine2,-.20*d);apply(groups.spine3,-.12*d);
@@ -104,12 +143,12 @@ function createExerciseMotion(THREE,model,exerciseId){
 function makeViewer(host,exerciseId){
  if(host.dataset.rumboHumanReady==="1")return ()=>{};
  host.dataset.rumboHumanReady="1";
- const w=Math.max(280,host.clientWidth||420),h=380;
+ const viewerHeight=host.closest(".exercise-library-art")?300:380;const w=Math.max(280,host.clientWidth||420),h=viewerHeight;
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- const viewport=document.createElement("div");viewport.className="rumbo-human-viewport";viewport.style.cssText="position:relative;flex:0 0 380px;width:100%;height:380px;min-height:380px;overflow:hidden;border-radius:16px;background:radial-gradient(ellipse at 50% 38%,#1b4357 0%,#0b2233 65%,#071724 100%)";viewport.appendChild(renderer.domElement);host.style.cssText+=";height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;width:100%!important";host.replaceChildren(viewport);
+ const viewport=document.createElement("div");viewport.className="rumbo-human-viewport";viewport.style.cssText="position:relative;flex:0 0 ${viewerHeight}px;width:100%;height:${viewerHeight}px;min-height:${viewerHeight}px;overflow:hidden;border-radius:16px;background:radial-gradient(ellipse at 50% 38%,#1b4357 0%,#0b2233 65%,#071724 100%)";viewport.appendChild(renderer.domElement);host.style.cssText+=";height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;width:100%!important";host.replaceChildren(viewport);
  const scene=new THREE.Scene();
  scene.add(new THREE.HemisphereLight(0xe8f7ff,0x243445,2.0));
  const key=new THREE.DirectionalLight(0xfff1df,3.0);key.position.set(-3,5,4);key.castShadow=true;scene.add(key);
@@ -142,11 +181,11 @@ function makeViewer(host,exerciseId){
   model.rotation.y=Math.PI;
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
   scene.add(model);
-  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="NO SE HAN RECONOCIDO ARTICULACIONES";status.style.background="#7a302d"}else{status.textContent="MOVIMIENTO ACTIVO · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" ARTICULACIONES"}
+  exerciseMotion=createExerciseMotion(THREE,model,exerciseId);host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");if(!exerciseMotion.boneCount){status.textContent="NO SE HAN RECONOCIDO ARTICULACIONES";status.style.background="#7a302d"}else{status.textContent="ANIMACIÓN ACTIVA · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" HUESOS"}
   host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";host.dataset.humanBones=String(model.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
-  status.textContent="MOVIMIENTO ACTIVO · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO")+" · "+(exerciseMotion?.boneCount||0)+" ARTICULACIONES";status.style.background="#0b2636";
+  status.textContent="ANIMACIÓN ACTIVA · "+(exerciseMotion?exerciseMotion.kind.toUpperCase():"PREPARANDO")+" · "+(exerciseMotion?.boneCount||0)+" HUESOS";status.style.background="#0b2636";
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302d";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
- const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=3.25*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.05+radius*(.16+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.88,0);renderer.render(scene,camera)};
+ const render=now=>{if(disposed)return;raf=requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused&&exerciseMotion){motionTime+=dt*rate;exerciseMotion.update(motionTime)}const radius=(viewerHeight===300?3.65:3.25)*zoom;camera.position.set(radius*Math.sin(az)*Math.cos(el),1.05+radius*(.16+el),radius*Math.cos(az)*Math.cos(el));camera.lookAt(0,.88,0);renderer.render(scene,camera)};
  raf=requestAnimationFrame(render);host.dataset.engine="three-glb";
  return ()=>{disposed=true;cancelAnimationFrame(raf);resize.disconnect();renderer.domElement.removeEventListener("pointerdown",onDown);renderer.domElement.removeEventListener("pointerup",onUp);renderer.domElement.removeEventListener("pointercancel",onUp);renderer.domElement.removeEventListener("pointermove",onMove);renderer.domElement.removeEventListener("wheel",onWheel);if(mixer)mixer.stopAllAction();if(exerciseMotion)exerciseMotion.dispose();renderer.dispose();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});renderer.domElement.remove();controls.remove();status.remove();viewport.remove();host.dataset.rumboHumanReady="0"};
 }

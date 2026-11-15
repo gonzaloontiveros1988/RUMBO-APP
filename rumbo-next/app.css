@@ -1092,3 +1092,15 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important;}
 .guided-figure[data-exercise-3d] .rumbo-human-viewport{width:100%!important;}
 @media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-3d] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
+
+/* Fitness 3D final layout: large human preview, no tiny thumbnail column. */
+.exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
+.exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
+.exercise-library-art .guided-figure[data-exercise-3d]{width:100%;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .rumbo-human-viewport{height:300px!important;min-height:300px!important;flex-basis:300px!important}
+.exercise-library-art .exercise-demo-svg{display:none!important}
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
+.guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
+.guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+@media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
+@media(max-width:430px){.exercise-library-art .rumbo-human-viewport{height:280px!important;min-height:280px!important;flex-basis:280px!important}}
