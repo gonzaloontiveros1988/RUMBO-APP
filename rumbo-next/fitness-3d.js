@@ -222,7 +222,7 @@ function init(host,id,THREE){
  function draw(now){raf=requestAnimationFrame(draw);const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
   P.spine=P.chest.clone().lerp(P.pelvis,.42);
   for(const [name,b] of Object.entries(rigBones)){const key=rigPointNames[name],point=P[key]||P.pelvis,parent=rigParent[name],parentKey=parent?rigPointNames[parent]:null,parentPoint=parent?(P[parentKey]||P.pelvis):null;b.position.copy(parentPoint?point.clone().sub(parentPoint):point)}
-  rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.update();
+  rigRoot.updateMatrixWorld(true);rigSkeleton.update();rigHelper.updateMatrixWorld(true);
 
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
