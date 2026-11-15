@@ -87,7 +87,7 @@ function makeViewer(host,exerciseId){
  button("−",()=>{rate=clamp(rate-.25,.5,2)});button("Velocidad 1×",()=>{rate=rate>=2?.5:rate+.25});
  const skeletonPanel=document.createElement("div");
  skeletonPanel.style.cssText="display:none;position:absolute;inset:8px 8px 48px auto;width:min(320px,92%);overflow:auto;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf7;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap;box-shadow:0 8px 28px #0009";
- viewport.appendChild(skeletonPanel);
+ host.appendChild(skeletonPanel);
  const skeletonButton=button("Esqueleto · esperando",()=>{skeletonPanel.style.display=skeletonPanel.style.display==="none"?"block":"none"});
  skeletonButton.disabled=true;skeletonButton.style.opacity=".6";
 
