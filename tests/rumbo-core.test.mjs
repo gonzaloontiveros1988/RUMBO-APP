@@ -6,6 +6,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
+import {FITNESS_MODEL_URL} from "../rumbo-next/fitness-3d.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
@@ -282,6 +283,10 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
+test("Fitness 3D viewer uses a different rigged human asset and no longer loads Sam",()=>{
+ assert.match(FITNESS_MODEL_URL,/Michelle\\.glb$/);
+ assert.doesNotMatch(FITNESS_MODEL_URL,/sam/i);
+});
 test("fitness library contains 52 distinct, documented exercises with a rendered three-phase human guide",()=>{
  assert.equal(EXERCISES.length,52);
  assert.equal(new Set(EXERCISES.map(x=>x.id)).size,52);
