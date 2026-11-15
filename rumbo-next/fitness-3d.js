@@ -25,18 +25,18 @@ function createExerciseMotion(THREE,model,exerciseId){
  const bones=new Map();model.traverse(o=>{if(o.isBone)bones.set(o.name,o)});
  const pick=(...names)=>names.map(name=>bones.get(name)).find(Boolean)||null;
  const g={
-  pelvis:pick("pelvis","mixamorigHips","Hips"),
-  spine1:pick("spine_01","mixamorigSpine","Spine"),
-  spine2:pick("spine_02","mixamorigSpine1","Spine1"),
-  spine3:pick("spine_03","mixamorigSpine2","Spine2"),
-  hipL:pick("thigh_l","mixamorigLeftUpLeg","LeftUpLeg"),
-  hipR:pick("thigh_r","mixamorigRightUpLeg","RightUpLeg"),
-  kneeL:pick("calf_l","mixamorigLeftLeg","LeftLeg"),
-  kneeR:pick("calf_r","mixamorigRightLeg","RightLeg"),
-  shoulderL:pick("upperarm_l","mixamorigLeftArm","LeftArm"),
-  shoulderR:pick("upperarm_r","mixamorigRightArm","RightArm"),
-  elbowL:pick("lowerarm_l","mixamorigLeftForeArm","LeftForeArm"),
-  elbowR:pick("lowerarm_r","mixamorigRightForeArm","RightForeArm")
+  pelvis:pick("pelvis","mixamorigHips","mixamorig:Hips","Hips"),
+  spine1:pick("spine_01","mixamorigSpine","mixamorig:Spine","Spine"),
+  spine2:pick("spine_02","mixamorigSpine1","mixamorig:Spine1","Spine1"),
+  spine3:pick("spine_03","mixamorigSpine2","mixamorig:Spine2","Spine2"),
+  hipL:pick("thigh_l","mixamorigLeftUpLeg","mixamorig:LeftUpLeg","LeftUpLeg"),
+  hipR:pick("thigh_r","mixamorigRightUpLeg","mixamorig:RightUpLeg","RightUpLeg"),
+  kneeL:pick("calf_l","mixamorigLeftLeg","mixamorig:LeftLeg","LeftLeg"),
+  kneeR:pick("calf_r","mixamorigRightLeg","mixamorig:RightLeg","RightLeg"),
+  shoulderL:pick("upperarm_l","mixamorigLeftArm","mixamorig:LeftArm","LeftArm"),
+  shoulderR:pick("upperarm_r","mixamorigRightArm","mixamorig:RightArm","RightArm"),
+  elbowL:pick("lowerarm_l","mixamorigLeftForeArm","mixamorig:LeftForeArm","LeftForeArm"),
+  elbowR:pick("lowerarm_r","mixamorigRightForeArm","mixamorig:RightForeArm","RightForeArm")
  };
  const rest=new Map();Object.values(g).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
  const id=(exerciseId||"").toLowerCase();
