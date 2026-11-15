@@ -1,8 +1,8 @@
 // RUMBO Fitness — clean GLB-first human viewer.
 // Model: Sam, clothed and rigged, CC0, from Innerscene / MakeHuman- MPFB assets.
 // This file intentionally contains no procedural humanoid made from geometric primitives.
-const THREE_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
-const LOADER_URL="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js/+esm";
+const THREE_URL="https://esm.sh/three@0.170.0";
+const LOADER_URL="https://esm.sh/three@0.170.0/examples/jsm/loaders/GLTFLoader.js";
 const MODEL_URL="https://files.innerscene.com/library/relaxed-walk-sam-3d-person-animated-732f1206/b11d02f72ad777e03d68/relaxed-walk-sam-3d-person-animated.glb";
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let activeHost=null,activeDispose=null,THREE=null,GLTFLoader=null;
