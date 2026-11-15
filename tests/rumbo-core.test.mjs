@@ -5,6 +5,7 @@ import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence
 import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/monthly-planner.js";
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
+import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
 import {parseRosterText} from "../rumbo-next/roster-import.js";
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
@@ -266,4 +267,22 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
  assert.equal(summary.unverifiedEntries,1);
  assert.equal(summary.kcal,recipeNutrition(known).perServing.kcal);
  assert.equal(recipeNutrition(unknown).verified,false);
+});
+
+
+test("fitness library contains 52 distinct, documented exercises with a rendered three-phase human guide",()=>{
+ assert.equal(EXERCISES.length,52);
+ assert.equal(new Set(EXERCISES.map(x=>x.id)).size,52);
+ for(const exercise of EXERCISES){
+  assert.ok(exercise.name&&exercise.pattern&&exercise.muscles.length&&exercise.equipment.length&&exercise.cues.length>=2,exercise.id+" is missing coaching data");
+  const svg=exerciseSequenceSvg(exercise);
+  assert.ok(svg.includes('<svg')&&svg.includes('viewBox="0 0 360 166"')&&svg.includes("INICIO")&&svg.includes("MOVIMIENTO")&&svg.includes("FINAL"),exercise.id+" has no three-phase visual");
+ }
+});
+
+test("four-day strength plan uses the upper/lower split and keeps all sessions within selected duration",()=>{
+ const p=buildTrainingProgram({goal:"strength",setting:"gym",daysPerWeek:4,availableMinutes:45},"2026-11-16");
+ assert.equal(p.sessions.length,24);
+ assert.deepEqual([...new Set(p.sessions.map(x=>x.routineId))].sort(),["lower-a","lower-b","upper-a","upper-b"]);
+ assert.ok(p.sessions.every(x=>x.minutes<=45));
 });
