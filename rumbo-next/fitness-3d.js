@@ -96,7 +96,7 @@ function init(host,id,THREE){
  mesh.scale.set(width,Math.max(.05,dir.length()-.075),width);
  mesh.quaternion.setFromUnitVectors(V(0,1,0),dir.normalize());
 }
- let dragging=false,lastX=0,lastY=0,az=0,el=0,dist=1;renderer.domElement.addEventListener("pointerdown",e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener("pointerup",()=>dragging=false);renderer.domElement.addEventListener("pointermove",e=>{if(!dragging)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.5,.65);lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener("wheel",e=>{dist=clamp(dist+e.deltaY*.002,.72,1.6)},{passive:true});
+ let dragging=false,lastX=0,lastY=0,az=0,el=0,dist=1,playbackRate=1,paused=false,progress=0,lastFrame=performance.now(),cameraMode="front",compareMode=false;renderer.domElement.addEventListener("pointerdown",e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener("pointerup",()=>dragging=false);renderer.domElement.addEventListener("pointermove",e=>{if(!dragging)return;az+=(e.clientX-lastX)*.008;el=clamp(el+(e.clientY-lastY)*.006,-.5,.65);lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener("wheel",e=>{dist=clamp(dist+e.deltaY*.002,.72,1.6)},{passive:true});
  const phase=(t)=>.5-.5*Math.cos(t*Math.PI*2);
  function pose(p){
   const k=preset.kind,u=phase(p),P={};
@@ -172,8 +172,18 @@ function init(host,id,THREE){
   P.spine=P.chest.clone().lerp(P.pelvis,.4);
   return P;
  }
- let raf;const start=performance.now();
- function draw(now){raf=requestAnimationFrame(draw);const p=((now-start)/2400)%1,P=pose(p);
+ const toolbar=document.createElement("div");toolbar.className="rumbo-biomech-controls";toolbar.innerHTML='<div class="rumbo-biomech-row"><div class="rumbo-camera-group"><button type="button" data-camera="front">Frontal</button><button type="button" data-camera="side">Lateral</button><button type="button" data-camera="rear">Posterior</button></div><div class="rumbo-speed-group"><label>Velocidad <select data-speed><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option></select></label><button type="button" data-play>Ⅱ Pausa</button><button type="button" data-compare>Comparar técnica</button></div></div><input data-timeline type="range" min="0" max="1000" value="0" aria-label="Posición de la repetición"><div class="rumbo-biomech-readout"><span data-phase>Fase: inicio</span><span data-angles>Rodilla —° · Codo —° · Cadera —°</span></div>';
+ Object.assign(toolbar.style,{position:"absolute",left:"8px",right:"8px",bottom:"7px",zIndex:"5",padding:"7px",borderRadius:"10px",background:"rgba(4,17,29,.9)",color:"#dff7f5",font:"10px system-ui",backdropFilter:"blur(8px)"});
+ host.style.position="relative";host.appendChild(toolbar);
+ const timeline=toolbar.querySelector("[data-timeline]"),phaseLabel=toolbar.querySelector("[data-phase]"),anglesLabel=toolbar.querySelector("[data-angles]"),playBtn=toolbar.querySelector("[data-play]"),compareBtn=toolbar.querySelector("[data-compare]");
+ toolbar.querySelectorAll("[data-camera]").forEach(b=>b.addEventListener("click",()=>{cameraMode=b.dataset.camera;az=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;el=0}));
+ toolbar.querySelector("[data-speed]").addEventListener("change",e=>playbackRate=Number(e.target.value)||1);
+ playBtn.addEventListener("click",()=>{paused=!paused;playBtn.textContent=paused?"▶ Reproducir":"Ⅱ Pausa"});
+ compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar comparación":"Comparar técnica";toolbar.classList.toggle("is-comparing",compareMode)});
+ timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;paused=true;playBtn.textContent="▶ Reproducir"});
+ const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
+ let raf;let elapsed=0;
+ function draw(now){raf=requestAnimationFrame(draw);const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
   Object.entries(P).forEach(([n,v])=>{if(nodes[n])nodes[n].position.copy(v)});
   if(nodes.chest){nodes.chest.position.copy(P.chest);nodes.chest.quaternion.setFromUnitVectors(V(0,1,0),P.chest.clone().sub(P.pelvis).normalize())}
   const torsoDir=P.chest.clone().sub(P.pelvis),torsoMid=P.chest.clone().lerp(P.pelvis,.5);
@@ -207,13 +217,18 @@ function init(host,id,THREE){
   dumbbells.forEach((d,i)=>{const w=P[i===0?"lw":"rw"];d.position.copy(w);d.visible=(id==="rdl"||id==="squat"&&i===0||["curl","raise","carry"].includes(preset.kind))});
   if(id==="bench-press"){barbell.position.y=.98+.20*phase((performance.now()-start)/2100);barbell.position.x=-.43}
   if(id==="row"){cablePulley.position.y=1.26;}
-  const target=V(0,1,0),radius=4.9*dist;camera.position.set(target.x+radius*Math.sin(az||.48)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(az||.48)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
+  const knee=angle(P.lh,P.lk,P.la),elbow=angle(P.ls,P.le,P.lw),hipAngle=angle(P.chest,P.pelvis,P.lk);
+  phaseLabel.textContent="Fase: "+(progress<.25?"descenso / preparación":progress<.5?"posición final":progress<.75?"ascenso / retorno":"reinicio");
+  anglesLabel.textContent="Rodilla "+Math.round(knee)+"° · Codo "+Math.round(elbow)+"° · Cadera "+Math.round(hipAngle)+"°";
+  toolbar.classList.toggle("is-comparing",compareMode);
+  const target=V(0,1,0),radius=4.9*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
+  const a=az===0?viewAz:az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }
  draw(performance.now());
  const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()});ro.observe(host);
  host.dataset.engine="three";host.setAttribute("aria-label","Modelo humano 3D animado. Arrastra para rotar la cámara y usa la rueda para acercar.");
  return ()=>{
-  cancelAnimationFrame(raf);ro.disconnect();renderer.dispose();
+  cancelAnimationFrame(raf);ro.disconnect();toolbar.remove();renderer.dispose();
   scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});
   renderer.domElement.remove();
  };
