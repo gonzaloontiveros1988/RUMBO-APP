@@ -284,7 +284,7 @@ function init(host,id,THREE,GLTFLoader){
  try{
   if(!GLTFLoader)throw new Error("GLTFLoader no disponible");
   const loader=new GLTFLoader();
-  loader.load("https://files.innerscene.com/library/human-base-mesh-with-editable-53-bone-rig-8e7c8ab1/329f39cef2f95a0f0a24/human-base-rigged.glb",gltf=>{
+  loader.load("https://grab3d.com/dl/man-base-character-rigged/man-base-character-rigged.glb",gltf=>{
    externalHuman=gltf.scene;
    externalHuman.rotation.y=Math.PI;
    const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
@@ -297,8 +297,8 @@ function init(host,id,THREE,GLTFLoader){
    Object.values(bones).forEach(o=>o.visible=false);
    [torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
    externalLoadState="loaded";host.dataset.model="continuous-rigged-human";
-   host.dataset.modelLicense="CC0-1.0";host.dataset.modelCredit="Innerscene / MakeHuman-MPFB anatomical base mesh";host.dataset.modelBones=String(externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
-   externalHuman.userData.rumboSkeleton=externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton||null;
+   host.dataset.modelLicense="CC0-1.0";host.dataset.modelCredit="Grab3D Man Base Mesh · CC0";host.dataset.modelBones=String(externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
+   externalHuman.userData.rumboSkeleton=externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton||null;\n   if(gltf.animations?.length){const mixer=new THREE.AnimationMixer(externalHuman);const clip=gltf.animations.find(a=>/walk/i.test(a.name))||gltf.animations[0];mixer.clipAction(clip).play();externalHuman.userData.rumboMixer=mixer;host.dataset.modelAnimation=clip.name||"included";}
   },undefined,error=>{externalLoadState="failed";console.warn("RUMBO external human model unavailable; retaining local fallback",error)});
  }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
