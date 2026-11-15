@@ -120,7 +120,7 @@ function initRumboScene(){
 function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[]}}
 function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));window.rumboCloudSync?.schedule(state)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem("rumbo_cloud_local_updated_at",String(Date.now()));window.rumboCloudSync?.schedule(state)}
 function allRecipes(){return [...RECIPES,...(state.customRecipes||[])]}
 function recipeById(id){return allRecipes().find(x=>x.id===id)}
 function esc(x=""){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -823,6 +823,7 @@ $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",da
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
 window.rumboCloudSync=initRumboCloudSync({
  getLocalState:()=>state,
+ hasLocalContent:()=>Object.values(state).some(value=>Array.isArray(value)?value.length>0:value&&typeof value==="object"?Object.keys(value).length>0:false),
  onRemoteState:(remote)=>{
   try{state=normalizeState(remote);localStorage.setItem(KEY,JSON.stringify(state));render();toast("RUMBO actualizado desde otro dispositivo.")}catch(error){console.error("Remote RUMBO state rejected",error);toast("No se pudo aplicar la sincronización remota.")}
  }
