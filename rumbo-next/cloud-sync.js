@@ -198,7 +198,12 @@ function subscribe() {
     }, (payload) => {
       const row = payload.new;
       const remoteTime = Date.parse(row.updated_at || "");
+      const localTime = Number(localStorage.getItem(LOCAL_TIME_KEY) || 0);
       if (row.device_id === deviceId || !row.state || remoteTime <= lastRemoteUpdatedAt) return;
+      if (localTime > remoteTime) {
+        schedule(callbacks.getLocalState?.() || {});
+        return;
+      }
       lastRemoteUpdatedAt = remoteTime;
       callbacks.onRemoteState?.(row.state, { updatedAt: row.updated_at });
       localStorage.setItem(LOCAL_TIME_KEY, String(remoteTime));
