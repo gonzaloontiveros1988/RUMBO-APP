@@ -9,6 +9,7 @@ on:
       - 'rumbo-next/**'
       - 'api/**'
       - 'tests/**'
+      - 'supabase/functions/**'
       - '.github/workflows/rumbo-next-check.yml'
   workflow_dispatch:
 jobs:
