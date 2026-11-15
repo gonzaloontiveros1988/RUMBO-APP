@@ -15,13 +15,28 @@ export function parseDelimited(text) {
   row.push(cell.trim()); if(row.some(Boolean))rows.push(row);
   return rows;
 }
+function validDateKey(value) {
+  const m=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return false;
+  const y=Number(m[1]),month=Number(m[2]),day=Number(m[3]);
+  const date=new Date(Date.UTC(y,month-1,day));
+  return date.getUTCFullYear()===y&&date.getUTCMonth()===month-1&&date.getUTCDate()===day;
+}
 export function normalizeRosterDate(raw) {
   raw=String(raw||"").trim();
-  if(/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0,10);
+  if(/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+    const value=raw.slice(0,10);
+    return validDateKey(value)?value:"";
+  }
   let m=raw.match(/^(\d{2})[\/.](\d{2})[\/.](\d{4})$/);
-  if(m) return m[3]+"-"+m[2]+"-"+m[1];
+  if(m) {
+    const value=m[3]+"-"+m[2]+"-"+m[1];
+    return validDateKey(value)?value:"";
+  }
   m=raw.match(/^(\d{4})(\d{2})(\d{2})$/);
-  return m ? m[1]+"-"+m[2]+"-"+m[3] : "";
+  if(!m)return "";
+  const value=m[1]+"-"+m[2]+"-"+m[3];
+  return validDateKey(value)?value:"";
 }
 export function parseRosterText(text, filename="roster.csv") {
   const rows=[];
@@ -34,6 +49,7 @@ export function parseRosterText(text, filename="roster.csv") {
       const description=event.match(/DESCRIPTION:(.*)/);
       if(!dt)continue;
       const date=dt[1].slice(0,4)+"-"+dt[1].slice(4,6)+"-"+dt[1].slice(6,8);
+      if(!validDateKey(date))continue;
       const reportTime=dt[2]?dt[2]+":"+dt[3]:"";
       const endTime=end?.[2]?end[2]+":"+end[3]:"";
       rows.push({date,code:(summary?.[1]||"IMPORTED DUTY").trim(),route:(description?.[1]||"").trim(),time:reportTime,reportTime,endTime});
