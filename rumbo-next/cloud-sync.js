@@ -132,7 +132,14 @@ async function synchronize() {
       .maybeSingle();
     if (error) throw error;
 
-    const localTime = Number(localStorage.getItem(LOCAL_TIME_KEY) || 0);
+    let localTime = Number(localStorage.getItem(LOCAL_TIME_KEY) || 0);
+    const localState = callbacks.getLocalState?.() || {};
+    const hasLocalContent = callbacks.hasLocalContent?.() ??
+      Object.values(localState).some(value => Array.isArray(value) ? value.length > 0 : value && typeof value === "object" ? Object.keys(value).length > 0 : false);
+    if (!localTime && hasLocalContent) {
+      localTime = Date.now();
+      localStorage.setItem(LOCAL_TIME_KEY, String(localTime));
+    }
     const remoteTime = remote?.updated_at ? Date.parse(remote.updated_at) : 0;
     lastRemoteUpdatedAt = remoteTime;
 
