@@ -1,9 +1,9 @@
-// RUMBO Fitness — clean GLB-first human viewer.
-// Model: Sam, clothed and rigged, CC0, from Innerscene / MakeHuman- MPFB assets.
-// This file intentionally contains no procedural humanoid made from geometric primitives.
+// RUMBO Fitness — rigged human model with exercise-specific movement.
+// Michelle is a textured, skinned humanoid sample; the app drives its rig with exercise cycles.
 const THREE_URL="https://esm.sh/three@0.170.0";
 const LOADER_URL="https://esm.sh/three@0.170.0/examples/jsm/loaders/GLTFLoader.js";
-const MODEL_URL="https://files.innerscene.com/library/relaxed-walk-sam-3d-person-animated-732f1206/b11d02f72ad777e03d68/relaxed-walk-sam-3d-person-animated.glb";
+export const FITNESS_MODEL_URL="https://threejs.org/examples/models/gltf/Michelle.glb";
+const MODEL_URL=FITNESS_MODEL_URL;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 let activeHost=null,activeDispose=null,THREE=null,GLTFLoader=null;
 
@@ -23,7 +23,21 @@ const MOTION_RULES=[
 ];
 function createExerciseMotion(THREE,model,exerciseId){
  const bones=new Map();model.traverse(o=>{if(o.isBone)bones.set(o.name,o)});
- const g={pelvis:bones.get("pelvis"),spine1:bones.get("spine_01"),spine2:bones.get("spine_02"),spine3:bones.get("spine_03"),hipL:bones.get("thigh_l"),hipR:bones.get("thigh_r"),kneeL:bones.get("calf_l"),kneeR:bones.get("calf_r"),shoulderL:bones.get("upperarm_l"),shoulderR:bones.get("upperarm_r"),elbowL:bones.get("lowerarm_l"),elbowR:bones.get("lowerarm_r")};
+ const pick=(...names)=>names.map(name=>bones.get(name)).find(Boolean)||null;
+ const g={
+  pelvis:pick("pelvis","mixamorigHips","Hips"),
+  spine1:pick("spine_01","mixamorigSpine","Spine"),
+  spine2:pick("spine_02","mixamorigSpine1","Spine1"),
+  spine3:pick("spine_03","mixamorigSpine2","Spine2"),
+  hipL:pick("thigh_l","mixamorigLeftUpLeg","LeftUpLeg"),
+  hipR:pick("thigh_r","mixamorigRightUpLeg","RightUpLeg"),
+  kneeL:pick("calf_l","mixamorigLeftLeg","LeftLeg"),
+  kneeR:pick("calf_r","mixamorigRightLeg","RightLeg"),
+  shoulderL:pick("upperarm_l","mixamorigLeftArm","LeftArm"),
+  shoulderR:pick("upperarm_r","mixamorigRightArm","RightArm"),
+  elbowL:pick("lowerarm_l","mixamorigLeftForeArm","LeftForeArm"),
+  elbowR:pick("lowerarm_r","mixamorigRightForeArm","RightForeArm")
+ };
  const rest=new Map();Object.values(g).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
  const id=(exerciseId||"").toLowerCase();
  const kind=id==="squat"?"goblet-squat":id==="leg-press"?"leg-press":id==="bench-press"?"bench-press":id==="rdl"?"deadlift":id==="db-press"?"dumbbell-bench":id==="biceps-curl"?"biceps-curl":/squat/.test(id)?"squat":/deadlift|rdl|hip-hinge|good-morning/.test(id)?"hinge":/bench|chest-press|push-up/.test(id)?"horizontal-push":/curl/.test(id)?"elbow-flexion":/lunge|step-up/.test(id)?"lunge":/row/.test(id)?"row":/press/.test(id)?"press":"general";
@@ -122,8 +136,8 @@ function makeViewer(host,exerciseId){
   lookTarget.set(center.x,center.y,center.z+.015);model.userData.rumboRadius=Math.max(sphere.radius,.9);
   exerciseMotion=createExerciseMotion(THREE,model,exerciseId);
   host.dataset.humanAnimation=exerciseMotion.kind;host.dataset.humanRigBones=String(exerciseMotion.boneCount);host.dataset.humanRigGroups=exerciseMotion.groups.join(",");
-  host.dataset.humanModel="sam-clothed-rigged";host.dataset.humanLicense="CC0";
-  status.textContent="DEMOSTRACIÓN · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" ARTICULACIONES";
+  host.dataset.humanModel="michelle-mixamo-rigged";host.dataset.humanLicense="MIT";
+  status.textContent="MICHELLE · "+exerciseMotion.kind.toUpperCase()+" · "+exerciseMotion.boneCount+" ARTICULACIONES";
   resize();
  },undefined,error=>{status.textContent="No se pudo cargar el modelo 3D";status.style.background="#7a302d";host.dataset.humanModel="load-error";console.error("RUMBO human GLB load failed",error)});
  const render=now=>{
