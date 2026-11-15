@@ -232,7 +232,7 @@ function init(host,id,THREE,GLTFLoader){
  compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar aviso":"Comparar técnica";phaseLabel.textContent=compareMode?"Aviso: comparación visual aún no disponible":"Fase: inicio";anglesLabel.textContent=compareMode?"Los ángulos mostrados son geométricos estimados, no una evaluación biomecánica validada":"Rodilla —° · Codo —° · Cadera —°";toolbar.classList.toggle("is-comparing",compareMode)});
  timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;elapsed=progress*2.4;paused=true;playBtn.textContent="▶ Reproducir"});
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
- let raf;let elapsed=0,externalHuman=null,externalLoadState="loading";
+ const start=performance.now();let raf;let elapsed=0,externalHuman=null,externalLoadState="loading";
  function draw(now){raf=requestAnimationFrame(draw);try{const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;if(externalHuman?.userData?.rumboMixer)externalHuman.userData.rumboMixer.update(dt*(paused?0:playbackRate));progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
   P.spine=P.chest.clone().lerp(P.pelvis,.42);
   for(const [name,b] of Object.entries(rigBones)){const key=rigPointNames[name],point=P[key]||P.pelvis,parent=rigParent[name],parentKey=parent?rigPointNames[parent]:null,parentPoint=parent?(P[parentKey]||P.pelvis):null;b.position.copy(parentPoint?point.clone().sub(parentPoint):point)}
