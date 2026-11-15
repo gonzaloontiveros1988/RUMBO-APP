@@ -744,7 +744,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-equipment{display:block;margin:7px 0 13px}
 .guided-video-link{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:11px;background:rgba(39,192,187,.14);border:1px solid rgba(63,210,202,.3);color:#7ce5df;font-weight:750;text-decoration:none}
 .guided-target-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 0}
-.guided-target-row>div{padding:12px;border-radius:12px;background:rgba(255,255,255,.045)}
+.guided-target-row>div,.guided-target-row>label{padding:12px;border-radius:12px;background:rgba(255,255,255,.045);min-width:0}.guided-target-row input{width:100%;min-width:0;margin-top:7px;padding:9px;border:1px solid rgba(113,170,184,.35);border-radius:8px;background:#0a1d2b;color:var(--white);font:700 15px Manrope,sans-serif}.guided-target-row input:focus{outline:2px solid var(--cyan);outline-offset:1px}
 .guided-target-row small,.guided-target-row b{display:block}
 .guided-target-row small{font:650 9px 'DM Mono',monospace;letter-spacing:.12em;color:#73d9d3}
 .guided-target-row b{margin-top:5px;font-size:15px}
