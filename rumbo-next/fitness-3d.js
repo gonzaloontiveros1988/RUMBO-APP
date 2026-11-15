@@ -22,39 +22,64 @@ const MOTION_RULES=[
  {id:"cardio",test:/cycling|jump-rope|farmer-carry/i,groups:{thigh:[.42,0,0],shin:[-.58,0,0],upperarm:[.12,0,0],forearm:[-.08,0,0]}}
 ];
 function createExerciseMotion(THREE,model,exerciseId){
- const bones=[];model.traverse(o=>{if(o.isBone)bones.push(o)});
- const classify=raw=>{
-  const n=raw.toLowerCase().replace(/[^a-z0-9]/g,"");
-  if(/(upleg|thigh|femur)/.test(n))return "thigh";
-  if(/(lowerleg|shin|calf|leg$)/.test(n)&&!/(upleg)/.test(n))return "shin";
-  if(/(upperarm|armupper|humerus|shoulder)/.test(n)||(/arm/.test(n)&&!/forearm|lowerarm/.test(n)))return "upperarm";
-  if(/(forearm|lowerarm)/.test(n))return "forearm";
-  if(/(spine|abdomen|chest|torso)/.test(n))return "spine";
-  if(/(pelvis|hips|hip)/.test(n))return "pelvis";
-  return null;
+ const byName=new Map();model.traverse(o=>{if(o.isBone)byName.set(o.name,o)});
+ const groups={
+  pelvis:byName.get("pelvis"),spine1:byName.get("spine_01"),spine2:byName.get("spine_02"),spine3:byName.get("spine_03"),
+  thighL:byName.get("thigh_l"),thighR:byName.get("thigh_r"),calfL:byName.get("calf_l"),calfR:byName.get("calf_r"),
+  upperL:byName.get("upperarm_l"),upperR:byName.get("upperarm_r"),lowerL:byName.get("lowerarm_l"),lowerR:byName.get("lowerarm_r"),
+  clavL:byName.get("clavicle_l"),clavR:byName.get("clavicle_r"),footL:byName.get("foot_l"),footR:byName.get("foot_r"),
+  neck:byName.get("neck_01"),head:byName.get("head")
  };
- const rig=bones.map(b=>({bone:b,group:classify(b.name),rest:b.quaternion.clone(),restPosition:b.position.clone()})).filter(x=>x.group);
- const rule=MOTION_RULES.find(x=>x.test.test(exerciseId||""))||MOTION_RULES[0];
- const delta=new THREE.Quaternion(),euler=new THREE.Euler();
- const sides=rig.map(x=>({...x,side:/^(mixamorig)?l(?!ower)|left|\.l($|\.)/i.test(x.bone.name)?-1:/^(mixamorig)?r|right|\.r($|\.)/i.test(x.bone.name)?1:0}));
- const originalPositions=sides.map(x=>x.restPosition.clone());
- const update=(time)=>{
-  const cycle=(time%3.6)/3.6;
-  // Controlled 2-phase repetition: eccentric descent, brief bottom, concentric return.
-  const phase=cycle<.48?cycle/.48:cycle<.58?1:(1-(cycle-.58)/.42);
-  const smooth=phase*phase*(3-2*phase);
-  const depth=Math.sin(smooth*Math.PI/2);
-  for(const item of sides){
-   const amp=rule.groups[item.group];if(!amp)continue;
-   const side=item.side||1,scale=item.group==="spine"||item.group==="pelvis"?1:side;
-   euler.set(amp[0]*depth*scale,amp[1]*depth*scale,amp[2]*depth*scale,"XYZ");
-   delta.setFromEuler(euler);
-   item.bone.quaternion.copy(item.rest).multiply(delta);
-   if(item.group==="pelvis"&&rule.id==="squat")item.bone.position.y=item.restPosition.y-.13*depth;
-   if(item.group==="pelvis"&&rule.id==="hinge")item.bone.position.y=item.restPosition.y-.035*depth;
+ const rest=new Map();Object.values(groups).filter(Boolean).forEach(b=>rest.set(b,{q:b.quaternion.clone(),p:b.position.clone()}));
+ const key=(exerciseId||"").toLowerCase();
+ let kind="squat";
+ if(/deadlift|romanian|\brdl\b|hip-hinge|good-morning/.test(key))kind="hinge";
+ else if(/lunge|split-squat|bulgarian|step-up/.test(key))kind="lunge";
+ else if(/bench|push-up|chest-press|chest-fly/.test(key))kind="horizontal-push";
+ else if(/shoulder-press|overhead|lateral-raise/.test(key))kind="vertical-push";
+ else if(/row|face-pull/.test(key))kind="horizontal-pull";
+ else if(/lat-pulldown|pull-up/.test(key))kind="vertical-pull";
+ const q=new THREE.Quaternion(),e=new THREE.Euler();
+ const apply=(bone,rx=0,ry=0,rz=0,side=1)=>{
+  if(!bone||!rest.has(bone))return;
+  const r=rest.get(bone);e.set(rx*side,ry*side,rz*side,"XYZ");q.setFromEuler(e);bone.quaternion.copy(r.q).multiply(q);
+ };
+ const update=time=>{
+  const c=(time%3.6)/3.6;
+  const t=c<.46?c/.46:c<.56?1:(1-(c-.56)/.44);
+  const d=Math.sin((t*t*(3-2*t))*Math.PI/2);
+  // Named rig joints from the inspected 56-bone hierarchy. Angles are conservative first-pass values.
+  if(kind==="squat"){
+   apply(groups.thighL,-.62*d);apply(groups.thighR,-.62*d);
+   apply(groups.calfL,1.05*d);apply(groups.calfR,1.05*d);
+   apply(groups.spine1,.08*d);apply(groups.spine2,.07*d);apply(groups.spine3,.04*d);
+   apply(groups.upperL,-.12*d);apply(groups.upperR,-.12*d);
+   if(groups.pelvis){const r=rest.get(groups.pelvis);groups.pelvis.position.copy(r.p);groups.pelvis.position.y-=.12*d}
+  }else if(kind==="hinge"){
+   apply(groups.thighL,-.32*d);apply(groups.thighR,-.32*d);
+   apply(groups.spine1,.22*d);apply(groups.spine2,.18*d);apply(groups.spine3,.10*d);
+   apply(groups.lowerL,-.10*d);apply(groups.lowerR,-.10*d);
+  }else if(kind==="lunge"){
+   apply(groups.thighL,-.55*d);apply(groups.calfL,.82*d);
+   apply(groups.thighR,.18*d);apply(groups.calfR,-.12*d);
+   apply(groups.spine1,.04*d);apply(groups.spine2,.04*d);
+  }else if(kind==="horizontal-push"){
+   apply(groups.upperL,-.55*d);apply(groups.upperR,-.55*d);
+   apply(groups.lowerL,.78*d);apply(groups.lowerR,.78*d);
+   apply(groups.clavL,-.08*d);apply(groups.clavR,-.08*d);
+  }else if(kind==="vertical-push"){
+   apply(groups.upperL,-.82*d);apply(groups.upperR,-.82*d);
+   apply(groups.lowerL,.18*d);apply(groups.lowerR,.18*d);
+  }else if(kind==="horizontal-pull"){
+   apply(groups.upperL,.45*d);apply(groups.upperR,.45*d);
+   apply(groups.lowerL,-.48*d);apply(groups.lowerR,-.48*d);
+   apply(groups.spine1,.05*d);
+  }else if(kind==="vertical-pull"){
+   apply(groups.upperL,-.72*d);apply(groups.upperR,-.72*d);
+   apply(groups.lowerL,.32*d);apply(groups.lowerR,.32*d);
   }
  };
- return {update,kind:rule.id,boneCount:rig.length,groups:[...new Set(rig.map(x=>x.group))],dispose(){for(const x of sides){x.bone.quaternion.copy(x.rest);x.bone.position.copy(x.restPosition)}}};
+ return {update,kind,boneCount:rest.size,groups:Object.keys(groups).filter(k=>groups[k]),dispose(){for(const [bone,r] of rest){bone.quaternion.copy(r.q);bone.position.copy(r.p)}}};
 }
 
 function makeViewer(host,exerciseId){
@@ -86,7 +111,7 @@ function makeViewer(host,exerciseId){
  const pauseButton=button("Ⅱ Pausa",()=>{paused=!paused;pauseButton.textContent=paused?"▶ Reanudar":"Ⅱ Pausa"});
  button("−",()=>{rate=clamp(rate-.25,.5,2)});button("Velocidad 1×",()=>{rate=rate>=2?.5:rate+.25});
  const skeletonPanel=document.createElement("div");
- skeletonPanel.style.cssText="display:none;position:absolute;inset:8px 8px 48px auto;width:min(320px,92%);overflow:auto;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf7;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap;box-shadow:0 8px 28px #0009";
+ skeletonPanel.style.cssText="display:none;position:relative;width:100%;max-height:220px;overflow:auto;box-sizing:border-box;z-index:8;padding:10px;border:1px solid #43808c;border-radius:9px;background:#071d2bf7;color:#e7fbff;font:10px/1.5 ui-monospace,monospace;white-space:pre-wrap;box-shadow:0 8px 28px #0009";
  host.appendChild(skeletonPanel);
  const skeletonButton=button("Esqueleto · esperando",()=>{skeletonPanel.style.display=skeletonPanel.style.display==="none"?"block":"none"});
  skeletonButton.disabled=true;skeletonButton.style.opacity=".6";
