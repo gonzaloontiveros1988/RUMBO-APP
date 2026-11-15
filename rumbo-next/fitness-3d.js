@@ -280,28 +280,24 @@ function init(host,id,THREE,GLTFLoader){
  // users saw only the low-detail SVG fallback. This rig is self-contained in Three.js.
  host.dataset.model="articulated-human";
 
- // Load Khronos Cesium Man (CC BY 4.0); retain procedural fallback if unavailable.
- try{
-  if(!GLTFLoader)throw new Error("GLTFLoader no disponible");
-  const loader=new GLTFLoader();
-  loader.load("https://grab3d.com/dl/man-base-character-rigged/man-base-character-rigged.glb",gltf=>{
-   externalHuman=gltf.scene;
-   externalHuman.rotation.y=Math.PI;
-   const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
-   const targetHeight=1.68,scale=targetHeight/Math.max(size.y,.001);
-   externalHuman.scale.setScalar(scale);
-   externalHuman.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);
-   externalHuman.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.42,o.material.roughness??.65);o.material.envMapIntensity=1}}});
-   scene.add(externalHuman);
-   Object.values(nodes).forEach(o=>o.visible=false);
-   Object.values(bones).forEach(o=>o.visible=false);
-   [torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
-   externalLoadState="loaded";host.dataset.model="continuous-rigged-human";
-   host.dataset.modelLicense="CC0-1.0";host.dataset.modelCredit="Grab3D Man Base Mesh · CC0";host.dataset.modelBones=String(externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton?.bones?.length||0);
-   externalHuman.userData.rumboSkeleton=externalHuman.getObjectByProperty("type","SkinnedMesh")?.skeleton||null;
-   if(gltf.animations?.length){const mixer=new THREE.AnimationMixer(externalHuman);const clip=gltf.animations.find(a=>/walk/i.test(a.name))||gltf.animations[0];mixer.clipAction(clip).play();externalHuman.userData.rumboMixer=mixer;host.dataset.modelAnimation=clip.name||"included";}
-  },undefined,error=>{externalLoadState="failed";console.warn("RUMBO external human model unavailable; retaining local fallback",error)});
- }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
+ // Load a clothed, rigged CC0 human once. Keep the articulated local rig as a safe fallback.
+ if(externalLoadState==="loading"){
+  externalLoadState="requested";
+  try{
+   if(!GLTFLoader)throw new Error("GLTFLoader no disponible");
+   const loader=new GLTFLoader();
+   loader.load("https://files.innerscene.com/library/relaxed-walk-sam-3d-person-animated-732f1206/b11d02f72ad777e03d68/relaxed-walk-sam-3d-person-animated.glb",gltf=>{
+    externalHuman=gltf.scene;externalHuman.rotation.y=Math.PI;
+    const box=new THREE.Box3().setFromObject(externalHuman),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),scale=1.72/Math.max(size.y,.001);
+    externalHuman.scale.setScalar(scale);externalHuman.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);
+    externalHuman.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.48,o.material.roughness??.65);o.material.envMapIntensity=1}}});
+    scene.add(externalHuman);Object.values(nodes).forEach(o=>o.visible=false);Object.values(bones).forEach(o=>o.visible=false);[torsoCore,upperBack,collar,...handRigs,...footRigs].forEach(o=>o.visible=false);
+    externalLoadState="loaded";host.dataset.model="sam-clothed-rigged-human";host.dataset.modelLicense="CC0-1.0";host.dataset.modelCredit="Innerscene · Sam relaxed walk · MakeHuman/MPFB CC0";
+    const skinned=externalHuman.getObjectByProperty("type","SkinnedMesh");host.dataset.modelBones=String(skinned?.skeleton?.bones?.length||0);externalHuman.userData.rumboSkeleton=skinned?.skeleton||null;
+    if(gltf.animations?.length){const mixer=new THREE.AnimationMixer(externalHuman),clip=gltf.animations.find(a=>/walk/i.test(a.name))||gltf.animations[0];mixer.clipAction(clip).play();externalHuman.userData.rumboMixer=mixer;host.dataset.modelAnimation=clip.name||"included"}
+   },undefined,error=>{externalLoadState="failed";console.warn("RUMBO clothed CC0 model unavailable; retaining local fallback",error)});
+  }catch(error){externalLoadState="failed";console.warn("RUMBO external human loader unavailable",error)}
+ }
  const target=V(0,1.02,0),radius=3.75*dist,viewAz=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;
   const a=viewAz+az;camera.position.set(target.x+radius*Math.sin(a)*Math.cos(el),target.y+radius*(.22+el),target.z+radius*Math.cos(a)*Math.cos(el));camera.lookAt(target);renderer.render(scene,camera);
  }catch(error){cancelAnimationFrame(raf);paused=true;host.dataset.engine="error";host.title="Error del visor 3D: "+(error&&error.message||String(error));console.error("RUMBO 3D frame failed",error);const warning=document.createElement("div");warning.textContent="No se pudo dibujar el modelo 3D: "+(error&&error.message||String(error));warning.style.cssText="position:absolute;inset:8px;z-index:8;display:grid;place-items:center;padding:12px;text-align:center;color:#ffd1b8;background:rgba(5,18,29,.92);font:12px system-ui;overflow-wrap:anywhere";host.appendChild(warning);return;}
