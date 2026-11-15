@@ -179,8 +179,8 @@ function init(host,id,THREE){
  toolbar.querySelectorAll("[data-camera]").forEach(b=>b.addEventListener("click",()=>{cameraMode=b.dataset.camera;az=cameraMode==="front"?0:cameraMode==="side"?Math.PI/2:Math.PI;el=0}));
  toolbar.querySelector("[data-speed]").addEventListener("change",e=>playbackRate=Number(e.target.value)||1);
  playBtn.addEventListener("click",()=>{paused=!paused;playBtn.textContent=paused?"▶ Reproducir":"Ⅱ Pausa"});
- compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar comparación":"Comparar técnica";toolbar.classList.toggle("is-comparing",compareMode)});
- timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;paused=true;playBtn.textContent="▶ Reproducir"});
+ compareBtn.addEventListener("click",()=>{compareMode=!compareMode;compareBtn.textContent=compareMode?"Ocultar panel":"Comparar técnica";phaseLabel.textContent=compareMode?"Comparación activada · ángulos articulares en vivo":"Fase: inicio";anglesLabel.textContent=compareMode?"Observa rodilla, codo y cadera durante el recorrido":"Rodilla —° · Codo —° · Cadera —°";toolbar.classList.toggle("is-comparing",compareMode)});
+ timeline.addEventListener("input",()=>{progress=Number(timeline.value)/1000;elapsed=progress*2.4;paused=true;playBtn.textContent="▶ Reproducir"});
  const angle=(a,b,c)=>{const v1=a.clone().sub(b).normalize(),v2=c.clone().sub(b).normalize();return THREE.MathUtils.radToDeg(Math.acos(clamp(v1.dot(v2),-1,1)))};
  let raf;let elapsed=0;
  function draw(now){raf=requestAnimationFrame(draw);const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)elapsed+=dt*playbackRate;progress=(elapsed/2.4)%1;const p=progress,P=pose(p);timeline.value=String(Math.round(progress*1000));
