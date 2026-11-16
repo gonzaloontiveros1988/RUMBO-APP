@@ -24,8 +24,8 @@ function cleanSteps(raw: string) {
 const SOCIAL_HOSTS = new Set(["instagram.com","www.instagram.com","m.instagram.com","tiktok.com","www.tiktok.com","vm.tiktok.com","youtube.com","www.youtube.com","m.youtube.com","youtu.be"]);
 function meta(html: string, key: string) {
   const patterns = [
-    new RegExp("<meta[^>]+(?:property|name)=[\\"']" + key + "[\\"'][^>]+content=[\\"']([^\\"']*)[\\"'][^>]*>", "i"),
-    new RegExp("<meta[^>]+content=[\\"']([^\\"']*)[\\"'][^>]+(?:property|name)=[\\"']" + key + "[\\"'][^>]*>", "i")
+    new RegExp('<meta[^>]+(?:property|name)="' + key + '"[^>]+content="([^"]*)"[^>]*>', "i"),
+    new RegExp('<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="' + key + '"[^>]*>', "i")
   ];
   for (const pattern of patterns) { const match = html.match(pattern); if (match) return decodeHtml(match[1]); }
   return "";
