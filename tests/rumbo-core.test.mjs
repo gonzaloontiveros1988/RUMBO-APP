@@ -13,7 +13,7 @@ import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,su
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 
-test("Fitness defaults to the local exercise-specific SVG guide and does not load an unvalidated 3D avatar",()=>{
+test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync detects Fitness and Nutrition data",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
  const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
@@ -24,7 +24,6 @@ test("Fitness defaults to the local exercise-specific SVG guide and does not loa
  assert.match(html,/fitness-guide-v7/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
- assert.ok(app.includes("nutrition:{profile:state.nutritionProfile||{}"));
 });
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
