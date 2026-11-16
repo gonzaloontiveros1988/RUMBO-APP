@@ -1316,3 +1316,33 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .personal-video-guided .exercise-source-link{display:inline-flex;margin:10px 0;padding:10px 13px;border:1px solid #3c7888;border-radius:10px;color:#8fe4e1;font-weight:800;text-decoration:none}
 .personal-plan-panel .panel{height:100%}
 .cardio-log-panel .form label{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+
+
+/* Personal Fitness journey */
+.fitness-journey-panel .fitness-progress-wrap{margin:16px 0;padding:15px;border:1px solid var(--line);border-radius:14px;background:rgba(8,28,42,.42)}
+.fitness-progress-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}
+.fitness-progress-head strong{color:#76ded4}
+.fitness-progress-track{height:10px;border-radius:99px;background:#233d4e;overflow:hidden;margin-bottom:8px}
+.fitness-progress-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#40b9b3,#8ce0b4)}
+.fitness-weight-grid{margin-top:12px}
+.fitness-session-grid{align-items:stretch}
+.fitness-session-card{padding:17px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,rgba(19,49,66,.95),rgba(9,29,43,.95));min-width:0}
+.fitness-session-card h3{margin:10px 0 6px;font-size:17px}
+.fitness-session-card p{color:var(--muted);font-size:13px;line-height:1.55}
+.fitness-session-card ul{padding-left:19px;margin:12px 0 16px}
+.fitness-session-card li{padding:4px 0;color:var(--text);font-size:13px}
+.fitness-session-card li a{margin-left:8px;color:#83ddd7;font-size:11px;white-space:nowrap}
+.fitness-session-top{display:flex;justify-content:space-between;align-items:center}
+.fitness-video-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.fitness-video-card{overflow:hidden;border:1px solid var(--line);border-radius:13px;background:#0d2434;min-width:0}
+.fitness-video-thumb{display:block;position:relative;aspect-ratio:4/5;background:#102c3d;overflow:hidden}
+.fitness-video-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.fitness-video-thumb span{position:absolute;bottom:8px;right:8px;padding:6px 8px;border-radius:7px;background:rgba(5,22,34,.88);color:#a9eee5;font-size:9px;font-weight:800}
+.fitness-video-copy{display:flex;flex-direction:column;gap:5px;padding:10px}
+.fitness-video-copy b{font-size:12px;line-height:1.35}
+.fitness-video-copy small{font-size:10px;color:var(--muted)}
+.fitness-video-copy .pill{align-self:flex-start;font-size:9px}
+.fitness-video-credit{margin-top:14px;color:var(--muted);font-size:11px}
+.fitness-video-credit a{color:#83ddd7}
+@media(max-width:900px){.fitness-video-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.fitness-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.fitness-weight-grid{grid-template-columns:1fr}.fitness-session-grid{grid-template-columns:1fr}.fitness-session-card{padding:14px}}
