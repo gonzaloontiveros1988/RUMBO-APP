@@ -67,7 +67,7 @@ const ALIASES = [
   [/pavo picado|carne picada de pavo/i,"pavo picado magro"],[/ternera|vacuno/i,"ternera magra"],
   [/salm[oó]n/i,"salmon"],[/merluza/i,"merluza"],[/bacalao|cod/i,"bacalao"],
   [/gamba|langostino|shrimp/i,"gambas"],[/at[uú]n.*(?:natural|agua)|tuna/i,"atun al natural escurrido"],
-  [/clara/i,"claras de huevo"],[/huevo/i,"huevo"],[/yogur griego.*0s*%|yogur.*desnatado/i,"yogur griego 0%"],
+  [/clara/i,"claras de huevo"],[/huevo/i,"huevo"],[/yogur griego 0|yogur.*desnatado/i,"yogur griego 0%"],
   [/yogur griego/i,"yogur griego natural"],[/yogur/i,"yogur natural"],[/cottage/i,"queso cottage 2%"],
   [/queso fresco batido/i,"queso fresco batido 0%"],[/avena|oat/i,"copos de avena"],
   [/arroz integral/i,"arroz integral"],[/arroz/i,"arroz blanco"],[/quinoa/i,"quinoa"],
