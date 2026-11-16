@@ -240,7 +240,7 @@ export const PERSONAL_FITNESS_SESSIONS = [
     summary: "Sesión de cuerpo superior con máquinas/cables y cargas controladas.",
     sets: 2, reps: "10–12", rpe: 6, restSeconds: 90,
     exercises: [
-      { exerciseId: "bench-press", name: "Barbell Bench Press", videoId: "barbell-bench-press" },
+      { exerciseId: "seated-machine-chest-press", name: "Seated Machine Chest Press", videoId: "seated-machine-chest-press" },
       { exerciseId: "lat-pulldown", name: "Lat Pulldown", videoId: "lat-pulldown" },
       { exerciseId: "row", name: "Seated Cable Row", videoId: "seated-cable-row" },
       { exerciseId: "lateral-raise", name: "Dumbbell Lateral Raise", videoId: "dumbbell-lateral-raise" },
