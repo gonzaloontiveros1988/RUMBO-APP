@@ -820,15 +820,43 @@ bind("confirmRecipeAdd",()=>{
 });
 bind("cancelRecipeReview",()=>{state.selectedRecipeCandidate=null;save();render()});
 
-bind("importSocialRecipe",()=>{
-  const urlText=$("#socialRecipeUrl")?.value.trim()||"",raw=$("#socialRecipeText")?.value||"",status=$("#socialRecipeStatus");
-  if(!raw.trim()){if(status)status.textContent="Pega ingredientes, cantidades y elaboración o el caption/transcripción.";return toast("Falta el texto de la receta.");}
-  let sourceUrl=null;if(urlText){try{sourceUrl=new URL(urlText);if(sourceUrl.protocol!=="https:")throw new Error("HTTPS");}catch{if(status)status.textContent="El enlace no es válido. Corrígelo o déjalo vacío.";return toast("El enlace no es válido.");}}
-  const parsed=parsePastedRecipe(raw);if(!parsed.ok){if(status)status.textContent=parsed.error+" Incluye nombre, ingredientes y pasos.";return toast(parsed.error);}
-  const host=sourceUrl?sourceUrl.hostname.replace(/^www\\./,""):"texto pegado",recipe={...parsed.recipe,id:"social-"+(crypto.randomUUID?crypto.randomUUID():String(Date.now())),origin:"social-import",sourceUrl:sourceUrl?.href||"",sourceTitle:"Importada desde "+host,sourcePlatform:host,image:"",ingredients:parsed.recipe.ingredients.map(x=>{const q=parseQuantityGrams(x[1]);return [...x,q.qualifier==="raw"?(q.grams||0):0,q.qualifier==="cooked"?(q.grams||0):0,q.qualifier]})};
-  const macros=recipeNutrition(recipe);state.customRecipes=state.customRecipes||[];state.customRecipes.push(recipe);state.recipeSearchResults=[recipe];state.selectedRecipeCandidate=recipe.id;state.recipeSearchDate=state.mealWeekStart||today();state.recipeTargetCategory=recipe.category;state.recipeTargetServings=recipe.servings;state.recipeSearchNotice=macros.complete?"Macros calculados desde las cantidades detectadas. Revisa las unidades y la ración.":"Macros parciales: faltan cantidades o referencias para "+macros.unknownIngredients.join(", ")+".";
-  save();render();toast("Receta analizada. Revisa sus macros y preparación.");
- });rt {flightMapData,flightMapSvg,loadAirportDirectory,AIRPORTS} from "./flight-map.js";
+function saveImportedRecipe(parsed,sourceUrl,metaData={}){
+ const host=sourceUrl?new URL(sourceUrl).hostname.replace(/^www\./,""):"texto manual";
+ const recipe={...parsed.recipe,id:"social-"+(crypto.randomUUID?crypto.randomUUID():String(Date.now())),origin:"social-import",sourceUrl:sourceUrl||"",sourceTitle:metaData.title||("Importada desde "+host),sourcePlatform:metaData.platform||host,image:metaData.image||"",ingredients:parsed.recipe.ingredients.map(x=>{const q=parseQuantityGrams(x[1]);return [...x,q.qualifier==="raw"?(q.grams||0):0,q.qualifier==="cooked"?(q.grams||0):0,q.qualifier]})};
+ const macros=recipeNutrition(recipe);state.customRecipes=state.customRecipes||[];state.customRecipes.push(recipe);state.recipeSearchResults=[recipe];state.selectedRecipeCandidate=recipe.id;state.recipeSearchDate=state.mealWeekStart||today();state.recipeTargetCategory=recipe.category;state.recipeTargetServings=recipe.servings;state.recipeSearchNotice=macros.complete?"Macros calculados. Revisa las cantidades y la ración.":"Macros parciales: faltan cantidades o referencias para "+macros.unknownIngredients.join(", ")+".";
+ save();render();toast("Receta importada. Revisa la ficha y los macros.");
+}
+async function analyzeRecipeText(){
+ const raw=$("#socialRecipeText")?.value||"",status=$("#socialRecipeStatus"),url=$("#socialRecipeUrl")?.value.trim()||"";
+ const parsed=parsePastedRecipe(raw);
+ if(!parsed.ok){if(status)status.textContent=parsed.error+" Incluye nombre, ingredientes con cantidades y pasos.";toast(parsed.error);return;}
+ saveImportedRecipe(parsed,url||"",{}); 
+}
+bind("analyzeRecipeText",()=>analyzeRecipeText());
+bind("importSocialRecipe",async()=>{
+ const url=$("#socialRecipeUrl")?.value.trim()||"",raw=$("#socialRecipeText")?.value||"",status=$("#socialRecipeStatus"),button=$("#importSocialRecipe");
+ if(!url){if(raw.trim())return analyzeRecipeText();if(status)status.textContent="Pega el enlace compartido de la publicación. No necesitas copiar el caption.";return toast("Falta el enlace de la publicación.");}
+ let parsedUrl;try{parsedUrl=new URL(url);if(parsedUrl.protocol!=="https:")throw new Error("https");}catch{if(status)status.textContent="El enlace no parece válido. Copia el enlace público desde Compartir.";return toast("Enlace no válido.");}
+ if(button){button.disabled=true;button.textContent="Leyendo publicación…";}
+ if(status)status.textContent="Conectando con la publicación para leer sus datos públicos…";
+ try{
+  const response=await fetch("https://nptghdnbdzvrvgdiaxzn.supabase.co/functions/v1/recipe-assistant",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json","apikey":"sb_publishable_FiZ3-rmiX4ofRALNlqv-sg_i90ss6j"},body:JSON.stringify({action:"import-url",url}),signal:AbortSignal.timeout(18000)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"No se pudo leer la publicación.");
+  const description=[data.title,data.description].filter(Boolean).join("\n\n");
+  if(data.recipe){
+   const textRecipe=[data.recipe.name,"Ingredientes:",...data.recipe.ingredients.map(x=>"- "+x),"Preparación:",...data.recipe.instructions].join("\n");
+   const parsed=parsePastedRecipe(textRecipe);
+   if(parsed.ok){saveImportedRecipe(parsed,url,{title:data.title||data.recipe.name,platform:data.platform,image:data.recipe.image||data.image});return;}
+  }
+  if(description){const textarea=$("#socialRecipeText");if(textarea)textarea.value=description;}
+  if(status)status.textContent=data.notice||"Se ha leído la publicación, pero no contiene una receta estructurada. He recuperado su descripción; revisa si incluye ingredientes y pasos y pulsa «Calcular macros del texto».";
+  toast("Enlace leído. Revisa la información recuperada.");
+ }catch(error){
+  if(status)status.textContent=(error?.message||"No se ha podido leer el enlace.")+" Algunas publicaciones requieren sesión o bloquean la lectura automática. Puedes probar con el enlace público o introducir una captura/receta manualmente.";
+  toast("No se pudo importar automáticamente.");
+ }finally{if(button){button.disabled=false;button.textContent="Leer enlace y detectar receta";}}
+});rt {flightMapData,flightMapSvg,loadAirportDirectory,AIRPORTS} from "./flight-map.js";
 import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,parsePastedRecipe,nutritionTargets,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,adaptRecipeForGoal,calculateBatchPortions,parseQuantityGrams,NUTRITION_REFERENCE_URL} from "./life-intelligence.js?v=kitchen-v1";
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats,buildTrainingProgram} from "./training-intelligence.js";
 import {EXERCISES,exerciseById,suggestNextLoad,validateExerciseEntry} from "./fitness-engine.js?v=fitness-journey-v2";
