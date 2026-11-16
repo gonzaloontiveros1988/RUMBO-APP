@@ -4,9 +4,12 @@ on:
     branches:
       - redesign/rumbo-os-v4
       - fix/rumbo-v4-fitness-recipes-recovery
+      - feature/fitness-human-model-rebuild
     paths:
       - 'rumbo-next/**'
+      - 'api/**'
       - 'tests/**'
+      - 'supabase/functions/**'
       - '.github/workflows/rumbo-next-check.yml'
   workflow_dispatch:
 jobs:
@@ -23,6 +26,7 @@ jobs:
           node --check api/recipe-assistant.js
           node --check rumbo-next/app.js
           node --check rumbo-next/fitness-3d.js
+          node --check rumbo-next/exercise-illustrations.js
           node --check rumbo-next/sw.js
           python3 - <<'PY'
           from pathlib import Path
@@ -43,8 +47,17 @@ jobs:
           node --check rumbo-next/reminders.js
           node --check rumbo-next/training-intelligence.js
           node --check rumbo-next/fitness-engine.js
+          node --check rumbo-next/personal-fitness.js
+          node --check rumbo-next/nutrition-engine.js
+          node --check rumbo-next/health-import.js
+          node --check rumbo-next/local-assistant.js
+          node --check rumbo-next/crew-bidding.js
+          node --check rumbo-next/cloud-sync.js
           node --check tests/rumbo-core.test.mjs
-          node --test tests/rumbo-core.test.mjs
+          node --check tests/recipe-assistant.test.mjs
+          node --check tests/personal-fitness.test.mjs
+          node --check tests/nutrition-engine.test.mjs
+          node --test tests/rumbo-core.test.mjs tests/recipe-assistant.test.mjs tests/personal-fitness.test.mjs tests/nutrition-engine.test.mjs
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
@@ -62,7 +75,18 @@ jobs:
           test -s rumbo-next/reminders.js
           test -s rumbo-next/training-intelligence.js
           test -s rumbo-next/fitness-engine.js
+          test -s rumbo-next/personal-fitness.js
+          test -s rumbo-next/nutrition-engine.js
+          test -s rumbo-next/health-import.js
+          test -s rumbo-next/local-assistant.js
+          test -s rumbo-next/crew-bidding.js
+          test -s rumbo-next/exercise-illustrations.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
+          test -s rumbo-next/cloud-sync.js
           test -s rumbo-next/sw.js
           test -s tests/rumbo-core.test.mjs
+          test -s tests/personal-fitness.test.mjs
+          test -s tests/nutrition-engine.test.mjs
+          test -s supabase/functions/recipe-assistant/index.ts
+          test -s supabase/functions/rumbo-ai/index.ts

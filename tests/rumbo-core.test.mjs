@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import {flightMapData} from "../rumbo-next/flight-map.js";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -5,7 +6,31 @@ import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence
 import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/monthly-planner.js";
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
-import {parseRosterText} from "../rumbo-next/roster-import.js";
+import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
+import {normalizeAppleHealthExport,normalizeAppleHealthXml,normalizeAppleHealthWorkouts} from "../rumbo-next/health-import.js";
+import {answerLocally} from "../rumbo-next/local-assistant.js";
+import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
+import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
+
+
+test("Fitness uses the 25 real looping Your Move MP4 demos and Cloud Sync detects Fitness and Nutrition data",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const fitness=readFileSync(new URL("../rumbo-next/personal-fitness.js",import.meta.url),"utf8");
+ const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
+ const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
+ assert.doesNotMatch(app,/import\s+["']\.\/fitness-3d\.js["']/);
+ assert.doesNotMatch(app,/exercise-illustrations\.js|exerciseDemoSvg\(|exerciseMotionSvg\(/);
+ assert.ok(app.includes("function exerciseVideoMarkup"));
+ assert.ok(app.includes("autoplay muted"));
+ assert.ok(app.includes("loop playsinline"));
+ assert.ok(app.includes("ymoveVideoCards"));
+ assert.equal((fitness.match(/"videoUrl":/g)||[]).length,25);
+ assert.ok(!app.includes("data-exercise3d="));
+ assert.doesNotMatch(sw,/fitness-3d\.js/);
+ assert.match(html,/fitness-video-v1/);
+ assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
+ assert.ok(app.includes('["fitnessProfile","nutritionProfile","fitnessJourney","waderImportSummary"]'));
+});
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
  assert.equal(validateSector({date:"2026-11-01",from:"DOH",to:"LHR",hours:7}).length,2);
@@ -36,6 +61,49 @@ test("workout validation rejects empty and oversized sessions",()=>{
  assert.ok(validateWorkout({date:"2026-11-01",type:"Strength",minutes:0}).length);
  assert.equal(validateWorkout({date:"2026-11-01",type:"Strength",minutes:45}).length,0);
  assert.equal(workoutStats([{minutes:30,type:"Cardio"}]).minutes,30);
+});
+test("Crew Bidding profile defaults to the user's 15-bid destination and layover preferences",()=>{
+ const profile=normalizeCrewBiddingProfile({});
+ assert.deepEqual(profile.primaryDestinations,["MLE","VIE","BUD","ZAG"]);
+ assert.deepEqual(profile.secondaryDestinations,["ALA","BEG","OTP"]);
+ assert.equal(profile.minLayoverHours,24);
+ assert.equal(profile.maxLayoverHours,48);
+ assert.equal(profile.maxBids,15);
+});
+test("Crew Bidding ranking scores preference fit, not award probability",()=>{
+ const profile=normalizeCrewBiddingProfile({});
+ const ranked=rankCrewBids([
+  {id:"other",destination:"LHR",layoverHours:8,blockHours:40,turnaround:true},
+  {id:"top",destination:"MLE",layoverHours:30,blockHours:52,consecutiveDaysOff:2,turnaround:false},
+  {id:"alt",destination:"BEG",layoverHours:30,blockHours:52,turnaround:false}
+ ],profile);
+ assert.equal(ranked[0].id,"top");
+ assert.equal(ranked[0].rank,1);
+ assert.ok(ranked[0].score>ranked[1].score);
+ assert.ok(ranked[2].score<ranked[1].score);
+});
+test("Crew Bidding outcome analytics calculate awarded share and preferred awards",()=>{
+ const summary=summarizeCrewBidHistory([
+  {outcome:"awarded",destinationTier:"primary"},
+  {outcome:"not-awarded",destinationTier:"secondary"},
+  {outcome:"awarded",destinationTier:"other"}
+ ]);
+ assert.equal(summary.decided,3);
+ assert.equal(summary.awarded,2);
+ assert.equal(summary.satisfactionPct,67);
+ assert.equal(summary.preferredAwardPct,50);
+});
+test("roster dates reject impossible calendar values while accepting supported formats",()=>{
+ assert.equal(normalizeRosterDate("2026-11-15"),"2026-11-15");
+ assert.equal(normalizeRosterDate("15/11/2026"),"2026-11-15");
+ assert.equal(normalizeRosterDate("20261115"),"2026-11-15");
+ assert.equal(normalizeRosterDate("31/02/2026"),"");
+ assert.equal(normalizeRosterDate("2026-13-01"),"");
+ assert.equal(normalizeRosterDate("2026-02-29"),"");
+});
+test("logbook rejects impossible calendar dates",()=>{
+ assert.ok(validateSector({date:"2026-02-30",from:"OTHH",to:"EGLL",hours:7}).length);
+ assert.equal(validateSector({date:"2024-02-29",from:"OTHH",to:"EGLL",hours:7}).length,0);
 });
 test("CSV parser handles quoted comma fields and European date",()=>{
  const rows=parseRosterText('Date,Flight,Route\n01/11/2026,QR123,"DOH, LHR"');
@@ -266,4 +334,118 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
  assert.equal(summary.unverifiedEntries,1);
  assert.equal(summary.kcal,recipeNutrition(known).perServing.kcal);
  assert.equal(recipeNutrition(unknown).verified,false);
+});
+
+
+test("fitness library contains 57 distinct, documented exercises with a rendered three-phase human guide",()=>{
+ assert.equal(EXERCISES.length,57);
+ assert.equal(new Set(EXERCISES.map(x=>x.id)).size,57);
+ for(const exercise of EXERCISES){
+  assert.ok(exercise.name&&exercise.pattern&&exercise.muscles.length&&exercise.equipment.length&&exercise.cues.length>=2,exercise.id+" is missing coaching data");
+  const svg=exerciseSequenceSvg(exercise);
+  assert.ok(svg.includes('<svg')&&svg.includes('class="exercise-demo-svg exercise-sequence-svg"')&&svg.includes('viewBox="0 0 360 192"')&&svg.includes("1 · PREPARA")&&svg.includes("2 · EJECUTA")&&svg.includes("3 · REGRESA"),exercise.id+" has no three-phase visual");
+  assert.ok(svg.includes("exercise-phase-0")&&svg.includes("exercise-phase-1")&&svg.includes("exercise-phase-2"),exercise.id+" does not highlight the three phases in sequence");
+ }
+});
+
+test("four-day strength plan uses the upper/lower split and keeps all sessions within selected duration",()=>{
+ const p=buildTrainingProgram({goal:"strength",setting:"gym",daysPerWeek:4,availableMinutes:45},"2026-11-16");
+ assert.equal(p.sessions.length,24);
+ assert.deepEqual([...new Set(p.sessions.map(x=>x.routineId))].sort(),["lower-a","lower-b","upper-a","upper-b"]);
+ assert.ok(p.sessions.every(x=>x.minutes<=45));
+});
+
+
+test("Apple Health Shortcut import validates and normalizes daily aggregates",()=>{
+ const rows=normalizeAppleHealthExport({days:[
+  {date:"2026-11-16",steps:8200,sleepHours:7.4,activeEnergyKcal:510,walkingRunningKm:5.8},
+  {date:"2026-02-30",steps:5000},
+  {date:"2026-11-15",steps:-10,sleepHours:8}
+ ]});
+ assert.equal(rows.length,2);
+ assert.equal(rows[0].date,"2026-11-15");
+ assert.equal(rows[0].steps,undefined);
+ assert.equal(rows[0].sleepHours,8);
+ assert.equal(rows[1].steps,8200);
+ assert.equal(rows[1].source,"apple-health-shortcuts");
+});
+test("Apple Health Shortcut import rejects empty or malformed exports",()=>{
+ assert.throws(()=>normalizeAppleHealthExport({days:[]}),/No se encontraron días/);
+ assert.throws(()=>normalizeAppleHealthExport({records:[{date:"bad",steps:4000}]}),/No hay registros diarios válidos/);
+});
+test("Recovery exposes the Apple Health bridge inside Fitness and Nutrition, not a top-level navigation item",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
+ assert.ok(app.includes("APPLE HEALTH · IMPORTACIÓN GRATUITA"));
+ assert.ok(app.includes('id="importAppleHealth"'));
+ assert.ok(app.includes('"healthDaily"'));
+ assert.ok(app.includes("Exportar todos los datos de salud"));
+ assert.ok(app.includes("normalizeAppleHealthXml(raw)"));
+ assert.ok(app.includes("Lifestyle & Recovery"));
+ assert.ok(html.includes('id="healthImportInput"'));
+ assert.ok(!app.includes('["lifestyle","Lifestyle"]'));
+});
+
+
+test("RUMBO local assistant answers from saved roster data without a remote model",()=>{
+ const answer=answerLocally("¿Qué servicios tengo próximamente?",{
+  duties:[{date:"2026-11-18",code:"FLIGHT",route:"DOH-MLE",time:"07:00"}]
+ },new Date("2026-11-16T08:00:00Z"));
+ assert.match(answer,/ROSTER/);
+ assert.match(answer,/18\/11\/2026|18\/11\/2026|18\/11\/2026/);
+ assert.match(answer,/DOH-MLE/);
+});
+test("RUMBO local assistant keeps currencies separate and does not invent financial totals",()=>{
+ const answer=answerLocally("Analiza mis gastos y presupuesto",{
+  expenses:[{date:"2026-11-03",amount:100,currency:"QAR"},{date:"2026-11-04",amount:50,currency:"EUR"}],
+  budgets:{QAR:500}
+ },new Date("2026-11-16T08:00:00Z"));
+ assert.match(answer,/QAR 100/);
+ assert.match(answer,/EUR 50/);
+ assert.match(answer,/monedas se mantienen separadas/);
+});
+test("RUMBO AI chat stays local while Fitness can request authenticated workout assessment",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ assert.ok(app.includes("answerLocally(q,state)"));
+ assert.ok(app.includes("RUMBO LOCAL · SIN API"));
+ assert.ok(app.includes("requestFitnessAiAssessment(workout)"));
+ assert.ok(app.includes("/functions/v1/rumbo-ai"));
+});
+
+test("Nutrition provides a free broad web search without a paid recipe API",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ assert.ok(app.includes('id="searchWebRecipes"'));
+ assert.ok(app.includes("https://www.google.com/search?q="));
+ assert.ok(app.includes("Buscar en toda la web"));
+ assert.ok(!app.includes("spoonacular.com/food-api"));
+});
+
+test("Apple Health export.xml aggregates daily steps, sleep, energy and distance",()=>{
+ const xml='<HealthData><Record type="HKQuantityTypeIdentifierStepCount" unit="count" value="8200" startDate="2026-11-16 00:00:00 +0300" endDate="2026-11-16 23:59:00 +0300"/><Record type="HKQuantityTypeIdentifierActiveEnergyBurned" unit="kcal" value="510" startDate="2026-11-16 08:00:00 +0300" endDate="2026-11-16 20:00:00 +0300"/><Record type="HKQuantityTypeIdentifierDistanceWalkingRunning" unit="km" value="5.8" startDate="2026-11-16 08:00:00 +0300" endDate="2026-11-16 20:00:00 +0300"/><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleep" startDate="2026-11-15 23:00:00 +0300" endDate="2026-11-16 06:30:00 +0300"/></HealthData>';
+ const rows=normalizeAppleHealthXml(xml);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].date,"2026-11-16");
+ assert.equal(rows[0].steps,8200);
+ assert.equal(rows[0].activeEnergyKcal,510);
+ assert.equal(rows[0].walkingRunningKm,5.8);
+ assert.equal(rows[0].sleepHours,7.5);
+ assert.equal(rows[0].source,"apple-health-export");
+});
+test("Apple Health export.xml merges overlapping sleep intervals and rejects non-exports",()=>{
+ const xml='<HealthData><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2026-11-16 00:00:00 +0300" endDate="2026-11-16 04:00:00 +0300"/><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2026-11-16 03:00:00 +0300" endDate="2026-11-16 05:00:00 +0300"/></HealthData>';
+ const rows=normalizeAppleHealthXml(xml);
+ assert.equal(rows[0].sleepHours,5);
+ assert.throws(()=>normalizeAppleHealthXml("<OtherData/>"),/No parece un export.xml válido/);
+});
+
+
+test("Apple Health export.xml imports Apple Watch cardio workout duration, distance, energy and heart rate",()=>{
+ const xml='<HealthData><Workout workoutActivityType="HKWorkoutActivityTypeCycling" duration="1800" startDate="2026-11-15 07:00:00 +0300" endDate="2026-11-15 07:30:00 +0300"><WorkoutStatistics type="HKQuantityTypeIdentifierDistanceCycling" sum="5000" unit="m"/><WorkoutStatistics type="HKQuantityTypeIdentifierActiveEnergyBurned" sum="250" unit="kcal"/><WorkoutStatistics type="HKQuantityTypeIdentifierHeartRate" average="130" unit="count/min"/></Workout></HealthData>';
+ const rows=normalizeAppleHealthWorkouts(xml);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].type,"Cardio");
+ assert.equal(rows[0].minutes,30);
+ assert.equal(rows[0].distanceKm,5);
+ assert.equal(rows[0].activeEnergyKcal,250);
+ assert.equal(rows[0].averageHeartRate,130);
 });

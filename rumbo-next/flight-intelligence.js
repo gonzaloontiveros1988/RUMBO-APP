@@ -1,8 +1,13 @@
 // Flight Intelligence domain logic. Calculations use only recorded sectors.
 export function normalizeIcao(value){return String(value||"").trim().toUpperCase()}
+function validDateKey(value){
+ const m=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return false;
+ const y=Number(m[1]),month=Number(m[2]),day=Number(m[3]),d=new Date(Date.UTC(y,month-1,day));
+ return d.getUTCFullYear()===y&&d.getUTCMonth()===month-1&&d.getUTCDate()===day;
+}
 export function validateSector(s){
  const errors=[];
- if(!/^\d{4}-\d{2}-\d{2}$/.test(s.date||""))errors.push("Date is required.");
+ if(!validDateKey(s.date))errors.push("Date is required and must be a real calendar date.");
  if(!/^[A-Z]{4}$/.test(normalizeIcao(s.from)))errors.push("Departure must be a 4-letter ICAO code.");
  if(!/^[A-Z]{4}$/.test(normalizeIcao(s.to)))errors.push("Arrival must be a 4-letter ICAO code.");
  if(normalizeIcao(s.from)===normalizeIcao(s.to))errors.push("Departure and arrival airports must differ.");

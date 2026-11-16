@@ -1025,11 +1025,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes jointCardioArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
 
 /* RUMBO articulated 3D exercise stage */
-.guided-figure[data-exercise-3d]{touch-action:pan-y;cursor:grab;isolation:isolate}
-.guided-figure[data-exercise-3d]:active{cursor:grabbing}
-.guided-figure[data-exercise-3d] canvas{display:block;width:100%;height:100%;outline:none}
-.guided-figure[data-exercise-3d] .exercise-demo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.08;pointer-events:none}
-@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-3d]{height:230px}}
+.guided-figure[data-exercise-sequence]{touch-action:pan-y;cursor:grab;isolation:isolate}
+.guided-figure[data-exercise-sequence]:active{cursor:grabbing}
+.guided-figure[data-exercise-sequence] canvas{display:block;width:100%;height:100%;outline:none}
+.guided-figure[data-exercise-sequence] .exercise-demo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.08;pointer-events:none}
+@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-sequence]{height:230px}}
 
 /* 3D humanoid exercise viewer integration */
 .program-detail-body .guided-figure{width:100%;height:100%;min-height:165px;border-radius:13px;background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
@@ -1038,25 +1038,25 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .program-detail-body .guided-figure canvas,.exercise-library-art .guided-figure canvas{width:100%;height:100%}
 
 /* Clear, legible fallback while 3D renderer is unavailable */
-.guided-figure[data-exercise-3d][data-engine="fallback"] .exercise-demo-svg{opacity:1!important;position:relative!important;inset:auto!important;width:100%;height:100%;min-height:165px;max-height:220px}
-.guided-figure[data-exercise-3d][data-engine="fallback"]{background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
-.guided-figure[data-exercise-3d][data-engine="loading"] .exercise-demo-svg{opacity:.35}
-.guided-figure[data-exercise-3d][data-engine="three"] .exercise-demo-svg{display:none}
-.guided-figure[data-exercise-3d][data-engine="fallback"]::after{content:"Vista 2D de respaldo · visor 3D no disponible";position:absolute;left:8px;right:8px;bottom:7px;text-align:center;font-size:9px;letter-spacing:.04em;color:#8be8df;background:rgba(7,25,38,.78);padding:5px 7px;border-radius:6px}
-.guided-figure[data-exercise-3d]:not([data-engine="three"]) canvas{display:none}
+.guided-figure[data-exercise-sequence][data-engine="fallback"] .exercise-demo-svg{opacity:1!important;position:relative!important;inset:auto!important;width:100%;height:100%;min-height:165px;max-height:220px}
+.guided-figure[data-exercise-sequence][data-engine="fallback"]{background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
+.guided-figure[data-exercise-sequence][data-engine="loading"] .exercise-demo-svg{opacity:.35}
+.guided-figure[data-exercise-sequence][data-engine="three"] .exercise-demo-svg{display:none}
+.guided-figure[data-exercise-sequence][data-engine="fallback"]::after{content:"Vista 2D de respaldo · visor 3D no disponible";position:absolute;left:8px;right:8px;bottom:7px;text-align:center;font-size:9px;letter-spacing:.04em;color:#8be8df;background:rgba(7,25,38,.78);padding:5px 7px;border-radius:6px}
+.guided-figure[data-exercise-sequence]:not([data-engine="three"]) canvas{display:none}
 
 /* Premium 3D trainer stage */
-.guided-figure[data-exercise-3d]{
+.guided-figure[data-exercise-sequence]{
  position:relative;overflow:hidden;border:1px solid rgba(77,210,207,.18);
  background:radial-gradient(ellipse at 50% 42%,rgba(43,119,139,.25) 0%,rgba(14,42,59,.7) 58%,rgba(7,25,39,.96) 100%);
  box-shadow:inset 0 1px 0 rgba(205,250,255,.045),inset 0 -24px 48px rgba(0,0,0,.16);
 }
-.guided-figure[data-exercise-3d]::before{
+.guided-figure[data-exercise-sequence]::before{
  content:"";position:absolute;inset:10% 12% 8%;border-radius:50%;
  background:radial-gradient(ellipse,rgba(40,197,192,.10),transparent 68%);pointer-events:none;
 }
-.guided-figure[data-exercise-3d] canvas{position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
-.guided-figure[data-exercise-3d][data-engine="three"]{border-color:rgba(74,218,211,.3)}
+.guided-figure[data-exercise-sequence] canvas{position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
+.guided-figure[data-exercise-sequence][data-engine="three"]{border-color:rgba(74,218,211,.3)}
 
 
 /* RUMBO biomechanics viewer controls */
@@ -1083,3 +1083,598 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-figure-stage .rumbo-biomech-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
 .guided-figure-stage .rumbo-biomech-controls [data-timeline]{display:block;width:100%;margin:7px 0 2px}
 @media(max-width:650px){.guided-figure-stage>.guided-figure{height:230px;min-height:230px}}
+
+
+/* Fitness 3D: give the human viewer the full row; never squeeze it into the old thumbnail column. */
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;}
+.guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important;}
+.guided-exercise-title{width:100%;}
+.guided-figure[data-exercise-sequence]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important;}
+.guided-figure[data-exercise-sequence] .rumbo-human-viewport{width:100%!important;}
+@media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-sequence] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
+
+/* Fitness 3D final layout: large human preview, no tiny thumbnail column. */
+.exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
+.exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
+.exercise-library-art .guided-figure[data-exercise-sequence]{width:100%;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .rumbo-human-viewport{height:300px!important;min-height:300px!important;flex-basis:300px!important}
+.exercise-library-art .exercise-demo-svg{display:none!important}
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
+.guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
+.guided-figure[data-exercise-sequence]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+@media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
+@media(max-width:430px){.exercise-library-art .rumbo-human-viewport{height:280px!important;min-height:280px!important;flex-basis:280px!important}}
+
+/* RUMBO Fitness 3D — responsive, consistently framed human demos */
+.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
+.exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
+.exercise-library-art .guided-figure[data-exercise-sequence]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .rumbo-human-viewport{height:244px!important;min-height:244px!important;flex-basis:244px!important}
+.exercise-library-art .rumbo-human-status,.exercise-library-art .rumbo-human-controls{display:none!important}
+.exercise-library-copy{min-width:0}
+.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
+.guided-exercise-visual .guided-figure[data-exercise-sequence],.program-detail-body .guided-figure[data-exercise-sequence]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:400px!important;min-height:400px!important;flex-basis:400px!important}
+.guided-exercise-visual .rumbo-human-status,.program-detail-body .rumbo-human-status{margin-top:2px}
+.rumbo-human-viewport canvas{display:block;width:100%;height:100%;outline:0}
+.rumbo-human-controls button{min-width:64px}
+@media(max-width:900px){.exercise-library-grid{grid-template-columns:1fr}.exercise-library-card{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
+@media(max-width:560px){.exercise-library-card{grid-template-columns:minmax(0,1fr);}.exercise-library-art .rumbo-human-viewport{height:260px!important;min-height:260px!important;flex-basis:260px!important}.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important}}
+
+/* RUMBO 4.2 · Three-phase 2D exercise instruction cards */
+.exercise-sequence-svg{min-height:170px;max-height:230px}
+.exercise-sequence-svg text{font-family:Manrope,system-ui,sans-serif}
+.guided-figure:has(.exercise-sequence-svg),.exercise-library-art:has(.exercise-sequence-svg){background:linear-gradient(145deg,rgba(10,32,48,.98),rgba(17,54,68,.92));}
+.guided-figure .exercise-sequence-svg{width:100%;height:auto}
+.exercise-library-art .exercise-sequence-svg{width:100%;height:auto;min-height:145px;display:block!important}
+.demo-caption{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(113,209,203,.2);border-radius:999px;background:rgba(35,163,157,.1);color:#8ce5dc;font-size:10px;font-weight:800;letter-spacing:.08em}
+.demo-caption:before{content:"";width:6px;height:6px;border-radius:50%;background:#8ce5dc}
+@media(max-width:620px){.exercise-sequence-svg{min-height:150px}.guided-figure .exercise-sequence-svg{min-height:145px}}
+
+.fitness-evidence-note{position:relative;z-index:1;display:grid;gap:6px;margin-top:12px;padding:13px 15px;border:1px solid rgba(101,199,194,.22);border-radius:12px;background:rgba(20,87,91,.13)}
+.fitness-evidence-note b{font:800 10px 'DM Mono',monospace;letter-spacing:.12em;color:#86e5dc}
+.fitness-evidence-note span{color:#b9ced7;font-size:12px;line-height:1.65}
+
+/* RUMBO cloud sync control */
+.rumbo-cloud-control{position:relative;z-index:80}
+.rumbo-cloud-trigger{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid rgba(113,170,184,.25);border-radius:999px;background:rgba(8,27,42,.88);color:var(--white);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.rumbo-cloud-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.12)}
+.rumbo-cloud-dot[data-mode="online"]{background:#65d6a3;box-shadow:0 0 0 3px rgba(101,214,163,.14)}
+.rumbo-cloud-dot[data-mode="syncing"]{background:#f2c36e;box-shadow:0 0 0 3px rgba(242,195,110,.14)}
+.rumbo-cloud-dot[data-mode="error"]{background:#ef8585;box-shadow:0 0 0 3px rgba(239,133,133,.14)}
+.rumbo-cloud-panel{position:absolute;right:0;top:calc(100% + 10px);width:min(340px,calc(100vw - 32px));padding:18px;border:1px solid rgba(113,170,184,.3);border-radius:16px;background:rgba(7,24,38,.98);box-shadow:0 18px 55px rgba(0,0,0,.42);display:grid;gap:10px;color:var(--white)}
+.rumbo-cloud-panel[hidden]{display:none}
+.rumbo-cloud-panel p,.rumbo-cloud-panel small{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.rumbo-cloud-panel label{display:grid;gap:5px;color:var(--muted);font-size:11px}
+.rumbo-cloud-panel input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#081b29;color:var(--white)}
+.rumbo-cloud-actions{display:flex;gap:8px;flex-wrap:wrap}
+.rumbo-cloud-actions .btn{flex:1}
+.rumbo-cloud-panel button[hidden],.rumbo-cloud-panel input[hidden]{display:none!important}
+.exercise-library-art svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-width:100%;min-height:145px}
+.guided-figure svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-height:260px}
+@media(max-width:760px){.rumbo-cloud-trigger{font-size:0;padding:10px}.rumbo-cloud-trigger span:nth-child(2){font-size:0}.rumbo-cloud-panel{right:-6px}.exercise-library-art svg.exercise-sequence-svg{min-height:175px}}
+
+/* Crew Bidding planner */
+.crew-bidding-profile,.crew-bid-entry,.crew-bid-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.crew-bid-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(112px,150px) 34px;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line,rgba(148,163,184,.18))}
+.crew-bid-rank{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--surface-2,rgba(148,163,184,.12));font-weight:700;font-size:12px}
+.crew-bid-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.crew-bid-main b{font-size:13px}
+.crew-bid-main small{color:var(--muted,#8b9aaa);font-size:11px;line-height:1.4}
+.crew-bidding-profile label,.crew-bid-entry label{display:flex;flex-direction:column;gap:5px;min-width:0}
+.crew-bidding-profile .check-label{display:flex;flex-direction:row;align-items:center;gap:8px}
+.crew-bidding-profile .check-label input{width:auto}
+@media(max-width:680px){.crew-bid-row{grid-template-columns:30px minmax(0,1fr) 34px;gap:7px}.crew-bid-row select{grid-column:2;grid-row:2}.crew-bid-row button{grid-column:3;grid-row:1}.crew-bid-main{grid-column:2;grid-row:1}}
+
+.health-json-example{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:9px;background:#081b29;color:#a9d9d8;font:10px/1.6 ui-monospace,monospace;margin:12px 0}
+
+/* Three exercise phases are highlighted in sequence; the illustrated pose itself stays honest and static. */
+.exercise-sequence-svg .exercise-phase rect{animation:rumbo-exercise-phase 3.6s ease-in-out infinite}
+.exercise-sequence-svg .exercise-phase-1 rect{animation-delay:1.2s}
+.exercise-sequence-svg .exercise-phase-2 rect{animation-delay:2.4s}
+@keyframes rumbo-exercise-phase{0%,28%{stroke:#56d9d0;stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(86,217,208,.35))}34%,100%{stroke:#2e596b;stroke-width:1;filter:none}}
+@media(prefers-reduced-motion:reduce){.exercise-sequence-svg .exercise-phase rect{animation:none}}
+
+
+/* RUMBO responsive repair · Fitness library + small screens */
+.exercise-library-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:stretch}
+.exercise-library-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;min-width:0!important;overflow:hidden!important;padding:0!important;background:linear-gradient(145deg,#102c3e,#0b2030)!important;border:1px solid #31576a!important;border-radius:16px!important;align-content:start}
+.exercise-library-art{width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;padding:12px!important;background:#0a1e2c!important;overflow:hidden!important}
+.exercise-library-art .guided-figure{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;display:block!important;overflow:hidden!important;border-radius:10px!important;background:#0c2939!important}
+.exercise-library-art svg.exercise-sequence-svg{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;opacity:1!important;visibility:visible!important}
+.exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;min-width:0!important;padding:14px 16px 16px!important;color:#edf5f8!important;opacity:1!important}
+.exercise-library-copy>b{color:#f3f8fb!important;font-size:16px!important;line-height:1.3!important}
+.exercise-library-copy>small{color:#b9ced9!important;font-size:12px!important;line-height:1.5!important;overflow-wrap:anywhere}
+.exercise-library-copy>small.muted{color:#a9c0cd!important}
+.exercise-library-copy>p{margin:0!important;color:#dce9ef!important;font-size:13px!important;line-height:1.55!important}
+.exercise-library-copy .btn{margin-top:4px!important;min-height:40px}
+.exercise-library-details>.form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.exercise-library-details>.form input{min-width:0;flex:1 1 220px}
+.exercise-library-details>.form #exerciseLibraryCount{color:#c4d7e0!important;white-space:nowrap}
+@media(max-width:900px){
+ .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-art{padding:10px!important}
+ .exercise-library-art svg.exercise-sequence-svg{max-width:560px!important;margin:0 auto!important}
+}
+@media(max-width:650px){
+ html,body{width:100%;min-width:0;overflow-x:hidden}
+ .app{display:block!important;width:100%;min-width:0;min-height:100dvh;padding-bottom:72px!important}
+ main{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:14px 12px 28px!important}
+ .topbar{gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px!important}
+ .top-actions{max-width:100%;gap:6px;flex-wrap:wrap}
+ .rumbo-scene-controls{max-width:100%;overflow-x:auto}
+ .page-head{min-width:0}
+ .page-head h1{font-size:clamp(24px,7vw,32px)!important}
+ .panel,.grid,.exercise-library-details{min-width:0!important;max-width:100%!important}
+ .four,.three{grid-template-columns:minmax(0,1fr)!important}
+ .two{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+ .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-art{padding:8px!important}
+ .exercise-library-art svg.exercise-sequence-svg{width:100%!important;min-height:0!important}
+ .exercise-library-copy{padding:12px!important}
+ .mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important}
+ .mobile-nav button{min-width:0!important;font-size:8px!important;overflow:hidden}
+}
+
+
+/* RUMBO Fitness · editorial exercise cards, explicit 1–2–3 sequence */
+.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
+.exercise-library-card{display:flex!important;flex-direction:column!important;gap:0!important;padding:0!important;overflow:hidden!important;border:1px solid #31576a!important;border-radius:18px!important;background:linear-gradient(160deg,#102b3d 0%,#0a1d2c 100%)!important;box-shadow:0 12px 28px rgba(0,0,0,.18)!important}
+.exercise-library-art{padding:14px 14px 10px!important;background:linear-gradient(145deg,#0b2638,#102f42)!important;border-bottom:1px solid rgba(108,190,202,.2)!important}
+.exercise-library-art .guided-figure{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art svg.exercise-sequence-svg{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;opacity:1!important;visibility:visible!important}
+.exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:15px 17px 17px!important;color:#edf6fa!important}
+.exercise-library-copy>b{font-size:17px!important;line-height:1.25!important;letter-spacing:-.02em;color:#f4fbff!important}
+.exercise-library-copy>small{font-size:12px!important;line-height:1.5!important;color:#bdd0db!important}
+.exercise-library-copy>small.muted{color:#a8bfcc!important}
+.exercise-library-copy>p{margin:2px 0!important;color:#e1edf2!important;font-size:13px!important;line-height:1.6!important}
+.exercise-library-copy .btn{margin-top:5px!important;min-height:42px!important;padding:10px 15px!important;border-color:#397080!important;color:#bdeff0!important}
+.exercise-library-copy .btn:hover{background:#164456!important}
+.exercise-library-details>summary{font-size:15px!important;font-weight:800!important;color:#edf7fa!important;padding:8px 0 12px!important}
+.exercise-library-details>.form{margin:12px 0 16px!important}
+.exercise-library-details>.form input{background:#f4f8fa!important;color:#183345!important;border:1px solid #b8cbd3!important;border-radius:11px!important;min-height:44px!important;padding:11px 14px!important}
+.exercise-library-details>.form input::placeholder{color:#607b89!important}
+.exercise-library-details>.form #exerciseLibraryCount{color:#d0e5ec!important;font-weight:700!important}
+@media(max-width:900px){.exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;max-width:680px!important;margin-inline:auto!important}}
+@media(max-width:650px){.exercise-library-grid{gap:14px!important}.exercise-library-art{padding:10px 10px 7px!important}.exercise-library-copy{padding:13px 14px 15px!important}.exercise-library-copy>b{font-size:16px!important}}
+
+
+.exercise-sequence-key{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:9px;padding:14px;margin:12px 0 16px;border:1px solid rgba(103,195,204,.25);border-radius:14px;background:linear-gradient(120deg,rgba(13,45,62,.96),rgba(15,57,68,.82))}
+.exercise-sequence-key>div{display:flex;align-items:center;gap:9px;min-width:0}
+.exercise-sequence-key>div>b{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;background:#55d2cf;color:#08222d;font-size:13px;font-weight:900}
+.exercise-sequence-key span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.exercise-sequence-key strong{color:#e7f8fa;font-size:10px;letter-spacing:.08em}
+.exercise-sequence-key small{color:#b8ced8;font-size:10px;line-height:1.35}
+.exercise-sequence-key>i{font-style:normal;color:#eac27d;font-size:17px;font-weight:800}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase rect{fill:#102f42;stroke:#3c6b7d;stroke-width:1.5}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase text{fill:#e2f7f7;font-size:9px;font-weight:900;letter-spacing:1px}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-0 rect{stroke:#56d9d0;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-1 rect{stroke:#eac27d;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-2 rect{stroke:#7bd3ae;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg>path{stroke-width:2.8}
+@media(max-width:650px){
+ .exercise-sequence-key{grid-template-columns:minmax(0,1fr);gap:7px;padding:12px}
+ .exercise-sequence-key>i{display:none}
+ .exercise-sequence-key>div{gap:10px}
+ .exercise-sequence-key small{font-size:11px}
+}
+
+
+/* Critical fix: keep SVG exercise guide in normal document flow inside library cards.
+   The 3D viewer rule positions SVG absolutely, collapsing the card art to a thin strip. */
+.exercise-library-art .guided-figure[data-exercise-sequence]{
+ position:relative!important;display:block!important;width:100%!important;height:auto!important;
+ min-height:0!important;max-height:none!important;overflow:visible!important;
+ aspect-ratio:auto!important;isolation:auto!important;
+}
+.exercise-library-art .guided-figure[data-exercise-sequence] canvas{display:none!important}
+.exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg,
+.exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-sequence-svg{
+ position:relative!important;inset:auto!important;display:block!important;
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ opacity:1!important;visibility:visible!important;transform:none!important;pointer-events:auto!important;
+}
+.exercise-library-art{height:auto!important;min-height:0!important;overflow:visible!important}
+
+
+/* Definitive Fitness catalogue artwork sizing: reserve real vertical space.
+   Older 3D catalogue rules set a 300px art viewport and hide the SVG fallback. */
+.exercise-library-grid .exercise-library-card .exercise-library-art{
+ display:block!important;position:relative!important;width:100%!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ padding:12px!important;overflow:visible!important;box-sizing:border-box!important;
+ background:linear-gradient(145deg,#0b2638,#102f42)!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{
+ display:block!important;position:relative!important;width:100%!important;
+ height:auto!important;min-height:210px!important;max-height:none!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+ aspect-ratio:auto!important;box-sizing:border-box!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{
+ display:block!important;position:relative!important;inset:auto!important;float:none!important;
+ width:100%!important;height:auto!important;min-height:210px!important;max-height:none!important;
+ flex:none!important;opacity:1!important;visibility:visible!important;transform:none!important;
+ overflow:visible!important;aspect-ratio:360 / 192!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .rumbo-human-viewport,
+.exercise-library-grid .exercise-library-card .exercise-library-art canvas{display:none!important}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]::before,
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]::after{display:none!important;content:none!important}
+@media(max-width:650px){
+ .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{min-height:190px!important}
+ .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{min-height:190px!important}
+}
+
+
+/* Personal video-guided sessions: never show generic SVG as if it were the verified demo. */
+.personal-video-guided .guided-figure{display:none!important}
+.personal-video-guided .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important}
+.personal-video-guided .exercise-source-link{display:inline-flex;margin:10px 0;padding:10px 13px;border:1px solid #3c7888;border-radius:10px;color:#8fe4e1;font-weight:800;text-decoration:none}
+.personal-plan-panel .panel{height:100%}
+.cardio-log-panel .form label{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+
+
+/* Personal Fitness journey */
+.fitness-journey-panel .fitness-progress-wrap{margin:16px 0;padding:15px;border:1px solid var(--line);border-radius:14px;background:rgba(8,28,42,.42)}
+.fitness-progress-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}
+.fitness-progress-head strong{color:#76ded4}
+.fitness-progress-track{height:10px;border-radius:99px;background:#233d4e;overflow:hidden;margin-bottom:8px}
+.fitness-progress-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#40b9b3,#8ce0b4)}
+.fitness-weight-grid{margin-top:12px}
+.fitness-session-grid{align-items:stretch}
+.fitness-session-card{padding:17px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,rgba(19,49,66,.95),rgba(9,29,43,.95));min-width:0}
+.fitness-session-card h3{margin:10px 0 6px;font-size:17px}
+.fitness-session-card p{color:var(--muted);font-size:13px;line-height:1.55}
+.fitness-session-card ul{padding-left:19px;margin:12px 0 16px}
+.fitness-session-card li{padding:4px 0;color:var(--text);font-size:13px}
+.fitness-session-card li a{margin-left:8px;color:#83ddd7;font-size:11px;white-space:nowrap}
+.fitness-session-top{display:flex;justify-content:space-between;align-items:center}
+.fitness-video-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.fitness-video-card{overflow:hidden;border:1px solid var(--line);border-radius:13px;background:#0d2434;min-width:0}
+.fitness-video-thumb{display:block;position:relative;aspect-ratio:4/5;background:#102c3d;overflow:hidden}
+.fitness-video-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.fitness-video-thumb span{position:absolute;bottom:8px;right:8px;padding:6px 8px;border-radius:7px;background:rgba(5,22,34,.88);color:#a9eee5;font-size:9px;font-weight:800}
+.fitness-video-copy{display:flex;flex-direction:column;gap:5px;padding:10px}
+.fitness-video-copy b{font-size:12px;line-height:1.35}
+.fitness-video-copy small{font-size:10px;color:var(--muted)}
+.fitness-video-copy .pill{align-self:flex-start;font-size:9px}
+.fitness-video-credit{margin-top:14px;color:var(--muted);font-size:11px}
+.fitness-video-credit a{color:#83ddd7}
+@media(max-width:900px){.fitness-video-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.fitness-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.fitness-weight-grid{grid-template-columns:1fr}.fitness-session-grid{grid-template-columns:1fr}.fitness-session-card{padding:14px}}
+
+
+.guided-video-preview{position:relative;display:block;overflow:hidden;border-radius:14px;max-width:300px;background:#102c3d;align-self:start}
+.guided-video-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:cover}
+.guided-video-preview span{position:absolute;left:8px;right:8px;bottom:8px;padding:8px;border-radius:8px;text-align:center;background:rgba(5,22,34,.9);color:#a9eee5;font-size:10px;font-weight:800}
+@media(max-width:650px){.guided-video-preview{max-width:100%;width:100%}.guided-video-preview img{max-height:260px;object-fit:contain}}
+
+
+/* RUMBO Kitchen */
+.recipe-card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.recipe-card-actions .btn{font-size:10px;padding:7px 9px;min-height:30px}
+.social-recipe-import{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(14,38,54,.55);margin:12px 0}
+.social-recipe-import label,.meal-servings-control{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+.social-recipe-import input,.social-recipe-import textarea,.meal-servings-control input{width:100%;min-width:0}
+.meal-servings-control{display:inline-grid;grid-template-columns:auto 74px;align-items:center;gap:8px;margin:8px 0}
+.meal-servings-control input{padding:6px 8px}
+.nutrition-ingredient-table{width:100%;border-collapse:collapse;font-size:12px}
+.nutrition-ingredient-table th,.nutrition-ingredient-table td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.nutrition-ingredient-table th{color:var(--muted);font-size:10px;text-transform:uppercase}
+.nutrition-ingredient-table td:first-child{white-space:normal;min-width:140px}
+.table-scroll{overflow-x:auto;max-width:100%;margin:10px 0}
+.manual-food-entry{margin-top:10px}
+.recipe-review .fitness-evidence-note{margin:14px 0}
+.recipe-review .fitness-evidence-note .form{align-items:end}
+@media(max-width:700px){.recipe-card-actions .btn{flex:1 1 42%}.meal-servings-control{grid-template-columns:auto 64px}.nutrition-ingredient-table{font-size:11px}}
+
+
+/* RUMBO Fitness 12-week guided programme */
+.fitness-weight-focus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 8px}
+.fitness-weight-focus>div{padding:15px;border:1px solid var(--line);border-radius:14px;background:#102c40;display:grid;gap:5px}
+.fitness-weight-focus small{font-size:10px;letter-spacing:.1em;color:#a9c4d1;font-weight:800}
+.fitness-weight-focus strong{font-size:clamp(21px,3vw,30px);color:#f3fbff;font-weight:800}
+.fitness-weight-focus strong small{font-size:12px;letter-spacing:0}
+.fitness-checkin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.fitness-checkin-grid h3{color:#effaff}
+.fitness-measure-details{padding:15px;border:1px solid var(--line);border-radius:14px;background:#102638}
+.fitness-measure-details summary{cursor:pointer;color:#d8f4f5;font-weight:800}
+.fitness-measure-details .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.fitness-program-panel{margin-top:14px}
+.fitness-week-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fitness-week-card,.fitness-day-card{appearance:none;text-align:left;color:#eef8fc;background:#102d42;border:1px solid #31566b;border-radius:15px;padding:16px;display:flex;flex-direction:column;gap:9px;cursor:pointer;min-width:0;transition:border-color .18s,transform .18s,background .18s}
+.fitness-week-card:hover,.fitness-day-card:hover{border-color:var(--cyan);transform:translateY(-2px);background:#173c52}
+.fitness-week-card.is-current{border:2px solid var(--green);background:#123b43}
+.fitness-week-number,.fitness-day-card>span{font-size:10px;letter-spacing:.12em;font-weight:900;color:#9ce8e8}
+.fitness-week-card>b,.fitness-day-card>b{font-size:16px;color:#f3fbff}
+.fitness-week-card>small,.fitness-day-card>small{font-size:12px;line-height:1.5;color:#bdd0da}
+.fitness-week-progress,.fitness-progress-track{height:8px;background:#29495b;border-radius:20px;overflow:hidden;display:block}
+.fitness-week-progress i{display:block;height:100%;background:#50c9b8;border-radius:20px}
+.fitness-week-meta,.fitness-day-card>strong{font-size:11px;color:#d1e4ec}
+.fitness-drill-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+.fitness-week-focus{padding:16px 18px;background:#123448;border:1px solid #31566b;border-radius:14px;margin:14px 0;color:#edf8fc}
+.fitness-week-focus>b{font-size:17px;color:#fff}
+.fitness-week-focus p{color:#c3d6df;line-height:1.6}
+.fitness-week-focus small{color:#9ddfe0}
+.fitness-day-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fitness-day-card.is-done{border-color:#51c79a;background:#123b39}
+.fitness-day-exercises{display:grid;gap:12px;margin:16px 0}
+.fitness-day-exercise{display:grid;grid-template-columns:minmax(150px,32%) 1fr;gap:16px;background:#102d42;border:1px solid #31566b;border-radius:16px;padding:14px;align-items:center}
+.fitness-day-exercise-visual{background:#183b50;border-radius:12px;min-height:160px;display:grid;place-items:center;overflow:hidden}
+.fitness-day-exercise-visual .guided-figure{width:100%;max-width:250px}
+.fitness-day-exercise-copy h3{color:#fff;margin:5px 0}
+.fitness-day-exercise-copy p{color:#c4d8e1;line-height:1.55;margin:7px 0}
+.fitness-day-exercise-copy>small{display:block;color:#a9c4d1;margin:5px 0}
+.fitness-day-exercise-copy>strong{display:block;color:#8fe5dc;margin-top:10px}
+.fitness-start-day{width:100%;margin:10px 0 4px;padding:15px}
+.fitness-cardio-instructions{background:#102d42;border:1px solid #31566b;border-radius:16px;padding:20px;color:#eaf6fa}
+.fitness-cardio-instructions h3{color:#fff}
+.fitness-cardio-instructions p{color:#c4d8e1;line-height:1.65}
+.fitness-coach-feedback{margin:14px 0;background:#123b3b;border:1px solid #327c72}
+.fitness-coach-rating{font-size:23px;font-weight:900;color:#9af0d1;margin:8px 0}
+.fitness-coach-feedback p{color:#e0f2f0;line-height:1.55}
+.guided-exercise-card{background:#102d42!important;color:#f1f8fb!important}
+.guided-exercise-title h2{color:#fff!important}
+.guided-exercise-title p,.guided-equipment,.guided-technique li{color:#d2e4ec!important}
+.guided-notes-label{display:grid;gap:6px;margin-top:12px;color:#c4d8e1;font-size:12px}
+.guided-notes-label input{width:100%}
+.guided-target-row label{color:#cde1e9}
+.guided-target-row input{color:#fff;background:#0a1d2b;border:1px solid #496b7d}
+@media(max-width:900px){.fitness-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fitness-day-exercise{grid-template-columns:1fr}.fitness-day-exercise-visual{min-height:190px}}
+@media(max-width:620px){.fitness-checkin-grid{grid-template-columns:1fr}.fitness-weight-focus{gap:7px}.fitness-weight-focus>div{padding:10px}.fitness-week-grid,.fitness-day-grid{grid-template-columns:1fr}.fitness-measure-details .form{grid-template-columns:1fr}}
+
+.exercise-sequence-svg .exercise-phase{transform-origin:center;animation:fitnessPhaseGlow 3.6s ease-in-out infinite;opacity:.72}
+.exercise-sequence-svg .exercise-phase-1{animation-delay:1.2s}
+.exercise-sequence-svg .exercise-phase-2{animation-delay:2.4s}
+@keyframes fitnessPhaseGlow{0%,28%,100%{opacity:.62;filter:saturate(.85)}10%,18%{opacity:1;filter:saturate(1.35) drop-shadow(0 0 5px rgba(81,212,223,.45))}}
+.fitness-ai-review{white-space:pre-wrap;line-height:1.7;color:#eaf8f4;background:#0d2c35;border:1px solid #327c72;border-radius:12px;padding:16px;margin-top:12px}
+
+
+/* RUMBO Kitchen · progressive disclosure */
+.nutrition-hero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(18,52,68,.48);margin:12px 0}
+.nutrition-step-card{margin:12px 0;overflow:hidden}
+.nutrition-step-card>details>summary,.nutrition-library-group>summary,.nutrition-day-card>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;padding:14px 16px;min-height:56px}
+.nutrition-step-card>details>summary::-webkit-details-marker,.nutrition-library-group>summary::-webkit-details-marker,.nutrition-day-card>summary::-webkit-details-marker{display:none}
+.nutrition-step-card>details>summary span:first-child,.nutrition-day-card>summary span:first-child{display:grid;gap:4px}
+.nutrition-step-card summary small,.nutrition-day-card summary small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.nutrition-step-card>details[open]>summary,.nutrition-library-group[open]>summary,.nutrition-day-card[open]>summary{border-bottom:1px solid var(--line)}
+.nutrition-step-card>details>.social-recipe-import,.nutrition-step-card>details>.recipe-search-form,.nutrition-step-card>details>.nutrition-week-list,.nutrition-step-card>details>.nutrition-library-group{margin:12px 14px}
+.nutrition-week-list{display:grid;gap:8px}
+.nutrition-day-card,.nutrition-library-group{border:1px solid var(--line);border-radius:12px;background:rgba(7,28,42,.42);overflow:hidden}
+.nutrition-day-content{padding:8px 14px 14px}
+.nutrition-slot{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,220px) auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.nutrition-slot>div{display:grid;gap:4px}.nutrition-slot small{color:var(--muted);font-size:11px}.nutrition-slot b{font-size:13px}
+.nutrition-library-group{margin:9px 0}
+.nutrition-library-group>summary span{font-size:11px;color:var(--muted)}
+.nutrition-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:12px}
+.nutrition-library-card{display:flex;flex-direction:column;text-align:left;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--text);padding:0;cursor:pointer}
+.nutrition-library-card img,.nutrition-library-card .recipe-image-missing{width:100%;height:118px;object-fit:cover}
+.nutrition-library-card>span{display:grid;gap:5px;padding:10px}.nutrition-library-card small{color:var(--muted);font-size:11px}
+.nutrition-library-card b{font-size:12px;line-height:1.4}
+.nutrition-step-card .social-recipe-import{margin:12px 14px}
+.nutrition-step-card .recipe-search-form{padding:12px}
+.nutrition-step-card .nutrition-library-group{margin:10px 14px}
+.nutrition-day-card summary span:last-child{font-size:11px;color:var(--muted)}
+@media(max-width:650px){.nutrition-slot{grid-template-columns:1fr;align-items:stretch}.nutrition-slot select{width:100%}.nutrition-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.nutrition-library-card img,.nutrition-library-card .recipe-image-missing{height:100px}.nutrition-hero{align-items:stretch}.nutrition-hero .form{width:100%}}
+
+
+/* Guided workout visual rebuild · clean framing, large looping movement */
+.guided-exercise-visual{display:flex!important;flex-direction:column;align-items:stretch!important;gap:14px!important;padding:20px 0 22px!important}
+.guided-exercise-title{position:static!important;display:block!important;order:0;width:100%;max-width:100%;min-width:0!important;text-align:left!important;z-index:1}
+.guided-exercise-title .kicker{display:block;margin:0 0 7px;color:#71ded7;font:750 10px 'DM Mono',monospace;letter-spacing:.14em}
+.guided-exercise-title h2{font-size:clamp(22px,3.2vw,34px)!important;line-height:1.12!important;letter-spacing:-.035em;margin:0 0 8px!important;overflow-wrap:anywhere}
+.guided-exercise-title p{font-size:13px!important;line-height:1.5;margin:0 0 4px!important}
+.guided-equipment{margin:0!important;font-size:12px!important}
+.guided-figure{order:1;width:100%;height:clamp(260px,36vw,390px)!important;min-height:0!important;position:relative;display:flex!important;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(83,204,198,.23);border-radius:20px;background:radial-gradient(ellipse at 50% 45%,rgba(45,190,181,.15),rgba(9,34,51,.15) 52%,rgba(5,23,36,.7) 100%)!important}
+.guided-figure .exercise-motion-svg{display:block;width:min(100%,390px);height:calc(100% - 40px);max-height:340px;overflow:visible}
+.exercise-motion-svg .motion-phase{opacity:0;transform-origin:90px 95px}
+.exercise-motion-svg .motion-phase-0{animation:rumboMotionStart 2.7s steps(1,end) infinite}
+.exercise-motion-svg .motion-phase-1{animation:rumboMotionEffort 2.7s steps(1,end) infinite}
+.exercise-motion-svg .motion-phase-2{animation:rumboMotionReturn 2.7s steps(1,end) infinite}
+@keyframes rumboMotionStart{0%,31%,68%,100%{opacity:1}32%,67%{opacity:0}}
+@keyframes rumboMotionEffort{0%,32%,67%,100%{opacity:0}33%,66%{opacity:1}}
+@keyframes rumboMotionReturn{0%,65%,98%,100%{opacity:0}66%,97%{opacity:1}}
+.motion-loop-badge{position:absolute;top:12px;left:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:99px;background:rgba(5,23,36,.8);border:1px solid rgba(83,204,198,.25);color:#86e5de;font:750 9px 'DM Mono',monospace;letter-spacing:.1em}
+.motion-loop-badge i{width:7px;height:7px;border-radius:50%;background:#57d7ce;box-shadow:0 0 9px #57d7ce}
+.motion-phase-legend{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);display:flex;gap:clamp(10px,3vw,28px);width:max-content;max-width:96%;color:#a8c8d2;font:700 9px 'DM Mono',monospace;letter-spacing:.08em}
+.motion-phase-legend span{white-space:nowrap}
+.motion-phase-legend span:nth-child(2){color:#78e2da}
+.guided-exercise-card{overflow:hidden}
+.guided-exercise-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){
+ .guided-exercise-visual{gap:12px!important;padding:14px 0 18px!important}
+ .guided-exercise-title h2{font-size:clamp(21px,6vw,29px)!important}
+ .guided-figure{height:clamp(235px,68vw,310px)!important;border-radius:16px}
+ .guided-figure .exercise-motion-svg{width:min(100%,310px);height:calc(100% - 38px);max-height:270px}
+ .motion-loop-badge{top:9px;left:9px;font-size:8px}
+ .motion-phase-legend{bottom:9px;font-size:8px;gap:14px}
+ .guided-target-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:12px 0}
+ .guided-target-row>label{padding:9px 7px!important}
+ .guided-target-row input{font-size:17px!important;padding:10px 8px!important}
+ .guided-technique{padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .exercise-motion-svg .motion-phase{animation:none!important;opacity:0!important}
+ .exercise-motion-svg .motion-phase-1{opacity:1!important}
+ .motion-loop-badge i{animation:none!important}
+}
+
+
+/* Kitchen IA redesign: four clear steps, no crowded dashboard */
+.kitchen-import .social-recipe-import{display:grid;gap:12px;padding:16px}
+.kitchen-import .social-recipe-import>label{display:grid;gap:7px;font-weight:700}
+.kitchen-import .social-recipe-import input,.kitchen-import textarea{width:100%;min-width:0;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:rgba(5,24,37,.72);color:var(--text);font:inherit}
+.kitchen-import .social-recipe-import .btn{justify-self:start}
+.kitchen-import .social-recipe-import #socialRecipeStatus{display:block;margin:0;line-height:1.5}
+.kitchen-manual-fallback{border-top:1px solid var(--line);padding-top:12px}
+.kitchen-manual-fallback summary{cursor:pointer;color:var(--muted);font-size:12px}
+.kitchen-manual-fallback textarea{margin:10px 0}
+.kitchen-section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:16px 18px 12px}
+.kitchen-section-heading h2{font-size:clamp(20px,2.4vw,27px);margin:5px 0}
+.kitchen-section-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.kitchen-section-heading>.form{align-items:flex-end;min-width:min(100%,300px)}
+.kitchen-section-heading>.form input{min-width:150px}
+.kitchen-calendar>.nutrition-week-list{padding:0 14px 14px}
+.kitchen-library .kitchen-search{display:grid;grid-template-columns:minmax(180px,2fr) minmax(130px,1fr) minmax(110px,.8fr) minmax(140px,auto);gap:9px;padding:12px 16px 16px}
+.kitchen-library .kitchen-search input,.kitchen-library .kitchen-search select{min-width:0;width:100%}
+.kitchen-search-results{padding:10px 16px 16px;border-bottom:1px solid var(--line)}
+.kitchen-search-results h3{font-size:14px;margin:4px 0 12px}
+.kitchen-library .nutrition-library-group{margin:10px 14px}
+.kitchen-library .nutrition-library-group>summary{min-height:50px}
+.kitchen-library .nutrition-library-grid{padding:12px}
+.kitchen-add-to-menu{align-items:flex-end;flex-wrap:wrap;margin-top:16px}
+.kitchen-add-to-menu label{display:grid;gap:6px;min-width:150px;flex:1}
+.kitchen-add-to-menu input,.kitchen-add-to-menu select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--text)}
+.kitchen-add-to-menu .btn{align-self:flex-end}
+.kitchen-calendar .nutrition-day-card{margin:8px 0}
+.kitchen-calendar .nutrition-day-card>summary{padding:15px 16px}
+.kitchen-calendar .nutrition-slot{grid-template-columns:minmax(0,1fr) minmax(150px,240px) auto}
+.kitchen-calendar .nutrition-slot select{min-width:0;width:100%;padding:10px;border-radius:9px}
+.kitchen-step-note{color:var(--muted);font-size:12px}
+@media(max-width:760px){
+ .kitchen-section-heading{display:grid;align-items:stretch;padding:14px 14px 10px}
+ .kitchen-section-heading>.form{display:grid;grid-template-columns:1fr;min-width:0;width:100%}
+ .kitchen-library .kitchen-search{grid-template-columns:1fr 1fr;padding:10px}
+ .kitchen-library .kitchen-search input:first-child{grid-column:1/-1}
+ .kitchen-library .kitchen-search .btn{grid-column:1/-1;width:100%}
+ .kitchen-calendar .nutrition-slot{grid-template-columns:1fr;gap:8px}
+ .kitchen-calendar .nutrition-slot select{width:100%}
+ .kitchen-add-to-menu{display:grid;grid-template-columns:1fr 1fr}
+ .kitchen-add-to-menu .btn{grid-column:1/-1;width:100%}
+ .kitchen-search-results{padding:10px}
+}
+
+
+/* Fitness video-first UI: real Your Move MP4s replace all vector/3D exercise figures. */
+.guided-figure,
+.program-detail-body .guided-figure,
+.exercise-library-art .guided-figure{
+  display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-height:0;
+  padding:0;background:transparent;border-radius:14px;overflow:visible;cursor:default!important;touch-action:auto;
+}
+.guided-figure canvas,.guided-figure svg{display:none!important}
+.fitness-video-frame{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;width:100%;min-width:0}
+.fitness-demo-video{
+  display:block;width:min(100%,260px);height:auto;max-height:430px;aspect-ratio:9/16;
+  object-fit:contain;object-position:center;background:#f7f7f7;border:1px solid rgba(130,170,185,.25);
+  border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.18)
+}
+.fitness-video-credit{display:inline-flex;align-items:center;gap:5px;color:#79d9d5;text-decoration:underline;text-underline-offset:3px;font-size:10px;font-weight:700}
+.fitness-video-missing{display:grid;place-items:center;min-height:150px;padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:11px;text-align:center}
+.guided-exercise-visual{grid-template-columns:minmax(0,.9fr) minmax(220px,1.1fr);align-items:start}
+.guided-exercise-visual .guided-figure{justify-content:center}
+.fitness-day-exercise-visual{display:flex;align-items:flex-start;justify-content:center;min-width:0}
+.fitness-day-exercise-visual .fitness-demo-video{max-width:170px;max-height:300px}
+.exercise-library-art .fitness-demo-video{max-width:145px;max-height:250px}
+.ymove-library-panel{margin-top:14px}
+.ymove-video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:start}
+.ymove-video-card{min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
+.ymove-video-card h3{min-height:30px;margin:0 0 5px;font-size:11px;line-height:1.35}
+.ymove-video-card>small{display:block;min-height:26px;margin-bottom:8px;color:var(--muted);font-size:9px}
+.ymove-video-card .fitness-demo-video{max-width:100%;max-height:250px}
+.fitness-video-attribution{margin:14px 0 0;color:var(--muted);font-size:10px;line-height:1.6}
+.fitness-video-attribution a{color:#79d9d5}
+@media(max-width:700px){
+ .guided-exercise-visual{grid-template-columns:1fr;gap:14px}
+ .guided-exercise-visual .fitness-demo-video{max-width:min(100%,260px);max-height:420px}
+ .ymove-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .ymove-video-card{padding:8px}
+ .ymove-video-card .fitness-demo-video{max-height:220px}
+}
+
+
+/* RUMBO Kitchen · legibility and visual hierarchy pass */
+.kitchen-import,.kitchen-calendar,.kitchen-library,.nutrition-step-card,
+.kitchen-calendar.panel,.kitchen-library.panel{
+ background:rgba(7,25,39,.97)!important;
+ background-image:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ border:1px solid rgba(120,190,205,.24)!important;
+ box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.kitchen-import details>summary,.nutrition-step-card>details>summary{
+ color:#edf7fa;
+ background:rgba(17,48,65,.72);
+}
+.kitchen-import details[open]>summary,.nutrition-step-card>details[open]>summary{
+ background:rgba(22,62,77,.86);
+}
+.kitchen-section-heading{padding:20px 22px 14px}
+.kitchen-section-heading h2{color:#f1f8fa;letter-spacing:-.025em}
+.kitchen-section-heading p{color:#b7cbd4;max-width:620px}
+.kitchen-library .nutrition-library-group{
+ background:#102c3d!important;
+ border-color:rgba(139,190,202,.24)!important;
+}
+.kitchen-library .nutrition-library-group>summary{
+ min-height:54px;padding:15px 18px;color:#edf7fa;
+ background:rgba(24,59,76,.72);
+}
+.kitchen-library .nutrition-library-group>summary b{font-size:14px}
+.kitchen-library .nutrition-library-group>summary span{color:#b8cbd4}
+.kitchen-library .nutrition-library-grid{padding:14px}
+.kitchen-library .nutrition-library-card{
+ background:#17394a!important;border-color:rgba(143,193,204,.25)!important;
+ color:#f2f8fa!important;transition:transform .18s ease,border-color .18s ease;
+}
+.kitchen-library .nutrition-library-card:hover{transform:translateY(-2px);border-color:#48c7c6!important}
+.kitchen-library .nutrition-library-card small{color:#c0d2d9!important}
+.kitchen-library .nutrition-library-card img{height:145px}
+.kitchen-library .kitchen-search{grid-template-columns:minmax(220px,2fr) minmax(145px,1fr) minmax(120px,.8fr) 90px auto;align-items:center}
+.kitchen-library .kitchen-search input,.kitchen-library .kitchen-search select{
+ min-height:44px;background:#f2f7f8;color:#173344;border:1px solid #b7cbd2;border-radius:9px;
+}
+.kitchen-library .kitchen-search input::placeholder{color:#637d89}
+.nutrition-hero{
+ display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;
+ padding:22px 24px;margin:14px 0 18px;border:1px solid rgba(100,193,195,.3);
+ border-radius:16px;background:linear-gradient(115deg,#102f42 0%,#174454 100%);
+ box-shadow:0 14px 34px rgba(0,0,0,.16);
+}
+.nutrition-hero h2{margin:5px 0 7px;color:#f2f8fa;font-size:clamp(21px,2.5vw,28px);letter-spacing:-.03em}
+.nutrition-hero p{margin:0;color:#c0d4dc;max-width:560px;line-height:1.55;font-size:13px}
+.nutrition-hero-stats{display:flex;gap:10px;flex-wrap:wrap}
+.nutrition-hero-stats>span{display:grid;gap:3px;min-width:88px;padding:12px 14px;border:1px solid rgba(155,210,214,.2);border-radius:12px;background:rgba(5,22,34,.42)}
+.nutrition-hero-stats b{font-size:19px;color:#f4fbfc}
+.nutrition-hero-stats small{font:700 9px 'DM Mono',monospace;letter-spacing:.09em;color:#a9c6d0}
+.kitchen-import .social-recipe-import{background:rgba(12,39,54,.7);border:0}
+.kitchen-import .social-recipe-import input,.kitchen-import textarea{
+ background:#f2f7f8!important;color:#173344!important;border-color:#b7cbd2!important;
+}
+.kitchen-import .social-recipe-import input::placeholder,.kitchen-import textarea::placeholder{color:#637d89}
+.kitchen-calendar .nutrition-day-card{background:#102c3d;border-color:rgba(139,190,202,.24)}
+.kitchen-calendar .nutrition-day-card>summary{color:#edf7fa;background:rgba(24,59,76,.65)}
+.kitchen-calendar .nutrition-day-card summary small,.kitchen-calendar .nutrition-slot small{color:#b8cbd4}
+.kitchen-calendar .nutrition-slot{border-color:rgba(139,190,202,.18)}
+.kitchen-calendar .nutrition-slot b{color:#f1f8fa}
+.kitchen-calendar .nutrition-slot select,.kitchen-section-heading input{
+ background:#f2f7f8!important;color:#173344!important;border:1px solid #b7cbd2!important;border-radius:9px;
+}
+.kitchen-search-results{background:rgba(8,28,42,.7)}
+.kitchen-search-results h3{color:#f1f8fa}
+.nutrition-step-card>details>summary span:first-child{display:grid;gap:5px}
+.nutrition-step-card>details>summary b{font-size:14px}
+@media(max-width:900px){
+ .kitchen-library .kitchen-search{grid-template-columns:1fr 1fr}
+ .kitchen-library .kitchen-search input:first-child{grid-column:1/-1}
+ .kitchen-library .kitchen-search .btn{grid-column:1/-1}
+}
+@media(max-width:650px){
+ .nutrition-hero{padding:18px}
+ .nutrition-hero-stats{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .nutrition-hero-stats>span{min-width:0;padding:10px}
+ .nutrition-hero-stats b{font-size:16px}
+ .kitchen-library .nutrition-library-card img{height:112px}
+}
+
+
+/* Recipe collection actions */
+.recipe-review-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.recipe-origin-label{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.recipe-review-actions .btn{white-space:nowrap}
+@media(max-width:760px){.recipe-review-actions{width:100%;justify-content:flex-start}.recipe-review-actions .btn{flex:1 1 auto}}
