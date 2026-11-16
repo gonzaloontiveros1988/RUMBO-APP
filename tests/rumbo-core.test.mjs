@@ -23,7 +23,7 @@ test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync d
  assert.doesNotMatch(sw,/fitness-3d\.js/);
  assert.match(html,/fitness-journey-v2/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
- assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
+ assert.ok(app.includes('["fitnessProfile","nutritionProfile","fitnessJourney","waderImportSummary"]'));
 });
 
 test("logbook rejects invalid ICAO and impossible block times",()=>{
