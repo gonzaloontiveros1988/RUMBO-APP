@@ -21,7 +21,7 @@ test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync d
  assert.ok(app.includes("data-exercise-sequence="));
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
- assert.match(html,/fitness-guide-v8/);
+ assert.match(html,/fitness-journey-v1/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
 });
