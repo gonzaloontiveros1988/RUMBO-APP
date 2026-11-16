@@ -7,7 +7,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
-import {normalizeAppleHealthExport} from "../rumbo-next/health-import.js";
+import {normalizeAppleHealthExport,normalizeAppleHealthXml} from "../rumbo-next/health-import.js";
 import {answerLocally} from "../rumbo-next/local-assistant.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
@@ -370,10 +370,11 @@ test("Apple Health Shortcut import rejects empty or malformed exports",()=>{
 test("Recovery exposes the Apple Health bridge inside Fitness and Nutrition, not a top-level navigation item",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
- assert.ok(app.includes("APPLE HEALTH · IPHONE SHORTCUT SYNC"));
+ assert.ok(app.includes("APPLE HEALTH · IMPORTACIÓN GRATUITA"));
  assert.ok(app.includes('id="importAppleHealth"'));
  assert.ok(app.includes('"healthDaily"'));
- assert.ok(app.includes("La sincronización automática y nativa de HealthKit requiere una app iOS"));
+ assert.ok(app.includes("Exportar todos los datos de salud"));
+ assert.ok(app.includes("normalizeAppleHealthXml(raw)"));
  assert.ok(app.includes("Lifestyle & Recovery"));
  assert.ok(html.includes('id="healthImportInput"'));
  assert.ok(!app.includes('["lifestyle","Lifestyle"]'));
@@ -410,4 +411,22 @@ test("Nutrition provides a free broad web search without a paid recipe API",()=>
  assert.ok(app.includes("https://www.google.com/search?q="));
  assert.ok(app.includes("Buscar en toda la web"));
  assert.ok(!app.includes("spoonacular.com/food-api"));
+});
+
+test("Apple Health export.xml aggregates daily steps, sleep, energy and distance",()=>{
+ const xml='<HealthData><Record type="HKQuantityTypeIdentifierStepCount" unit="count" value="8200" startDate="2026-11-16 00:00:00 +0300" endDate="2026-11-16 23:59:00 +0300"/><Record type="HKQuantityTypeIdentifierActiveEnergyBurned" unit="kcal" value="510" startDate="2026-11-16 08:00:00 +0300" endDate="2026-11-16 20:00:00 +0300"/><Record type="HKQuantityTypeIdentifierDistanceWalkingRunning" unit="km" value="5.8" startDate="2026-11-16 08:00:00 +0300" endDate="2026-11-16 20:00:00 +0300"/><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleep" startDate="2026-11-15 23:00:00 +0300" endDate="2026-11-16 06:30:00 +0300"/></HealthData>';
+ const rows=normalizeAppleHealthXml(xml);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].date,"2026-11-16");
+ assert.equal(rows[0].steps,8200);
+ assert.equal(rows[0].activeEnergyKcal,510);
+ assert.equal(rows[0].walkingRunningKm,5.8);
+ assert.equal(rows[0].sleepHours,7.5);
+ assert.equal(rows[0].source,"apple-health-export");
+});
+test("Apple Health export.xml merges overlapping sleep intervals and rejects non-exports",()=>{
+ const xml='<HealthData><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2026-11-16 00:00:00 +0300" endDate="2026-11-16 04:00:00 +0300"/><Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2026-11-16 03:00:00 +0300" endDate="2026-11-16 05:00:00 +0300"/></HealthData>';
+ const rows=normalizeAppleHealthXml(xml);
+ assert.equal(rows[0].sleepHours,5);
+ assert.throws(()=>normalizeAppleHealthXml("<OtherData/>"),/No parece un export.xml válido/);
 });
