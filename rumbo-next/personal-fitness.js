@@ -309,3 +309,38 @@ export function fitnessJourneySummary(profile = FITNESS_JOURNEY_DEFAULTS, logs =
     phase: currentWeightKg <= p.targetWeightKg ? "review-phase-2" : "fat-loss"
   };
 }
+
+
+export const FITNESS_PROGRAM_LENGTH_WEEKS = 12;
+export function fitnessWeekPlan(weekNumber = 1) {
+  const week = Math.max(1, Math.min(FITNESS_PROGRAM_LENGTH_WEEKS, Math.floor(Number(weekNumber) || 1)));
+  const phase = week <= 2 ? { name: "Adaptación y técnica", sets: 2, reps: "10–12", rpe: 5, rest: 90, focus: "Aprender los movimientos, encontrar cargas cómodas y crear regularidad." }
+    : week <= 4 ? { name: "Construir consistencia", sets: 2, reps: "10–12", rpe: 6, rest: 90, focus: "Consolidar la técnica y progresar solo cuando todas las repeticiones sean limpias." }
+    : week <= 6 ? { name: "Progresión controlada", sets: 3, reps: "10–12", rpe: 6, rest: 90, focus: "Añadir una serie a los ejercicios principales si la recuperación es buena." }
+    : week <= 8 ? { name: "Fuerza y capacidad aeróbica", sets: 3, reps: "8–12", rpe: 6, rest: 90, focus: "Mantener la técnica mientras se aumenta gradualmente la carga o las repeticiones." }
+    : week <= 10 ? { name: "Progresión individual", sets: 3, reps: "8–12", rpe: 7, rest: 120, focus: "Progresar una sola variable cada vez; nunca entrenar a través del dolor." }
+    : { name: "Consolidación y revisión", sets: 2, reps: "10–12", rpe: 6, rest: 90, focus: "Consolidar los avances, revisar medidas y preparar el siguiente bloque." };
+  return {
+    week, phase: phase.name, sets: phase.sets, reps: phase.reps, rpe: phase.rpe, restSeconds: phase.rest, focus: phase.focus,
+    days: PERSONAL_FITNESS_SESSIONS.map((session, index) => ({
+      day: index + 1, id: session.id, kind: session.kind, title: session.title, durationMinutes: session.durationMinutes,
+      summary: session.summary, intensity: session.intensity || ("RPE " + phase.rpe + "/10"),
+      sets: session.kind === "strength" ? phase.sets : 1, reps: phase.reps, rpe: phase.rpe, restSeconds: phase.rest,
+      exercises: (session.exercises || []).map(item => ({ ...item, sets: phase.sets, reps: phase.reps, rpe: phase.rpe, restSeconds: phase.rest }))
+    }))
+  };
+}
+export function assessWorkoutPerformance(workout = {}) {
+  const sets = (workout.exercises || []).flatMap(ex => (ex.setLog || []).map(set => ({ ...set, exerciseId: ex.exerciseId })));
+  if (!sets.length) return { rating: "Sin datos", summary: "Registra al menos una serie para recibir una valoración.", advice: "Anota repeticiones, carga y esfuerzo percibido.", next: "Mantén una carga cómoda hasta tener una referencia." };
+  const avgRpe = sets.reduce((sum, x) => sum + (Number(x.rpe) || 0), 0) / sets.length;
+  const planned = (workout.exercises || []).reduce((sum, x) => sum + Number(x.sets || 0), 0);
+  const completion = planned ? sets.length / planned : 1;
+  const lowEffort = sets.every(x => Number(x.rpe) > 0 && Number(x.rpe) <= 5);
+  const highEffort = sets.some(x => Number(x.rpe) >= 9);
+  const formNotes = sets.filter(x => /dolor|molestia|técnica|tecnica/i.test(String(x.notes || "")));
+  if (formNotes.length || highEffort) return { rating: "Reducir carga / revisar técnica", summary: "El esfuerzo o las notas indican que conviene priorizar recuperación y ejecución.", advice: formNotes.length ? "Has anotado molestias o dudas técnicas. No aumentes la carga y detén el ejercicio si hay dolor." : "Alguna serie llegó a RPE 9 o más. Evita forzar y deja más margen en la próxima sesión.", next: "Repite o reduce ligeramente la carga; no busques el fallo muscular." };
+  if (completion >= 1 && avgRpe <= 7 && lowEffort) return { rating: "Progresión posible", summary: "Has completado las series con un esfuerzo controlado.", advice: "Si la técnica fue estable y no hay molestias durante las próximas 24 horas, prueba el incremento mínimo disponible.", next: "Aumenta solo 1–2 kg en tren superior o 2–5 kg en tren inferior, según el equipo." };
+  if (completion >= 1 && avgRpe <= 8) return { rating: "Buen trabajo", summary: "Has completado el trabajo previsto con un esfuerzo razonable.", advice: "Conserva la carga y busca repeticiones más consistentes antes de progresar.", next: "Mantén el peso en la próxima sesión." };
+  return { rating: "Sesión parcial", summary: "No se completaron todas las series previstas.", advice: "La constancia importa más que forzar el volumen. Revisa descanso, tiempo y recuperación.", next: "Repite el objetivo con una carga cómoda." };
+}
