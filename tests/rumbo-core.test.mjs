@@ -7,6 +7,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
+import {normalizeAppleHealthExport} from "../rumbo-next/health-import.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
@@ -345,4 +346,32 @@ test("four-day strength plan uses the upper/lower split and keeps all sessions w
  assert.equal(p.sessions.length,24);
  assert.deepEqual([...new Set(p.sessions.map(x=>x.routineId))].sort(),["lower-a","lower-b","upper-a","upper-b"]);
  assert.ok(p.sessions.every(x=>x.minutes<=45));
+});
+
+
+test("Apple Health Shortcut import validates and normalizes daily aggregates",()=>{
+ const rows=normalizeAppleHealthExport({days:[
+  {date:"2026-11-16",steps:8200,sleepHours:7.4,activeEnergyKcal:510,walkingRunningKm:5.8},
+  {date:"2026-02-30",steps:5000},
+  {date:"2026-11-15",steps:-10,sleepHours:8}
+ ]});
+ assert.equal(rows.length,2);
+ assert.equal(rows[0].date,"2026-11-15");
+ assert.equal(rows[0].steps,undefined);
+ assert.equal(rows[0].sleepHours,8);
+ assert.equal(rows[1].steps,8200);
+ assert.equal(rows[1].source,"apple-health-shortcuts");
+});
+test("Apple Health Shortcut import rejects empty or malformed exports",()=>{
+ assert.throws(()=>normalizeAppleHealthExport({days:[]}),/No se encontraron días/);
+ assert.throws(()=>normalizeAppleHealthExport({records:[{date:"bad",steps:4000}]}),/No hay registros diarios válidos/);
+});
+test("Recovery exposes the Apple Health bridge inside Fitness and Nutrition, not a top-level navigation item",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
+ assert.ok(app.includes("APPLE HEALTH · FREE SHORTCUT BRIDGE"));
+ assert.ok(app.includes('id="importAppleHealth"'));
+ assert.ok(app.includes('"healthDaily"'));
+ assert.ok(html.includes('id="healthImportInput"'));
+ assert.ok(!app.includes('["lifestyle","Lifestyle"]'));
 });
