@@ -1308,3 +1308,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{min-height:190px!important}
  .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{min-height:190px!important}
 }
+
+
+/* Personal video-guided sessions: never show generic SVG as if it were the verified demo. */
+.personal-video-guided .guided-figure{display:none!important}
+.personal-video-guided .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important}
+.personal-video-guided .exercise-source-link{display:inline-flex;margin:10px 0;padding:10px 13px;border:1px solid #3c7888;border-radius:10px;color:#8fe4e1;font-weight:800;text-decoration:none}
+.personal-plan-panel .panel{height:100%}
+.cardio-log-panel .form label{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
