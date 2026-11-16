@@ -396,7 +396,7 @@ function training(){
  </div>
  <section class="panel exercise-library-panel" style="margin-top:14px">
   <div class="panel-head"><div><div class="kicker">MOVEMENT DATABASE</div><h2>Biblioteca de ejercicios</h2><p class="muted">${EXERCISES.length} ejercicios organizados por patrón, musculatura y material. Filtra y añade movimientos a tu sesión.</p></div><span class="pill">${EXERCISES.length} MOVEMENTS</span></div>
-  <details class="exercise-library-details" open><summary>Explorar los ${EXERCISES.length} ejercicios</summary><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">${EXERCISES.length} ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
+  <details class="exercise-library-details" open><summary>Explorar los ${EXERCISES.length} ejercicios</summary><div class="exercise-sequence-key" aria-label="Cómo leer la secuencia del ejercicio"><div><b>1</b><span><strong>PREPARA</strong><small>Posición inicial y colocación</small></span></div><i>→</i><div><b>2</b><span><strong>EJECUTA</strong><small>Fase principal del movimiento</small></span></div><i>→</i><div><b>3</b><span><strong>REGRESA</strong><small>Vuelve con control al inicio</small></span></div></div><div class="form"><input id="exerciseLibrarySearch" class="grow" placeholder="Buscar por ejercicio, músculo, patrón o material…"><span class="muted" id="exerciseLibraryCount">${EXERCISES.length} ejercicios</span></div><div class="exercise-library-grid" id="exerciseLibraryGrid">${exerciseCards}</div></details>
  </section>`
 ;
 }
