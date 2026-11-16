@@ -75,7 +75,7 @@ const ALIASES = [
   [/patata|papa/i,"patata"],[/boniato|batata|sweet potato/i,"boniato"],
   [/garbanzo/i,"garbanzos cocidos"],[/lenteja/i,"lentejas cocidas"],[/tofu/i,"tofu"],
   [/tomate/i,"tomate"],[/cebolla/i,"cebolla"],[/pimiento/i,"pimiento rojo"],[/calabac[ií]n/i,"calabacin"],
-  [/br[oó]coli/i,"brocoli"],[/espinaca/i,"espinacas"],[/champiñ[oó]n/i,"champiñones"],
+  [/br[oó]coli/i,"brocoli"],[/espinaca/i,"espinacas"],[/champi/i,"champiñones"],
   [/pepino/i,"pepino"],[/lechuga/i,"lechuga"],[/ar[aá]ndano|blueberr/i,"arandanos"],[/fresa/i,"fresas"],
   [/pl[aá]tano|banana/i,"platano"],[/manzana|apple/i,"manzana"],[/aguacate|avocado/i,"aguacate"],
   [/aceite de oliva/i,"aceite de oliva"],[/pan integral/i,"pan integral"],[/almendra/i,"almendras"],
