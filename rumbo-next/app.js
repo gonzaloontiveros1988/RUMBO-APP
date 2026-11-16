@@ -3,7 +3,7 @@ import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAs
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats,buildTrainingProgram} from "./training-intelligence.js";
 import {EXERCISES,exerciseById,suggestNextLoad,validateExerciseEntry} from "./fitness-engine.js?v=fitness-journey-v2";
 import {exerciseSequenceSvg} from "./exercise-illustrations.js";
-import {FITNESS_JOURNEY_DEFAULTS,PERSONAL_FITNESS_SESSIONS,YMOVE_FREE_VIDEOS,YMOVE_FREE_VIDEO_PAGE,YMOVE_CREDIT_URL,normalizeFitnessJourneyProfile,fitnessJourneySummary,validateFitnessWeightEntry,fitnessWeekPlan,assessWorkoutPerformance} from "./personal-fitness.js?v=fitness-journey-v3";
+import {FITNESS_JOURNEY_DEFAULTS,PERSONAL_FITNESS_SESSIONS,YMOVE_FREE_VIDEOS,YMOVE_FREE_VIDEO_PAGE,YMOVE_CREDIT_URL,normalizeFitnessJourneyProfile,fitnessJourneySummary,validateFitnessWeightEntry,fitnessWeekPlan,assessWorkoutPerformance} from "./personal-fitness.js?v=fitness-journey-v4";
 import {summarizeLogbook,validateSector,logbookCsv} from "./flight-intelligence.js";
 import {parseWaderCsv} from "./wader-import.js";
 import {cityCatalogue,cityForAirport} from "./city-scenes.js";
