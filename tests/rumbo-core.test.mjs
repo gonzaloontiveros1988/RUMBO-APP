@@ -13,15 +13,21 @@ import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,su
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 
-test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync detects Fitness and Nutrition data",()=>{
+test("Fitness uses the 25 real looping Your Move MP4 demos and Cloud Sync detects Fitness and Nutrition data",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const fitness=readFileSync(new URL("../rumbo-next/personal-fitness.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
  const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
  assert.doesNotMatch(app,/import\s+["']\.\/fitness-3d\.js["']/);
- assert.ok(app.includes("data-exercise-sequence="));
+ assert.doesNotMatch(app,/exercise-illustrations\.js|exerciseDemoSvg\(|exerciseMotionSvg\(/);
+ assert.ok(app.includes("function exerciseVideoMarkup"));
+ assert.ok(app.includes("autoplay muted"));
+ assert.ok(app.includes("loop playsinline"));
+ assert.ok(app.includes("ymoveVideoCards"));
+ assert.equal((fitness.match(/"videoUrl":/g)||[]).length,25);
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
- assert.match(html,/fitness-v4/);
+ assert.match(html,/fitness-video-v1/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","fitnessJourney","waderImportSummary"]'));
 });
