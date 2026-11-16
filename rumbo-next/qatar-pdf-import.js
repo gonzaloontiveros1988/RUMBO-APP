@@ -29,7 +29,7 @@ export function extractDutyTimes(text){
    lastTime:end?.time||"",
    // In Qatar's monthly grid, the first clock time after RPT is the
    // first sector's departure time.
-   departureTime:report&&clockTimes.length>1?clockTimes[1].time:"",
+   arrivalTime:end?.time||"",
  };
 }
 function getVal(items,re){const x=items.find(t=>re.test(t));return x||""}
@@ -59,12 +59,12 @@ export async function parseQatarRosterPDF(file){
    for(let i=0;i+1<uniqueAirports.length;i+=2)segments.push({from:uniqueAirports[i],to:uniqueAirports[i+1],flightNumber:flightCodes[Math.floor(i/2)]||""});
    const route=segments.length?segments.map(x=>x.from+"–"+x.to).join(" / "):"";
    const firstSector=segments[0]||null;
-   const departureTime=firstSector?times.departureTime:"";
+   const arrivalTime=firstSector?times.arrivalTime:"";
    const destination=firstSector?.to||"";
    const date=year&&monthNo?year+"-"+monthNo+"-"+String(g.header.day).padStart(2,"0"):"";
    if(!times.reportTime&&!times.endTime&&!status&&!flightCodes.length&&!segments.length)continue;
    const kind=status?.[1]?.toUpperCase()||(segments.length?"FLIGHT":"DUTY");
-   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:times.reportTime,reportTime:times.reportTime,departureTime,destination,endTime:times.endTime,endDayOffset:times.endDayOffset||0,kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
+   duties.push({date,code:status?.[1]?.toUpperCase()||flightCodes.join("/")||kind,route,time:times.reportTime,reportTime:times.reportTime,arrivalTime,endTime:times.endTime,destination,endDayOffset:times.endDayOffset||0,kind,segments,flightNumbers:flightCodes,airports:[...new Set(uniqueAirports)],source:"Qatar Airways PDF",raw:text});
  }
  const all=items.map(i=>i.t).join(" ");
  const statBlock=all.match(/STATISTICS([\s\S]*?)HOTEL DETAILS/);
