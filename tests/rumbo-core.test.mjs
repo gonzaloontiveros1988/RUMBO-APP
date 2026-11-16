@@ -449,3 +449,19 @@ test("Apple Health export.xml imports Apple Watch cardio workout duration, dista
  assert.equal(rows[0].activeEnergyKcal,250);
  assert.equal(rows[0].averageHeartRate,130);
 });
+
+
+test("RUMBO boots local-first and caches versioned app assets for offline use",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const cloud=readFileSync(new URL("../rumbo-next/cloud-sync.js",import.meta.url),"utf8");
+ const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
+ const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
+ assert.ok(app.includes('function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}'));
+ assert.ok(app.includes('function save(){localStorage.setItem(KEY,JSON.stringify(state))'));
+ assert.doesNotMatch(cloud,/^import\s+\{\s*createClient\s*\}.*https:\/\//m);
+ assert.ok(cloud.includes('await import("https://esm.sh/@supabase/supabase-js@2.105.0")'));
+ assert.ok(cloud.includes('window.addEventListener("online"'));
+ assert.ok(sw.includes('ignoreSearch:true'));
+ assert.ok(sw.includes('rumbo-next-shell-v80'));
+ assert.doesNotMatch(html,/unpkg\.com\/leaflet/);
+});
