@@ -1671,3 +1671,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .nutrition-hero-stats b{font-size:16px}
  .kitchen-library .nutrition-library-card img{height:112px}
 }
+
+
+/* Recipe collection actions */
+.recipe-review-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.recipe-origin-label{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.recipe-review-actions .btn{white-space:nowrap}
+@media(max-width:760px){.recipe-review-actions{width:100%;justify-content:flex-start}.recipe-review-actions .btn{flex:1 1 auto}}
