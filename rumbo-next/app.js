@@ -8,7 +8,7 @@ import {parseWaderCsv} from "./wader-import.js";
 import {cityCatalogue,cityForAirport} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 import {initRumboCloudSync} from "./cloud-sync.js";
-import {normalizeAppleHealthExport,normalizeAppleHealthXml} from "./health-import.js";
+import {normalizeAppleHealthExport,normalizeAppleHealthXml,normalizeAppleHealthWorkouts} from "./health-import.js";
 import {answerLocally} from "./local-assistant.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "./crew-bidding.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",wellness:"◈",lifestyle:"♡",family:"⌂",finance:"▤",ai:"✧"};
@@ -120,8 +120,8 @@ function initRumboScene(){
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRumboScene()});
 }
 
-function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],healthDaily:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[],crewBids:[],crewBidHistory:[],crewBiddingProfile:{...DEFAULT_CREW_BIDDING_PROFILE}}}
-function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","healthDaily","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};next.crewBiddingProfile=normalizeCrewBiddingProfile(next.crewBiddingProfile);return next}
+function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],healthDaily:[],healthWorkouts:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[],crewBids:[],crewBidHistory:[],crewBiddingProfile:{...DEFAULT_CREW_BIDDING_PROFILE}}}
+function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","healthDaily","healthWorkouts","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};next.crewBiddingProfile=normalizeCrewBiddingProfile(next.crewBiddingProfile);return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem("rumbo_cloud_local_updated_at",String(Date.now()));window.rumboCloudSync?.schedule(state)}
 function allRecipes(){return [...RECIPES,...(state.customRecipes||[])]}
@@ -806,11 +806,16 @@ $("#healthImportInput").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  try{
   const raw=await file.text();
-  const imported=file.name.toLowerCase().endsWith(".xml")?normalizeAppleHealthXml(raw):normalizeAppleHealthExport(JSON.parse(raw));
+  const isXml=file.name.toLowerCase().endsWith(".xml");
+  const imported=isXml?normalizeAppleHealthXml(raw):normalizeAppleHealthExport(JSON.parse(raw));
+  const importedWorkouts=isXml?normalizeAppleHealthWorkouts(raw):((JSON.parse(raw).workouts||[]).filter(x=>x&&x.date&&Number(x.minutes)>0).map((x,i)=>({...x,id:x.id||"apple-health-json-"+x.date+"-"+i,source:"apple-health"})));
   const merged=new Map((state.healthDaily||[]).map(row=>[row.date,row]));
   for(const row of imported)merged.set(row.date,row);
   state.healthDaily=[...merged.values()].sort((a,b)=>a.date.localeCompare(b.date));
-  save();render();toast(imported.length+" días de Apple Health importados y guardados.");
+  const workoutMap=new Map((state.healthWorkouts||[]).map(row=>[row.id,row]));
+  for(const row of importedWorkouts)workoutMap.set(row.id,row);
+  state.healthWorkouts=[...workoutMap.values()].sort((a,b)=>b.date.localeCompare(a.date));
+  save();render();toast(imported.length+" días y "+importedWorkouts.length+" entrenamientos de Apple Health importados.");
  }catch(error){toast("No se pudo importar Apple Health: "+error.message)}
  finally{e.target.value=""}
 });
