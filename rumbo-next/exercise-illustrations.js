@@ -163,6 +163,14 @@ function specificExercise(id,k,cx){
  }
  return null;
 }
+
+export function exerciseMotionSvg(ex){
+ const f=family(ex),cx=90;
+ const frames=[0,1,2].map((k)=>'<g class="motion-phase motion-phase-'+k+'">'+(specificExercise(ex.id,k,cx)||equipment(f,cx)+drawFigure(f,k,cx))+'</g>').join("");
+ const name=String(ex.name||"Ejercicio").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+ return '<svg class="exercise-motion-svg" viewBox="0 0 180 190" role="img" aria-label="'+name+' en bucle: posición inicial, ejecución y regreso"><defs><radialGradient id="motionGlow"><stop offset="0" stop-color="#2bc7bd" stop-opacity=".19"/><stop offset="1" stop-color="#102b3c" stop-opacity="0"/></radialGradient></defs><ellipse cx="90" cy="104" rx="86" ry="88" fill="url(#motionGlow)"/><path d="M18 166H162" stroke="#547180" stroke-width="2" stroke-linecap="round"/>'+frames+'</svg>';
+}
+
 export function exerciseSequenceSvg(ex){
  const f=family(ex),cx=[60,180,300],labels=["1 · PREPARA","2 · EJECUTA","3 · REGRESA"];
  const frames=cx.map((x,i)=>'<g class="exercise-phase exercise-phase-'+i+'"><rect x="'+(x-54)+'" y="8" width="112" height="176" rx="12" fill="#102b3c" stroke="#2e596b"/><text x="'+x+'" y="28" text-anchor="middle" fill="#d8f5f3" font-size="9" font-weight="800" letter-spacing="1.2">'+labels[i]+'</text><path d="M'+(x-43)+' 166h86" stroke="'+C.floor+'" stroke-width="2"/>'+(specificExercise(ex.id,i,x)||equipment(f,x)+drawFigure(f,i,x))+'</g>').join("");
