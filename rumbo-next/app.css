@@ -1426,3 +1426,9 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-target-row input{color:#fff;background:#0a1d2b;border:1px solid #496b7d}
 @media(max-width:900px){.fitness-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fitness-day-exercise{grid-template-columns:1fr}.fitness-day-exercise-visual{min-height:190px}}
 @media(max-width:620px){.fitness-checkin-grid{grid-template-columns:1fr}.fitness-weight-focus{gap:7px}.fitness-weight-focus>div{padding:10px}.fitness-week-grid,.fitness-day-grid{grid-template-columns:1fr}.fitness-measure-details .form{grid-template-columns:1fr}}
+
+.exercise-sequence-svg .exercise-phase{transform-origin:center;animation:fitnessPhaseGlow 3.6s ease-in-out infinite;opacity:.72}
+.exercise-sequence-svg .exercise-phase-1{animation-delay:1.2s}
+.exercise-sequence-svg .exercise-phase-2{animation-delay:2.4s}
+@keyframes fitnessPhaseGlow{0%,28%,100%{opacity:.62;filter:saturate(.85)}10%,18%{opacity:1;filter:saturate(1.35) drop-shadow(0 0 5px rgba(81,212,223,.45))}}
+.fitness-ai-review{white-space:pre-wrap;line-height:1.7;color:#eaf8f4;background:#0d2c35;border:1px solid #327c72;border-radius:12px;padding:16px;margin-top:12px}
