@@ -282,7 +282,9 @@ export function normalizeFitnessJourneyProfile(profile = {}) {
 }
 export function validateFitnessWeightEntry(entry = {}) {
   const errors = [];
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(entry.date || ""))) errors.push("Introduce una fecha válida.");
+  const date = String(entry.date || "");
+  const parsedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(date) ? new Date(date + "T12:00:00Z") : null;
+  if (!parsedDate || parsedDate.toISOString().slice(0, 10) !== date) errors.push("Introduce una fecha válida.");
   const weight = Number(entry.weightKg);
   if (!Number.isFinite(weight) || weight < 30 || weight > 350) errors.push("El peso debe estar entre 30 y 350 kg.");
   if (entry.waistCm !== "" && entry.waistCm != null) {
@@ -293,7 +295,7 @@ export function validateFitnessWeightEntry(entry = {}) {
 }
 export function fitnessJourneySummary(profile = FITNESS_JOURNEY_DEFAULTS, logs = []) {
   const p = normalizeFitnessJourneyProfile(profile);
-  const valid = (logs || []).filter(x => /^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.date || "")) && Number.isFinite(Number(x.weightKg)) && Number(x.weightKg) >= 30 && Number(x.weightKg) <= 350).slice().sort((a,b) => a.date.localeCompare(b.date));
+  const valid = (logs || []).filter(x => { const date = String(x.date || ""); const parsed = /^\\d{4}-\\d{2}-\\d{2}$/.test(date) ? new Date(date + "T12:00:00Z") : null; return !!parsed && parsed.toISOString().slice(0, 10) === date && Number.isFinite(Number(x.weightKg)) && Number(x.weightKg) >= 30 && Number(x.weightKg) <= 350; }).slice().sort((a,b) => a.date.localeCompare(b.date));
   const currentWeightKg = valid.length ? Number(valid[valid.length - 1].weightKg) : p.startWeightKg;
   const totalLossKg = Math.max(0, p.startWeightKg - currentWeightKg);
   const totalToLoseKg = Math.max(0, p.startWeightKg - p.targetWeightKg);
