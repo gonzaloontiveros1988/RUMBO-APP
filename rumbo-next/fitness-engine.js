@@ -68,7 +68,8 @@ export function suggestNextLoad(history,exerciseId){
  return {status:"repeat",weight,message:"Repite la carga y consolida las repeticiones antes de progresar."};
 }
 export function validateExerciseEntry(entry){
- const errors=[];
+ const errors=[ {id:"seated-machine-chest-press",name:"Seated Machine Chest Press",pattern:"Horizontal push",muscles:["Chest","Triceps","Front deltoids"],equipment:["Chest press machine"],level:"Beginner",cues:["Adjust the seat so the handles start around mid-chest.","Keep your back supported and wrists neutral.","Press smoothly; stop before locking the elbows or provoking shoulder pain."],substitutions:["Incline machine press","Dumbbell bench press"],videoSearch:"seated machine chest press"}
+];
  if(!exerciseById(entry.exerciseId))errors.push("Choose an exercise.");
  if(!Number.isInteger(Number(entry.sets))||Number(entry.sets)<1||Number(entry.sets)>20)errors.push("Sets must be between 1 and 20.");
  if(!Number.isInteger(Number(entry.reps))||Number(entry.reps)<1||Number(entry.reps)>100)errors.push("Reps must be between 1 and 100.");
