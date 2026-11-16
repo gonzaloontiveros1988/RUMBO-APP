@@ -115,7 +115,7 @@ export function calculateRecipeNutrition(recipe={}){
   const ingredients=(recipe.ingredients||[]).map(calculateIngredientNutrition),known=ingredients.filter(x=>x.covered);
   const totals={kcal:0,protein:0,carbs:0,fat:0};
   for(const item of known)for(const key of Object.keys(totals))totals[key]+=Number(item[key]||0);
-  const servings=Math.max(1,Number(recipe.servings)||1),complete:ingredients.length>0&&known.length===ingredients.length;
+  const servings=Math.max(1,Number(recipe.servings)||1),complete=ingredients.length>0&&known.length===ingredients.length;
   return {complete,coverage:ingredients.length?round(known.length/ingredients.length*100):0,estimated:known.some(x=>x.source!=="recipe-entered-estimate"),unknownIngredients:ingredients.filter(x=>!x.covered).map(x=>x.name),total:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v)])),perServing:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v/servings)])),ingredients};
 }
 export function calculateBatchPortions(recipe,cookedYieldGrams,portionCookedGrams){
@@ -125,13 +125,13 @@ export function calculateBatchPortions(recipe,cookedYieldGrams,portionCookedGram
   const portions=yieldG/portionG;
   return {ok:true,totalCookedGrams:yieldG,portionCookedGrams:portionG,portions:round(portions),wholePortions:Math.floor(portions),remainderGrams:round(yieldG-Math.floor(portions)*portionG),perPortion:Object.fromEntries(Object.entries(nutrition.total).map(([k,v])=>[k,round(v/portions)])),total:nutrition.total};
 }
-function parseNumericQuantity(quantity){
+export function parseShoppingQuantity(quantity){
   const m=String(quantity||"").trim().match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
   if(!m)return null;
   return {value:Number(m[1].replace(",",".")),unit:m[2].trim()};
 }
 export function scaleQuantity(quantity,factor){
-  const parsed=parseNumericQuantity(quantity);
+  const parsed=parseShoppingQuantity(quantity);
   if(!parsed||!Number.isFinite(factor))return String(quantity||"");
   const amount=round(parsed.value*factor);
   return (Number.isInteger(amount)?String(amount):String(amount).replace(".",","))+(parsed.unit?" "+parsed.unit:"");
