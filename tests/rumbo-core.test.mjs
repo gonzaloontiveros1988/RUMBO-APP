@@ -21,7 +21,7 @@ test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync d
  assert.ok(app.includes("data-exercise-sequence="));
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
- assert.match(html,/fitness-guide-v7/);
+ assert.match(html,/fitness-guide-v8/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
 });
@@ -402,4 +402,12 @@ test("RUMBO AI screen uses the private local assistant rather than a paid infere
  assert.ok(app.includes("answerLocally(q,state)"));
  assert.ok(app.includes("RUMBO LOCAL · SIN API"));
  assert.ok(!app.includes("/functions/v1/rumbo-ai"));
+});
+
+test("Nutrition provides a free broad web search without a paid recipe API",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ assert.ok(app.includes('id="searchWebRecipes"'));
+ assert.ok(app.includes("https://www.google.com/search?q="));
+ assert.ok(app.includes("Buscar en toda la web"));
+ assert.ok(!app.includes("spoonacular.com/food-api"));
 });
