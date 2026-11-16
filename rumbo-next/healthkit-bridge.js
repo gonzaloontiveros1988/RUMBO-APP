@@ -38,7 +38,7 @@
         if(action==="connect") await window.RumboHealthKit.requestAuthorization();
         const data=await window.RumboHealthKit.readDailySummary(7);
         status.textContent="Conectado · última lectura "+new Date().toLocaleString();
-        summary.innerHTML=(data||[]).map(d=>'<div class="row"><span><b>'+d.date+'</b><small>Steps · '+(d.steps??"—")+' · Sleep · '+(d.sleepHours??"—")+' h</small></span><b>'+(d.activeEnergyKcal??"—")+' kcal</b></div>').join("")||"No hay muestras disponibles para el periodo seleccionado.";
+        summary.innerHTML=(data||[]).map(d=>'<div class="row"><span><b>'+d.date+'</b><small>Steps · '+(d.steps??"—")+' · Distance · '+(d.distanceMeters==null?"—":(d.distanceMeters/1000).toFixed(2)+" km")</small></span><b>'+(d.activeEnergyKcal??"—")+' kcal</b></div>').join("")||"No hay muestras disponibles para el periodo seleccionado.";
       }catch(error){status.textContent=error.message||"No se pudo leer Apple Health.";}
     }
     document.getElementById("rumboHealthConnect").addEventListener("click",()=>run("connect"));
