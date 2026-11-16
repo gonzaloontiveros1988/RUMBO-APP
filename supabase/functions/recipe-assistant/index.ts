@@ -20,6 +20,63 @@ function limited(ip: string) {
 function cleanSteps(raw: string) {
   return String(raw || "").replace(/\r/g, "").split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(x => x.length > 12).slice(0, 18);
 }
+
+const SOCIAL_HOSTS = new Set(["instagram.com","www.instagram.com","m.instagram.com","tiktok.com","www.tiktok.com","vm.tiktok.com","youtube.com","www.youtube.com","m.youtube.com","youtu.be"]);
+function meta(html: string, key: string) {
+  const patterns = [
+    new RegExp('<meta[^>]+(?:property|name)=["\\']' + key + '["\\'][^>]+content=["\\']([^"\\']*)["\\'][^>]*>', "i"),
+    new RegExp('<meta[^>]+content=["\\']([^"\\']*)["\\'][^>]+(?:property|name)=["\\']' + key + '["\\'][^>]*>', "i")
+  ];
+  for (const pattern of patterns) { const match = html.match(pattern); if (match) return decodeHtml(match[1]); }
+  return "";
+}
+function decodeHtml(value: string) {
+  return value.replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&#x27;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n))).replace(/&nbsp;/g," ").trim();
+}
+function findRecipeJson(html: string) {
+  const blocks = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const block of blocks) {
+    try {
+      const data = JSON.parse(block[1].replace(/<!--|-->/g,""));
+      const nodes: any[] = [];
+      const walk = (v: any) => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === "object") { const type = v["@type"]; if ((Array.isArray(type) ? type : [type]).some((t: any) => String(t).toLowerCase() === "recipe")) nodes.push(v); Object.values(v).forEach(walk); } };
+      walk(data);
+      const r = nodes[0]; if (!r) continue;
+      const ingredients = Array.isArray(r.recipeIngredient) ? r.recipeIngredient.slice(0,24) : [];
+      const instructions: string[] = [];
+      const readSteps = (v: any) => { if (Array.isArray(v)) v.forEach(readSteps); else if (typeof v === "string") instructions.push(v); else if (v && typeof v === "object") { if (v.text) instructions.push(String(v.text)); else if (v.name) instructions.push(String(v.name)); else if (v.itemListElement) readSteps(v.itemListElement); } };
+      readSteps(r.recipeInstructions);
+      const img = Array.isArray(r.image) ? (typeof r.image[0] === "string" ? r.image[0] : r.image[0]?.url) : (typeof r.image === "string" ? r.image : r.image?.url);
+      if (r.name && ingredients.length >= 2 && instructions.length >= 2) return {name:String(r.name),ingredients,instructions,image:img||"",servings:String(r.recipeYield||"4")};
+    } catch {}
+  }
+  return null;
+}
+async function importSocialUrl(raw: string) {
+  let url: URL;
+  try { url = new URL(raw); } catch { throw new Error("Pega un enlace completo de Instagram, TikTok o YouTube."); }
+  if (url.protocol !== "https:" || !SOCIAL_HOSTS.has(url.hostname.toLowerCase())) throw new Error("Solo se admiten enlaces HTTPS de Instagram, TikTok o YouTube.");
+  let response: Response | null = null, current = url;
+  for (let hop=0; hop<4; hop++) {
+    response = await fetch(current.href, {headers:{Accept:"text/html,application/xhtml+xml", "User-Agent":"Mozilla/5.0 (compatible; RUMBOKitchen/1.0)"}, signal:AbortSignal.timeout(9000), redirect:"manual"});
+    if ([301,302,303,307,308].includes(response.status)) {
+      const location = response.headers.get("location"); if (!location) break;
+      const next = new URL(location,current);
+      if (next.protocol !== "https:" || !SOCIAL_HOSTS.has(next.hostname.toLowerCase())) throw new Error("La plataforma redirigió a un dominio no admitido.");
+      current = next; continue;
+    }
+    break;
+  }
+  if (!response || !response.ok) throw new Error("La red social no permite leer esta publicación ahora. La privacidad o el inicio de sesión pueden bloquearla.");
+  const html = (await response.text()).slice(0,1200000);
+  const title = meta(html,"og:title") || meta(html,"twitter:title") || meta(html,"title");
+  const description = meta(html,"og:description") || meta(html,"description") || meta(html,"twitter:description");
+  const image = meta(html,"og:image") || meta(html,"twitter:image");
+  const recipe = findRecipeJson(html);
+  const platform = /instagram/i.test(current.hostname)?"Instagram":/tiktok/i.test(current.hostname)?"TikTok":"YouTube";
+  return {platform,sourceUrl:url.href,title,description,image,recipe};
+}
+
 const aliases: [RegExp, string][] = [
   [/paella|marisco|seafood|gamba|langostino|camar[oó]n|shrimp|prawn/i, "shrimp"],
   [/mejill[oó]n|almeja|calamar|pulpo|mussel|squid|octopus/i, "squid"],
@@ -52,6 +109,11 @@ Deno.serve(async (req: Request) => {
     if (raw.length > 6000) return json(413, { error: "Request too large" });
     body = JSON.parse(raw);
   } catch { return json(400, { error: "JSON inválido." }); }
+  const action = String(body.action || "search");
+  if (action === "import-url") {
+    try { const url = String(body.url || "").trim(); if (!url || url.length > 1500) return json(400,{error:"Enlace vacío o demasiado largo."}); const imported = await importSocialUrl(url); return json(200,{...imported,notice:imported.recipe?"Receta estructurada detectada. Revisa cantidades y macros.":"Enlace reconocido. La plataforma solo ha expuesto metadatos públicos; revisa la descripción antes de calcular macros."}); }
+    catch(error) { return json(422,{error:String((error as Error)?.message||error).slice(0,300)}); }
+  }
   const query = String(body.query || "").trim().slice(0, 180);
   const servings = Number(body.servings || 4);
   const category = String(body.category || "Lunch").slice(0, 24);
