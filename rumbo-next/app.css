@@ -1175,3 +1175,46 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-sequence-svg .exercise-phase-2 rect{animation-delay:2.4s}
 @keyframes rumbo-exercise-phase{0%,28%{stroke:#56d9d0;stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(86,217,208,.35))}34%,100%{stroke:#2e596b;stroke-width:1;filter:none}}
 @media(prefers-reduced-motion:reduce){.exercise-sequence-svg .exercise-phase rect{animation:none}}
+
+
+/* RUMBO responsive repair · Fitness library + small screens */
+.exercise-library-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:stretch}
+.exercise-library-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;min-width:0!important;overflow:hidden!important;padding:0!important;background:linear-gradient(145deg,#102c3e,#0b2030)!important;border:1px solid #31576a!important;border-radius:16px!important;align-content:start}
+.exercise-library-art{width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;padding:12px!important;background:#0a1e2c!important;overflow:hidden!important}
+.exercise-library-art .guided-figure{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;display:block!important;overflow:hidden!important;border-radius:10px!important;background:#0c2939!important}
+.exercise-library-art svg.exercise-sequence-svg{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;opacity:1!important;visibility:visible!important}
+.exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;min-width:0!important;padding:14px 16px 16px!important;color:#edf5f8!important;opacity:1!important}
+.exercise-library-copy>b{color:#f3f8fb!important;font-size:16px!important;line-height:1.3!important}
+.exercise-library-copy>small{color:#b9ced9!important;font-size:12px!important;line-height:1.5!important;overflow-wrap:anywhere}
+.exercise-library-copy>small.muted{color:#a9c0cd!important}
+.exercise-library-copy>p{margin:0!important;color:#dce9ef!important;font-size:13px!important;line-height:1.55!important}
+.exercise-library-copy .btn{margin-top:4px!important;min-height:40px}
+.exercise-library-details>.form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.exercise-library-details>.form input{min-width:0;flex:1 1 220px}
+.exercise-library-details>.form #exerciseLibraryCount{color:#c4d7e0!important;white-space:nowrap}
+@media(max-width:900px){
+ .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-art{padding:10px!important}
+ .exercise-library-art svg.exercise-sequence-svg{max-width:560px!important;margin:0 auto!important}
+}
+@media(max-width:650px){
+ html,body{width:100%;min-width:0;overflow-x:hidden}
+ .app{display:block!important;width:100%;min-width:0;min-height:100dvh;padding-bottom:72px!important}
+ main{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:14px 12px 28px!important}
+ .topbar{gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px!important}
+ .top-actions{max-width:100%;gap:6px;flex-wrap:wrap}
+ .rumbo-scene-controls{max-width:100%;overflow-x:auto}
+ .page-head{min-width:0}
+ .page-head h1{font-size:clamp(24px,7vw,32px)!important}
+ .panel,.grid,.exercise-library-details{min-width:0!important;max-width:100%!important}
+ .four,.three{grid-template-columns:minmax(0,1fr)!important}
+ .two{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+ .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
+ .exercise-library-art{padding:8px!important}
+ .exercise-library-art svg.exercise-sequence-svg{width:100%!important;min-height:0!important}
+ .exercise-library-copy{padding:12px!important}
+ .mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important}
+ .mobile-nav button{min-width:0!important;font-size:8px!important;overflow:hidden}
+}
