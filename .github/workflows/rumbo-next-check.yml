@@ -47,13 +47,15 @@ jobs:
           node --check rumbo-next/reminders.js
           node --check rumbo-next/training-intelligence.js
           node --check rumbo-next/fitness-engine.js
+          node --check rumbo-next/personal-fitness.js
           node --check rumbo-next/health-import.js
           node --check rumbo-next/local-assistant.js
           node --check rumbo-next/crew-bidding.js
           node --check rumbo-next/cloud-sync.js
           node --check tests/rumbo-core.test.mjs
           node --check tests/recipe-assistant.test.mjs
-          node --test tests/rumbo-core.test.mjs tests/recipe-assistant.test.mjs
+          node --check tests/personal-fitness.test.mjs
+          node --test tests/rumbo-core.test.mjs tests/recipe-assistant.test.mjs tests/personal-fitness.test.mjs
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
@@ -71,6 +73,7 @@ jobs:
           test -s rumbo-next/reminders.js
           test -s rumbo-next/training-intelligence.js
           test -s rumbo-next/fitness-engine.js
+          test -s rumbo-next/personal-fitness.js
           test -s rumbo-next/health-import.js
           test -s rumbo-next/local-assistant.js
           test -s rumbo-next/crew-bidding.js
@@ -80,5 +83,6 @@ jobs:
           test -s rumbo-next/cloud-sync.js
           test -s rumbo-next/sw.js
           test -s tests/rumbo-core.test.mjs
+          test -s tests/personal-fitness.test.mjs
           test -s supabase/functions/recipe-assistant/index.ts
           test -s supabase/functions/rumbo-ai/index.ts
