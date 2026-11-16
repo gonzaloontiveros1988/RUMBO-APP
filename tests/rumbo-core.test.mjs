@@ -7,20 +7,19 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
-import {FITNESS_MODEL_URL,classifyExerciseMotion} from "../rumbo-next/fitness-3d.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 
-test("Fitness 3D viewer is loaded and targets the exact guided exercise data attribute",()=>{
+test("Fitness defaults to the local exercise-specific SVG guide and does not load an unvalidated 3D avatar",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
- const viewer=readFileSync(new URL("../rumbo-next/fitness-3d.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
- assert.match(app,/import\s+["']\.\/fitness-3d\.js["']/);
- assert.ok(viewer.includes('document.querySelectorAll(".guided-figure[data-exercise3d]")'));
- assert.ok(!viewer.includes("data-exercise-3d"));
- assert.ok(app.includes("data-exercise3d="));
- assert.match(html,/fitness-3d-integration-v6/);
+ const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
+ assert.doesNotMatch(app,/import\s+["']\.\/fitness-3d\.js["']/);
+ assert.ok(app.includes("data-exercise-sequence="));
+ assert.ok(!app.includes("data-exercise3d="));
+ assert.doesNotMatch(sw,/fitness-3d\.js/);
+ assert.match(html,/fitness-guide-v7/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","waderImportSummary"]'));
  assert.ok(app.includes("nutrition:{profile:state.nutritionProfile||{}"));
@@ -331,21 +330,6 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
-test("Every Fitness library exercise receives a non-generic 3D motion pattern",()=>{
- const unclassified=EXERCISES.filter(ex=>classifyExerciseMotion(ex.id)==="general").map(ex=>ex.id);
- assert.deepEqual(unclassified,[]);
-});
-test("3D motion classifier covers vertical pull, hip extension, core, mobility and cardio",()=>{
- assert.equal(classifyExerciseMotion("lat-pulldown"),"vertical-pull");
- assert.equal(classifyExerciseMotion("hip-thrust"),"bridge");
- assert.equal(classifyExerciseMotion("plank"),"core");
- assert.equal(classifyExerciseMotion("cat-cow"),"mobility");
- assert.equal(classifyExerciseMotion("cycling"),"cardio");
-});
-test("Fitness 3D viewer uses a different rigged human asset and no longer loads Sam",()=>{
- assert.match(FITNESS_MODEL_URL,/Michelle\.glb$/);
- assert.doesNotMatch(FITNESS_MODEL_URL,/sam/i);
-});
 test("fitness library contains 52 distinct, documented exercises with a rendered three-phase human guide",()=>{
  assert.equal(EXERCISES.length,52);
  assert.equal(new Set(EXERCISES.map(x=>x.id)).size,52);
