@@ -1432,3 +1432,31 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-sequence-svg .exercise-phase-2{animation-delay:2.4s}
 @keyframes fitnessPhaseGlow{0%,28%,100%{opacity:.62;filter:saturate(.85)}10%,18%{opacity:1;filter:saturate(1.35) drop-shadow(0 0 5px rgba(81,212,223,.45))}}
 .fitness-ai-review{white-space:pre-wrap;line-height:1.7;color:#eaf8f4;background:#0d2c35;border:1px solid #327c72;border-radius:12px;padding:16px;margin-top:12px}
+
+
+/* RUMBO Kitchen · progressive disclosure */
+.nutrition-hero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(18,52,68,.48);margin:12px 0}
+.nutrition-step-card{margin:12px 0;overflow:hidden}
+.nutrition-step-card>details>summary,.nutrition-library-group>summary,.nutrition-day-card>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;padding:14px 16px;min-height:56px}
+.nutrition-step-card>details>summary::-webkit-details-marker,.nutrition-library-group>summary::-webkit-details-marker,.nutrition-day-card>summary::-webkit-details-marker{display:none}
+.nutrition-step-card>details>summary span:first-child,.nutrition-day-card>summary span:first-child{display:grid;gap:4px}
+.nutrition-step-card summary small,.nutrition-day-card summary small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.nutrition-step-card>details[open]>summary,.nutrition-library-group[open]>summary,.nutrition-day-card[open]>summary{border-bottom:1px solid var(--line)}
+.nutrition-step-card>details>.social-recipe-import,.nutrition-step-card>details>.recipe-search-form,.nutrition-step-card>details>.nutrition-week-list,.nutrition-step-card>details>.nutrition-library-group{margin:12px 14px}
+.nutrition-week-list{display:grid;gap:8px}
+.nutrition-day-card,.nutrition-library-group{border:1px solid var(--line);border-radius:12px;background:rgba(7,28,42,.42);overflow:hidden}
+.nutrition-day-content{padding:8px 14px 14px}
+.nutrition-slot{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,220px) auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.nutrition-slot>div{display:grid;gap:4px}.nutrition-slot small{color:var(--muted);font-size:11px}.nutrition-slot b{font-size:13px}
+.nutrition-library-group{margin:9px 0}
+.nutrition-library-group>summary span{font-size:11px;color:var(--muted)}
+.nutrition-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:12px}
+.nutrition-library-card{display:flex;flex-direction:column;text-align:left;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--text);padding:0;cursor:pointer}
+.nutrition-library-card img,.nutrition-library-card .recipe-image-missing{width:100%;height:118px;object-fit:cover}
+.nutrition-library-card>span{display:grid;gap:5px;padding:10px}.nutrition-library-card small{color:var(--muted);font-size:11px}
+.nutrition-library-card b{font-size:12px;line-height:1.4}
+.nutrition-step-card .social-recipe-import{margin:12px 14px}
+.nutrition-step-card .recipe-search-form{padding:12px}
+.nutrition-step-card .nutrition-library-group{margin:10px 14px}
+.nutrition-day-card summary span:last-child{font-size:11px;color:var(--muted)}
+@media(max-width:650px){.nutrition-slot{grid-template-columns:1fr;align-items:stretch}.nutrition-slot select{width:100%}.nutrition-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.nutrition-library-card img,.nutrition-library-card .recipe-image-missing{height:100px}.nutrition-hero{align-items:stretch}.nutrition-hero .form{width:100%}}
