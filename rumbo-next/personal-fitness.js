@@ -3,7 +3,7 @@ export const FITNESS_JOURNEY_DEFAULTS = Object.freeze({
   age: 38, sex: "male", heightCm: 170, startWeightKg: 114, targetWeightKg: 80,
   sessionsPerWeek: 4, strengthSessions: 2, cardioSessions: 2,
   phase: "fat-loss", setting: "hotel-or-gym", level: "beginner",
-  kneeNote: "Chronic bilateral knee discomfort; avoid painful ranges and loaded squat/lunge patterns pending clinical assessment."
+  kneeNote: "Inicio progresivo: movimientos controlados, rango cómodo y sin dolor; introducir ejercicios de mayor carga gradualmente."
 });
 export const YMOVE_FREE_VIDEO_PAGE = "https://ymove.app/free-exercise-videos";
 export const YMOVE_CREDIT_URL = "https://ymove.app/exercise-api";
