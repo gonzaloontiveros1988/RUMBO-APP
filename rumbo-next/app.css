@@ -1371,3 +1371,58 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .recipe-review .fitness-evidence-note{margin:14px 0}
 .recipe-review .fitness-evidence-note .form{align-items:end}
 @media(max-width:700px){.recipe-card-actions .btn{flex:1 1 42%}.meal-servings-control{grid-template-columns:auto 64px}.nutrition-ingredient-table{font-size:11px}}
+
+
+/* RUMBO Fitness 12-week guided programme */
+.fitness-weight-focus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 8px}
+.fitness-weight-focus>div{padding:15px;border:1px solid var(--line);border-radius:14px;background:#102c40;display:grid;gap:5px}
+.fitness-weight-focus small{font-size:10px;letter-spacing:.1em;color:#a9c4d1;font-weight:800}
+.fitness-weight-focus strong{font-size:clamp(21px,3vw,30px);color:#f3fbff;font-weight:800}
+.fitness-weight-focus strong small{font-size:12px;letter-spacing:0}
+.fitness-checkin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.fitness-checkin-grid h3{color:#effaff}
+.fitness-measure-details{padding:15px;border:1px solid var(--line);border-radius:14px;background:#102638}
+.fitness-measure-details summary{cursor:pointer;color:#d8f4f5;font-weight:800}
+.fitness-measure-details .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.fitness-program-panel{margin-top:14px}
+.fitness-week-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fitness-week-card,.fitness-day-card{appearance:none;text-align:left;color:#eef8fc;background:#102d42;border:1px solid #31566b;border-radius:15px;padding:16px;display:flex;flex-direction:column;gap:9px;cursor:pointer;min-width:0;transition:border-color .18s,transform .18s,background .18s}
+.fitness-week-card:hover,.fitness-day-card:hover{border-color:var(--cyan);transform:translateY(-2px);background:#173c52}
+.fitness-week-card.is-current{border:2px solid var(--green);background:#123b43}
+.fitness-week-number,.fitness-day-card>span{font-size:10px;letter-spacing:.12em;font-weight:900;color:#9ce8e8}
+.fitness-week-card>b,.fitness-day-card>b{font-size:16px;color:#f3fbff}
+.fitness-week-card>small,.fitness-day-card>small{font-size:12px;line-height:1.5;color:#bdd0da}
+.fitness-week-progress,.fitness-progress-track{height:8px;background:#29495b;border-radius:20px;overflow:hidden;display:block}
+.fitness-week-progress i{display:block;height:100%;background:#50c9b8;border-radius:20px}
+.fitness-week-meta,.fitness-day-card>strong{font-size:11px;color:#d1e4ec}
+.fitness-drill-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+.fitness-week-focus{padding:16px 18px;background:#123448;border:1px solid #31566b;border-radius:14px;margin:14px 0;color:#edf8fc}
+.fitness-week-focus>b{font-size:17px;color:#fff}
+.fitness-week-focus p{color:#c3d6df;line-height:1.6}
+.fitness-week-focus small{color:#9ddfe0}
+.fitness-day-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fitness-day-card.is-done{border-color:#51c79a;background:#123b39}
+.fitness-day-exercises{display:grid;gap:12px;margin:16px 0}
+.fitness-day-exercise{display:grid;grid-template-columns:minmax(150px,32%) 1fr;gap:16px;background:#102d42;border:1px solid #31566b;border-radius:16px;padding:14px;align-items:center}
+.fitness-day-exercise-visual{background:#183b50;border-radius:12px;min-height:160px;display:grid;place-items:center;overflow:hidden}
+.fitness-day-exercise-visual .guided-figure{width:100%;max-width:250px}
+.fitness-day-exercise-copy h3{color:#fff;margin:5px 0}
+.fitness-day-exercise-copy p{color:#c4d8e1;line-height:1.55;margin:7px 0}
+.fitness-day-exercise-copy>small{display:block;color:#a9c4d1;margin:5px 0}
+.fitness-day-exercise-copy>strong{display:block;color:#8fe5dc;margin-top:10px}
+.fitness-start-day{width:100%;margin:10px 0 4px;padding:15px}
+.fitness-cardio-instructions{background:#102d42;border:1px solid #31566b;border-radius:16px;padding:20px;color:#eaf6fa}
+.fitness-cardio-instructions h3{color:#fff}
+.fitness-cardio-instructions p{color:#c4d8e1;line-height:1.65}
+.fitness-coach-feedback{margin:14px 0;background:#123b3b;border:1px solid #327c72}
+.fitness-coach-rating{font-size:23px;font-weight:900;color:#9af0d1;margin:8px 0}
+.fitness-coach-feedback p{color:#e0f2f0;line-height:1.55}
+.guided-exercise-card{background:#102d42!important;color:#f1f8fb!important}
+.guided-exercise-title h2{color:#fff!important}
+.guided-exercise-title p,.guided-equipment,.guided-technique li{color:#d2e4ec!important}
+.guided-notes-label{display:grid;gap:6px;margin-top:12px;color:#c4d8e1;font-size:12px}
+.guided-notes-label input{width:100%}
+.guided-target-row label{color:#cde1e9}
+.guided-target-row input{color:#fff;background:#0a1d2b;border:1px solid #496b7d}
+@media(max-width:900px){.fitness-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fitness-day-exercise{grid-template-columns:1fr}.fitness-day-exercise-visual{min-height:190px}}
+@media(max-width:620px){.fitness-checkin-grid{grid-template-columns:1fr}.fitness-weight-focus{gap:7px}.fitness-weight-focus>div{padding:10px}.fitness-week-grid,.fitness-day-grid{grid-template-columns:1fr}.fitness-measure-details .form{grid-template-columns:1fr}}
