@@ -174,7 +174,8 @@ export function adaptRecipeForGoal(recipe,mode="light"){
       }
     }
   }
-  if(!swaps.length&&mode==="light"){for(let i=0;i<copy.ingredients.length;i++){const row=copy.ingredients[i];if(/aceite de oliva/i.test(String(row[0]||""))){const parsed=parseQuantityGrams(row[1]),grams=Number(row[6])||parsed.grams;if(grams>1){const next=Math.max(1,Math.round(grams*.8));copy.ingredients[i]=["Aceite de oliva",next+" g",0,0,0,0,next,0,"raw"];swaps.push("Reducir el aceite medido un 20% ("+grams+" → "+next+" g).");break}}}}\n  if(!swaps.length)return {ok:false,error:"No hay una sustitución segura automática para esta receta. Puedes editar cantidades e ingredientes manualmente."};
+  if(!swaps.length&&mode==="light"){for(let i=0;i<copy.ingredients.length;i++){const row=copy.ingredients[i];if(/aceite de oliva/i.test(String(row[0]||""))){const parsed=parseQuantityGrams(row[1]),grams=Number(row[6])||parsed.grams;if(grams>1){const next=Math.max(1,Math.round(grams*.8));copy.ingredients[i]=["Aceite de oliva",next+" g",0,0,0,0,next,0,"raw"];swaps.push("Reducir el aceite medido un 20% ("+grams+" → "+next+" g).");break}}}}
+  if(!swaps.length)return {ok:false,error:"No hay una sustitución segura automática para esta receta. Puedes editar cantidades e ingredientes manualmente."};
   copy.id="adapted-"+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)),copy.name=copy.name+" · "+({light:"Ligera", "high-protein":"Alta en proteína","low-carb":"Baja en carbohidratos"}[mode]||"Adaptada");
   copy.origin="adapted";copy.sourceTitle=recipe.sourceTitle||recipe.name;copy.nutritionOverride=null;copy.adaptation={mode,swaps,originalRecipeId:recipe.id};
   copy.ingredients=copy.ingredients.map(x=>{if(x.length<9)x.push(0,0,"raw");return x});
