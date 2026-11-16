@@ -1278,3 +1278,33 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  opacity:1!important;visibility:visible!important;transform:none!important;pointer-events:auto!important;
 }
 .exercise-library-art{height:auto!important;min-height:0!important;overflow:visible!important}
+
+
+/* Definitive Fitness catalogue artwork sizing: reserve real vertical space.
+   Older 3D catalogue rules set a 300px art viewport and hide the SVG fallback. */
+.exercise-library-grid .exercise-library-card .exercise-library-art{
+ display:block!important;position:relative!important;width:100%!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ padding:12px!important;overflow:visible!important;box-sizing:border-box!important;
+ background:linear-gradient(145deg,#0b2638,#102f42)!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{
+ display:block!important;position:relative!important;width:100%!important;
+ height:auto!important;min-height:210px!important;max-height:none!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+ aspect-ratio:auto!important;box-sizing:border-box!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{
+ display:block!important;position:relative!important;inset:auto!important;float:none!important;
+ width:100%!important;height:auto!important;min-height:210px!important;max-height:none!important;
+ flex:none!important;opacity:1!important;visibility:visible!important;transform:none!important;
+ overflow:visible!important;aspect-ratio:360 / 192!important;
+}
+.exercise-library-grid .exercise-library-card .exercise-library-art .rumbo-human-viewport,
+.exercise-library-grid .exercise-library-card .exercise-library-art canvas{display:none!important}
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]::before,
+.exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]::after{display:none!important;content:none!important}
+@media(max-width:650px){
+ .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{min-height:190px!important}
+ .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{min-height:190px!important}
+}
