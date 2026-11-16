@@ -193,7 +193,7 @@ async function synchronize() {
 async function pushState(state) {
   if (!currentUser) return;
   const updatedAt = new Date().toISOString();
-  const { error } = await client.from(STATE_TABLE).upsert({
+  const { error } = await (await getClient()).from(STATE_TABLE).upsert({
     user_id: currentUser.id,
     state,
     schema_version: 1,
@@ -219,7 +219,7 @@ function schedule(state) {
 
 function subscribe() {
   if (!currentUser) return;
-  if (channel) client.removeChannel(channel);
+  if (channel) client?.removeChannel(channel);
   channel = client.channel("rumbo-state-" + currentUser.id)
     .on("postgres_changes", {
       event: "*", schema: "public", table: STATE_TABLE,
