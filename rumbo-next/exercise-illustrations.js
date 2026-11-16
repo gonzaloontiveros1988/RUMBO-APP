@@ -141,8 +141,30 @@ function equipment(f,cx){
  if(f==="plank"||f==="mobility"||f==="cardio")return '<path d="M'+(cx-45)+' 145h90" stroke="'+C.floor+'" stroke-width="2"/>';
  return "";
 }
+
+function specificExercise(id,k,cx){
+ const joint='<circle cx="{x}" cy="{y}" r="4" fill="#f4c77f" stroke="#fff0d2" stroke-width="1"/>';
+ const dot=(x,y)=>joint.replace("{x}",x).replace("{y}",y);
+ if(id==="leg-press"){
+  const poses=[
+   {hip:[-14,111],knee:[10,130],ankle:[39,111]},
+   {hip:[-14,111],knee:[30,91],ankle:[55,65]},
+   {hip:[-14,111],knee:[10,130],ankle:[39,111]}
+  ];
+  const p=poses[k],x=cx;
+  return '<g stroke-linecap="round" stroke-linejoin="round"><path d="M'+(x-48)+' 42v100h30" stroke="#91a9b7" stroke-width="5" fill="none"/><path d="M'+(x-47)+' 43l28 0" stroke="#91a9b7" stroke-width="4"/><path d="M'+(x-25)+' 82l12 0 0 46 -12 0Z" fill="#2b9d9d" stroke="#69d9d0"/><ellipse cx="'+(x-12)+'" cy="66" rx="9" ry="11" fill="#69d9d0" stroke="#d9fff7"/><path d="M'+(x-14)+' 78q-5 16 0 32l12 7 13 -4 -3 -27Z" fill="#69d9d0" stroke="#d9fff7"/><path d="M'+(x-5)+' 110L'+(x+p.knee[0])+' '+p.knee[1]+'L'+(x+p.ankle[0])+' '+p.ankle[1]+'" stroke="#69d9d0" stroke-width="13" fill="none"/><path d="M'+(x+p.knee[0])+' '+p.knee[1]+'L'+(x+p.ankle[0])+' '+p.ankle[1]+'" stroke="#2b9d9d" stroke-width="9" fill="none"/>'+dot(x+p.knee[0],p.knee[1])+dot(x+p.ankle[0],p.ankle[1])+'<path d="M'+(x+55)+' 45v102m-9 -4h18" stroke="#eac27d" stroke-width="5" fill="none"/><path d="M'+(x+39)+' '+(p.ankle[1]-5)+'l14 0" stroke="#f4c77f" stroke-width="6"/><path d="M'+(x-45)+' 148h105" stroke="#547180" stroke-width="2"/></g>';
+ }
+ if(id==="bench-press"||id==="db-press"){
+  const raised=k===1, y=raised?86:112, elbow=raised?102:105;
+  const bar=id==="bench-press"
+   ? '<path d="M'+(cx-43)+' '+y+'h86m-78 -7v14m70 -14v14" stroke="#eac27d" stroke-width="4" stroke-linecap="round"/>'
+   : '<g stroke="#eac27d" stroke-width="4" stroke-linecap="round"><path d="M'+(cx-30)+' '+y+'v-8m-7 0h14"/><path d="M'+(cx+30)+' '+y+'v-8m-7 0h14"/></g>';
+  return '<g stroke-linecap="round" stroke-linejoin="round"><path d="M'+(cx-52)+' 132h104m-94 0v8m84 -8v8" stroke="#91a9b7" stroke-width="5"/><ellipse cx="'+(cx-31)+'" cy="99" rx="9" ry="10" fill="#69d9d0" stroke="#d9fff7"/><path d="M'+(cx-21)+' 101q22 -9 42 2l9 9 -45 8 -17 -9Z" fill="#69d9d0" stroke="#d9fff7"/><path d="M'+(cx-5)+' 104L'+(cx-3)+' '+elbow+'L'+(cx-30)+' '+y+'" stroke="#69d9d0" stroke-width="8" fill="none"/><path d="M'+(cx+5)+' 105L'+(cx+9)+' '+elbow+'L'+(cx+30)+' '+y+'" stroke="#2b9d9d" stroke-width="8" fill="none"/>'+dot(cx-3,elbow)+dot(cx+9,elbow)+bar+'<path d="M'+(cx-48)+' 145h96" stroke="#547180" stroke-width="2"/></g>';
+ }
+ return null;
+}
 export function exerciseSequenceSvg(ex){
  const f=family(ex),cx=[60,180,300],labels=["1 · PREPARA","2 · EJECUTA","3 · REGRESA"];
- const frames=cx.map((x,i)=>'<g class="exercise-phase exercise-phase-'+i+'"><rect x="'+(x-54)+'" y="8" width="112" height="176" rx="12" fill="#102b3c" stroke="#2e596b"/><text x="'+x+'" y="28" text-anchor="middle" fill="#d8f5f3" font-size="9" font-weight="800" letter-spacing="1.2">'+labels[i]+'</text><path d="M'+(x-43)+' 166h86" stroke="'+C.floor+'" stroke-width="2"/>'+equipment(f,x)+drawFigure(f,i,x)+'</g>').join("");
+ const frames=cx.map((x,i)=>'<g class="exercise-phase exercise-phase-'+i+'"><rect x="'+(x-54)+'" y="8" width="112" height="176" rx="12" fill="#102b3c" stroke="#2e596b"/><text x="'+x+'" y="28" text-anchor="middle" fill="#d8f5f3" font-size="9" font-weight="800" letter-spacing="1.2">'+labels[i]+'</text><path d="M'+(x-43)+' 166h86" stroke="'+C.floor+'" stroke-width="2"/>'+(specificExercise(ex.id,i,x)||equipment(f,x)+drawFigure(f,i,x))+'</g>').join("");
  return '<svg class="exercise-demo-svg exercise-sequence-svg" viewBox="0 0 360 192" role="img" aria-label="'+String(ex.name||"Ejercicio").replace(/&/g,"&amp;").replace(/"/g,"&quot;")+' en tres fases: inicio, movimiento y final">'+frames+'<path d="M116 92h10m-4 -5 5 5 -5 5M236 92h10m-4 -5 5 5 -5 5" stroke="#eac27d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
