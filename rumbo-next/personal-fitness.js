@@ -15,6 +15,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Barbell",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/fd0eaa34-d14b-4421-b41c-1669f93253b3?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/barbell-back-squat.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -24,6 +25,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Barbell + bench",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/dd7e706c-2086-4f4b-867f-d7fece2f720d?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/barbell-bench-press-122b71.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -33,6 +35,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Barbell",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/b59952ca-1551-4c07-835d-ab78bfe9953c?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/barbell-deadlift.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -42,6 +45,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Dumbbells",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/a16f0235-20eb-4306-b9cc-c01ae51b3b9b?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/dumbbell-lateral-raise-27a4de.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -51,6 +55,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Dumbbells",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/b11e6c6f-b2e8-44ca-95dc-adf0dcd34426?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/hammer-curls.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -60,6 +65,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Dumbbell + bench",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/d3fece95-c7e2-4794-ba8f-65a5b3e30a28?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/single-arm-dumbbell-row-legs-apart.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -69,6 +75,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Dumbbell",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/a2a797d0-f6f6-436e-8616-6c1d93e73d67?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/dumbbell-goblet-squat-202e4f.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -78,6 +85,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Kettlebell",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/13263f92-5fe2-4d92-bec0-808f8b315620?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/kettlebell-swing.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -87,6 +95,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Kettlebell",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/3880aaa4-e1c0-4153-95d0-da44ea01e099?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/kettlebell-push-press.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -96,6 +105,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Kettlebell",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/e7175536-9d7d-4f5d-8d49-26c3411eac80?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/kettlebell-romanian-deadlift.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -105,6 +115,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Kettlebell",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/198d4a7d-bc23-41f8-ad67-4fe9ab876b89?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/goblet-squat-with-kettlebell.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -114,6 +125,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/e2b1d801-055a-4dc5-ad6e-486e3dbfcfb7?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-crossover-mid-b24dfe.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -123,6 +135,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/856b4128-b57d-4b08-b0de-7f19b4553020?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/lying-cable-leg-curl.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -132,6 +145,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/02f17b45-d37d-4452-9082-4679e06f8c03?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-woodchop-high-to-low-842bc7.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -141,6 +155,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/5971eaa2-5264-49cc-99c2-1310305c5342?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/lat-pulldown.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -150,6 +165,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/77976f52-b13a-4fd0-addf-f4404e3a8e95?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/seated-cable-row-close-v-bar-bccf4f.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -159,6 +175,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Chest press machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/20cc4825-dd52-4887-99db-c492546741dc?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/seated-machine-chest-press.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -168,6 +185,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/710d4aa4-e4ea-4fad-8930-a7b9bf582cae?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-lateral-raise.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -177,6 +195,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable rope",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/d9b9cf47-c5ff-4672-b8a8-2fe5f4845231?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-rope-face-pull.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -186,6 +205,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable rope",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/f32940f7-7da6-4741-a72f-13e52c56a79c?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-bicep-curl-rope-23790c.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -195,6 +215,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable rope",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/3875dae4-14a6-4533-84d3-ef9acbadbaea?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/cable-tricep-pushdown.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -204,6 +225,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Cable rope",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/a1c3384e-62db-4595-9b97-df2e7f131234?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/overhead-cable-rope-extension.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -213,6 +235,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Leg extension machine",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/af0c3d19-5ee2-4a19-8688-f8504bb33e3c?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/leg-extension.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -222,6 +245,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Leg press machine",
     "kneeCaution": true,
     "thumbnailUrl": "https://ymove.app/api/free/d0bc669e-0d78-46f0-95f1-86503ab746e1?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/leg-press.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   },
   {
@@ -231,6 +255,7 @@ export const YMOVE_FREE_VIDEOS = [
     "equipment": "Glute machine",
     "kneeCaution": false,
     "thumbnailUrl": "https://ymove.app/api/free/5611abf4-57f7-4153-b29d-a17cd7e2907d?type=thumbnail",
+    "videoUrl": "https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/glute-kickback-machine.mp4",
     "sourceUrl": "https://ymove.app/free-exercise-videos"
   }
 ];
