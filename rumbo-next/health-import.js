@@ -118,7 +118,7 @@ export function normalizeAppleHealthWorkouts(xml) {
     if (!start || !end || end <= start) continue;
     const body = match[2] || "";
     let distanceKm = null, activeEnergyKcal = null, averageHeartRate = null;
-    for (const sample of body.matchAll(/<WorkoutStatistics\b([^>]*)\\/>/g)) {
+    for (const sample of body.matchAll(/<WorkoutStatistics\b([^>]*)\/>/g)) {
       const a = xmlAttributes(sample[1]);
       const type = a.type || "", value = metric(a.sum || a.average, 100000);
       if (value === null) continue;
