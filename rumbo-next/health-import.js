@@ -103,3 +103,45 @@ export function normalizeAppleHealthXml(xml) {
   if (!result.length) throw new Error("No se encontraron muestras compatibles de pasos, sueño, energía activa o distancia.");
   return result.sort((a,b)=>a.date.localeCompare(b.date));
 }
+
+
+// Workout records from Apple Health export.xml. These are imported only after the user selects the export.
+export function normalizeAppleHealthWorkouts(xml) {
+  const source = String(xml || "");
+  if (!source.includes("<HealthData") || source.length > 100 * 1024 * 1024) return [];
+  const workouts = [];
+  for (const match of source.matchAll(/<Workout\\b([^>]*)>([\\s\\S]*?)<\\/Workout\\s*>|<Workout\\b([^>]*)\\/>/g)) {
+    const attrs = xmlAttributes(match[1] || match[3] || "");
+    const activity = String(attrs.workoutActivityType || "").replace(/^HKWorkoutActivityType/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+    const start = parseAppleHealthDate(attrs.startDate), end = parseAppleHealthDate(attrs.endDate);
+    const duration = metric(attrs.duration, 24 * 60 * 60);
+    if (!start || !end || end <= start) continue;
+    const body = match[2] || "";
+    let distanceKm = null, activeEnergyKcal = null, averageHeartRate = null;
+    for (const sample of body.matchAll(/<WorkoutStatistics\\b([^>]*)\\/>/g)) {
+      const a = xmlAttributes(sample[1]);
+      const type = a.type || "", value = metric(a.sum || a.average, 100000);
+      if (value === null) continue;
+      if (type === "HKQuantityTypeIdentifierDistanceWalkingRunning" || type === "HKQuantityTypeIdentifierDistanceCycling") {
+        const unit = String(a.unit || "").toLowerCase();
+        distanceKm = unit === "m" ? value / 1000 : unit === "mi" ? value * 1.609344 : value;
+      } else if (type === "HKQuantityTypeIdentifierActiveEnergyBurned") activeEnergyKcal = value;
+      else if (type === "HKQuantityTypeIdentifierHeartRate") averageHeartRate = value;
+    }
+    const mins = duration === null ? (end - start) / 60000 : duration / 60;
+    if (!(mins > 0 && mins <= 24 * 60)) continue;
+    workouts.push({
+      id: "apple-health-" + start.getTime() + "-" + workouts.length,
+      date: start.toISOString().slice(0,10),
+      type: /Cycling|Bike/i.test(activity) ? "Cardio" : /Walking|Running|Hiking|Elliptical|Rowing|Swimming/i.test(activity) ? "Cardio" : "Apple Health workout",
+      activity,
+      minutes: Math.round(mins),
+      ...(distanceKm === null ? {} : { distanceKm: Math.round(distanceKm * 100) / 100 }),
+      ...(activeEnergyKcal === null ? {} : { activeEnergyKcal: Math.round(activeEnergyKcal) }),
+      ...(averageHeartRate === null ? {} : { averageHeartRate: Math.round(averageHeartRate) }),
+      source: "apple-health",
+      importedAt: new Date().toISOString()
+    });
+  }
+  return workouts;
+}
