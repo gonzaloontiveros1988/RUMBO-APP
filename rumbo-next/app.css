@@ -1168,3 +1168,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:680px){.crew-bid-row{grid-template-columns:30px minmax(0,1fr) 34px;gap:7px}.crew-bid-row select{grid-column:2;grid-row:2}.crew-bid-row button{grid-column:3;grid-row:1}.crew-bid-main{grid-column:2;grid-row:1}}
 
 .health-json-example{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:9px;background:#081b29;color:#a9d9d8;font:10px/1.6 ui-monospace,monospace;margin:12px 0}
+
+/* Three exercise phases are highlighted in sequence; the illustrated pose itself stays honest and static. */
+.exercise-sequence-svg .exercise-phase rect{animation:rumbo-exercise-phase 3.6s ease-in-out infinite}
+.exercise-sequence-svg .exercise-phase-1 rect{animation-delay:1.2s}
+.exercise-sequence-svg .exercise-phase-2 rect{animation-delay:2.4s}
+@keyframes rumbo-exercise-phase{0%,28%{stroke:#56d9d0;stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(86,217,208,.35))}34%,100%{stroke:#2e596b;stroke-width:1;filter:none}}
+@media(prefers-reduced-motion:reduce){.exercise-sequence-svg .exercise-phase rect{animation:none}}
