@@ -1025,11 +1025,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @keyframes jointCardioArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
 
 /* RUMBO articulated 3D exercise stage */
-.guided-figure[data-exercise-3d]{touch-action:pan-y;cursor:grab;isolation:isolate}
-.guided-figure[data-exercise-3d]:active{cursor:grabbing}
-.guided-figure[data-exercise-3d] canvas{display:block;width:100%;height:100%;outline:none}
-.guided-figure[data-exercise-3d] .exercise-demo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.08;pointer-events:none}
-@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-3d]{height:230px}}
+.guided-figure[data-exercise-sequence]{touch-action:pan-y;cursor:grab;isolation:isolate}
+.guided-figure[data-exercise-sequence]:active{cursor:grabbing}
+.guided-figure[data-exercise-sequence] canvas{display:block;width:100%;height:100%;outline:none}
+.guided-figure[data-exercise-sequence] .exercise-demo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.08;pointer-events:none}
+@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-sequence]{height:230px}}
 
 /* 3D humanoid exercise viewer integration */
 .program-detail-body .guided-figure{width:100%;height:100%;min-height:165px;border-radius:13px;background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
@@ -1038,25 +1038,25 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .program-detail-body .guided-figure canvas,.exercise-library-art .guided-figure canvas{width:100%;height:100%}
 
 /* Clear, legible fallback while 3D renderer is unavailable */
-.guided-figure[data-exercise-3d][data-engine="fallback"] .exercise-demo-svg{opacity:1!important;position:relative!important;inset:auto!important;width:100%;height:100%;min-height:165px;max-height:220px}
-.guided-figure[data-exercise-3d][data-engine="fallback"]{background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
-.guided-figure[data-exercise-3d][data-engine="loading"] .exercise-demo-svg{opacity:.35}
-.guided-figure[data-exercise-3d][data-engine="three"] .exercise-demo-svg{display:none}
-.guided-figure[data-exercise-3d][data-engine="fallback"]::after{content:"Vista 2D de respaldo · visor 3D no disponible";position:absolute;left:8px;right:8px;bottom:7px;text-align:center;font-size:9px;letter-spacing:.04em;color:#8be8df;background:rgba(7,25,38,.78);padding:5px 7px;border-radius:6px}
-.guided-figure[data-exercise-3d]:not([data-engine="three"]) canvas{display:none}
+.guided-figure[data-exercise-sequence][data-engine="fallback"] .exercise-demo-svg{opacity:1!important;position:relative!important;inset:auto!important;width:100%;height:100%;min-height:165px;max-height:220px}
+.guided-figure[data-exercise-sequence][data-engine="fallback"]{background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
+.guided-figure[data-exercise-sequence][data-engine="loading"] .exercise-demo-svg{opacity:.35}
+.guided-figure[data-exercise-sequence][data-engine="three"] .exercise-demo-svg{display:none}
+.guided-figure[data-exercise-sequence][data-engine="fallback"]::after{content:"Vista 2D de respaldo · visor 3D no disponible";position:absolute;left:8px;right:8px;bottom:7px;text-align:center;font-size:9px;letter-spacing:.04em;color:#8be8df;background:rgba(7,25,38,.78);padding:5px 7px;border-radius:6px}
+.guided-figure[data-exercise-sequence]:not([data-engine="three"]) canvas{display:none}
 
 /* Premium 3D trainer stage */
-.guided-figure[data-exercise-3d]{
+.guided-figure[data-exercise-sequence]{
  position:relative;overflow:hidden;border:1px solid rgba(77,210,207,.18);
  background:radial-gradient(ellipse at 50% 42%,rgba(43,119,139,.25) 0%,rgba(14,42,59,.7) 58%,rgba(7,25,39,.96) 100%);
  box-shadow:inset 0 1px 0 rgba(205,250,255,.045),inset 0 -24px 48px rgba(0,0,0,.16);
 }
-.guided-figure[data-exercise-3d]::before{
+.guided-figure[data-exercise-sequence]::before{
  content:"";position:absolute;inset:10% 12% 8%;border-radius:50%;
  background:radial-gradient(ellipse,rgba(40,197,192,.10),transparent 68%);pointer-events:none;
 }
-.guided-figure[data-exercise-3d] canvas{position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
-.guided-figure[data-exercise-3d][data-engine="three"]{border-color:rgba(74,218,211,.3)}
+.guided-figure[data-exercise-sequence] canvas{position:relative;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
+.guided-figure[data-exercise-sequence][data-engine="three"]{border-color:rgba(74,218,211,.3)}
 
 
 /* RUMBO biomechanics viewer controls */
@@ -1089,19 +1089,19 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important;}
 .guided-exercise-title{width:100%;}
-.guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important;}
-.guided-figure[data-exercise-3d] .rumbo-human-viewport{width:100%!important;}
-@media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-3d] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
+.guided-figure[data-exercise-sequence]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important;}
+.guided-figure[data-exercise-sequence] .rumbo-human-viewport{width:100%!important;}
+@media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-sequence] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
 
 /* Fitness 3D final layout: large human preview, no tiny thumbnail column. */
 .exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
 .exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
-.exercise-library-art .guided-figure[data-exercise-3d]{width:100%;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .guided-figure[data-exercise-sequence]{width:100%;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
 .exercise-library-art .rumbo-human-viewport{height:300px!important;min-height:300px!important;flex-basis:300px!important}
 .exercise-library-art .exercise-demo-svg{display:none!important}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
-.guided-figure[data-exercise-3d]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
+.guided-figure[data-exercise-sequence]{height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
 @media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
 @media(max-width:430px){.exercise-library-art .rumbo-human-viewport{height:280px!important;min-height:280px!important;flex-basis:280px!important}}
 
@@ -1109,12 +1109,12 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
 .exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
-.exercise-library-art .guided-figure[data-exercise-3d]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.exercise-library-art .guided-figure[data-exercise-sequence]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
 .exercise-library-art .rumbo-human-viewport{height:244px!important;min-height:244px!important;flex-basis:244px!important}
 .exercise-library-art .rumbo-human-status,.exercise-library-art .rumbo-human-controls{display:none!important}
 .exercise-library-copy{min-width:0}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
-.guided-exercise-visual .guided-figure[data-exercise-3d],.program-detail-body .guided-figure[data-exercise-3d]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
+.guided-exercise-visual .guided-figure[data-exercise-sequence],.program-detail-body .guided-figure[data-exercise-sequence]{display:flex;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:transparent!important}
 .guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:400px!important;min-height:400px!important;flex-basis:400px!important}
 .guided-exercise-visual .rumbo-human-status,.program-detail-body .rumbo-human-status{margin-top:2px}
 .rumbo-human-viewport canvas{display:block;width:100%;height:100%;outline:0}
