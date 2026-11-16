@@ -1261,3 +1261,20 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-sequence-key>div{gap:10px}
  .exercise-sequence-key small{font-size:11px}
 }
+
+
+/* Critical fix: keep SVG exercise guide in normal document flow inside library cards.
+   The 3D viewer rule positions SVG absolutely, collapsing the card art to a thin strip. */
+.exercise-library-art .guided-figure[data-exercise-sequence]{
+ position:relative!important;display:block!important;width:100%!important;height:auto!important;
+ min-height:0!important;max-height:none!important;overflow:visible!important;
+ aspect-ratio:auto!important;isolation:auto!important;
+}
+.exercise-library-art .guided-figure[data-exercise-sequence] canvas{display:none!important}
+.exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg,
+.exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-sequence-svg{
+ position:relative!important;inset:auto!important;display:block!important;
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ opacity:1!important;visibility:visible!important;transform:none!important;pointer-events:auto!important;
+}
+.exercise-library-art{height:auto!important;min-height:0!important;overflow:visible!important}
