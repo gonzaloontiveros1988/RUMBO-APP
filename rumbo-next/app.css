@@ -1346,3 +1346,9 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .fitness-video-credit a{color:#83ddd7}
 @media(max-width:900px){.fitness-video-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.fitness-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.fitness-weight-grid{grid-template-columns:1fr}.fitness-session-grid{grid-template-columns:1fr}.fitness-session-card{padding:14px}}
+
+
+.guided-video-preview{position:relative;display:block;overflow:hidden;border-radius:14px;max-width:300px;background:#102c3d;align-self:start}
+.guided-video-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:cover}
+.guided-video-preview span{position:absolute;left:8px;right:8px;bottom:8px;padding:8px;border-radius:8px;text-align:center;background:rgba(5,22,34,.9);color:#a9eee5;font-size:10px;font-weight:800}
+@media(max-width:650px){.guided-video-preview{max-width:100%;width:100%}.guided-video-preview img{max-height:260px;object-fit:contain}}
