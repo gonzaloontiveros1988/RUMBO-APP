@@ -357,6 +357,23 @@ function completeGuidedSet(){
  const reps=Math.max(1,Math.min(100,Number($("#guidedActualReps")?.value)||Number(x.reps)||8)),weight=Math.max(0,Math.min(1000,Number($("#guidedActualWeight")?.value)||0)),rpe=Math.max(1,Math.min(10,Number($("#guidedActualRpe")?.value)||7)),notes=$("#guidedSetNotes")?.value.trim()||"";x.reps=reps;x.weight=weight;x.rpe=rpe;x.setLog.push({set:x.setLog.length+1,reps,weight,rpe,notes,loggedAt:new Date().toISOString()});
  state.guidedTimer={phase:"rest",running:true,endsAt:Date.now()+90000};save();render();syncGuidedTimer();toast("Serie registrada. Descanso de 90 segundos iniciado.");
 }
+
+async function requestFitnessAiAssessment(workout){
+ try{
+  const token=await window.rumboCloudSync?.getAccessToken?.();
+  if(!token)return;
+  const response=await fetch("https://nptghdnbdzvrvgdiaxzn.supabase.co/functions/v1/rumbo-ai",{
+   method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json","apikey":"sb_publishable_FiZ3-rmiX4ofRALNlqv-sg_i90ss6j","Authorization":"Bearer "+token},
+   body:JSON.stringify({question:"Valora esta sesión como entrenador personal. Analiza series, repeticiones, cargas, RPE y notas técnicas. Da feedback concreto y prudente; indica si conviene mantener, subir o reducir carga. Si hay molestias o dolor, prioriza seguridad y no recomiendes progresar. No inventes datos. Responde en español con valoración, puntos positivos, aspectos a mejorar y siguiente paso.",context:{date:workout.date,type:workout.type,week:workout.programWeek,day:workout.programDay,minutes:workout.minutes,exercises:workout.exercises,ruleBasedAssessment:workout.coachAssessment}})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.answer)throw new Error(data.error||"No se pudo obtener el análisis IA.");
+  const target=(state.workouts||[]).find(x=>x.completedAt===workout.completedAt);
+  if(!target)return;
+  target.coachAssessmentAi=String(data.answer).slice(0,6000);target.coachAssessmentModel=data.model||"RUMBO AI";save();
+  if(active==="wellness"&&wellnessTab==="training")render();
+ }catch(error){console.warn("Fitness AI assessment unavailable:",error?.message||error)}
+}
 function syncGuidedTimer(){
  const t=state.guidedTimer||{},el=$("#guidedSetClock"),label=$("#guidedSetPhase");
  if(t.running&&!guidedClockInterval)guidedClockInterval=setInterval(()=>{
@@ -672,7 +689,7 @@ bind("cancelActiveWorkout",()=>{if(!confirm("Exit this session? Your draft and s
  workout.coachAssessment=assessWorkoutPerformance(workout);state.workouts.push(workout);
  if(workout.programWeek)state.fitnessCurrentWeek=Math.min(12,Number(workout.programWeek)+((Number(workout.programDay)||0)>=4?1:0));
  state.workoutDraftExercises=[];state.activeWorkout=null;state.guidedProgramSession=null;state.guidedTimer={phase:"ready",running:false,endsAt:0};state.workoutTimer={elapsedMs:0,running:false,startedAt:null};state.restTimer={running:false,endsAt:0};save();render();
- toast("Sesión guardada · Coach RUMBO: "+workout.coachAssessment.rating+".");
+ toast("Sesión guardada · Coach RUMBO: "+workout.coachAssessment.rating+".");requestFitnessAiAssessment(workout);
 });
 bind("scanReceipt",async()=>{const file=$("#receiptFile")?.files?.[0],status=$("#receiptStatus"),draft=$("#receiptDraft");if(!file)return toast("Choose a receipt or invoice image first.");if(!file.type.startsWith("image/")&&file.type!=="application/pdf"&&!file.name.toLowerCase().endsWith(".pdf"))return toast("Choose an image or PDF invoice.");const button=$("#scanReceipt");button.disabled=true;button.textContent="Reading…";status.textContent="Loading OCR engine and reading the receipt…";draft.innerHTML="";try{let raw="";if(file.type==="application/pdf"||file.name.toLowerCase().endsWith(".pdf")){if(!window.pdfjsLib){await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";script.onload=resolve;script.onerror=()=>reject(new Error("Could not load PDF reader."));document.head.appendChild(script)})}window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;for(let pageNo=1;pageNo<=Math.min(pdf.numPages,12);pageNo++){status.textContent="Reading invoice PDF · page "+pageNo+" / "+pdf.numPages;const page=await pdf.getPage(pageNo),content=await page.getTextContent();raw+=content.items.map(x=>x.str).join(" ")+"\n"}}else{if(!window.Tesseract){await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";script.onload=resolve;script.onerror=()=>reject(new Error("Could not load OCR engine. Check your connection."));document.head.appendChild(script)})}const result=await window.Tesseract.recognize(file,"eng+ara",{logger:m=>{if(m.status==="recognizing text")status.textContent="Reading receipt… "+Math.round((m.progress||0)*100)+"%"}});raw=result.data.text||""}const lines=raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),amountMatches=[...raw.matchAll(/(?:QAR|QR|EUR|USD|€|\$)\s*([0-9]{1,7}(?:[.,][0-9]{2})?)|([0-9]{1,7}[.,][0-9]{2})\s*(?:QAR|QR|EUR|USD|€|\$)/gi)],totalLine=lines.filter(x=>/GRAND TOTAL|TOTAL DUE|AMOUNT DUE|\bTOTAL\b/i.test(x)).slice(-1)[0]||"",totalMatch=totalLine.match(/([0-9]{1,7}[.,][0-9]{2})/),amount=Number((totalMatch?.[1]||(amountMatches.length?(amountMatches[amountMatches.length-1][1]||amountMatches[amountMatches.length-1][2]):"0")).replace(",", ".")),all=raw.toUpperCase(),currency=/(EUR|€)/.test(all)?"EUR":/(USD|\$)/.test(all)?"USD":"QAR",dateMatch=raw.match(/\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/),merchant=lines.find(x=>x.length>2&&!/^(TAX|VAT|TRN|INVOICE|RECEIPT|TOTAL)/i.test(x))||"Receipt expense",category=/GROCERY|SUPERMARKET|FOOD|CARREFOUR|LULU|MONOPRIX|WOQOD/i.test(all)?"Groceries":/SCHOOL|TUITION/i.test(all)?"School":/FUEL|PETROL|UBER|TAXI/i.test(all)?"Transport":/RESTAURANT|CAFE|DINING/i.test(all)?"Dining":"Other";
  const itemCandidates=lines.map(line=>{
