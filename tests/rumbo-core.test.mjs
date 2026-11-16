@@ -21,7 +21,7 @@ test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync d
  assert.ok(app.includes("data-exercise-sequence="));
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
- assert.match(html,/kitchen-v1/);
+ assert.match(html,/fitness-v4/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","fitnessJourney","waderImportSummary"]'));
 });
@@ -398,11 +398,12 @@ test("RUMBO local assistant keeps currencies separate and does not invent financ
  assert.match(answer,/EUR 50/);
  assert.match(answer,/monedas se mantienen separadas/);
 });
-test("RUMBO AI screen uses the private local assistant rather than a paid inference endpoint",()=>{
+test("RUMBO AI chat stays local while Fitness can request authenticated workout assessment",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
  assert.ok(app.includes("answerLocally(q,state)"));
  assert.ok(app.includes("RUMBO LOCAL · SIN API"));
- assert.ok(!app.includes("/functions/v1/rumbo-ai"));
+ assert.ok(app.includes("requestFitnessAiAssessment(workout)"));
+ assert.ok(app.includes("/functions/v1/rumbo-ai"));
 });
 
 test("Nutrition provides a free broad web search without a paid recipe API",()=>{
