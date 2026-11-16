@@ -1240,3 +1240,24 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-details>.form #exerciseLibraryCount{color:#d0e5ec!important;font-weight:700!important}
 @media(max-width:900px){.exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;max-width:680px!important;margin-inline:auto!important}}
 @media(max-width:650px){.exercise-library-grid{gap:14px!important}.exercise-library-art{padding:10px 10px 7px!important}.exercise-library-copy{padding:13px 14px 15px!important}.exercise-library-copy>b{font-size:16px!important}}
+
+
+.exercise-sequence-key{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:9px;padding:14px;margin:12px 0 16px;border:1px solid rgba(103,195,204,.25);border-radius:14px;background:linear-gradient(120deg,rgba(13,45,62,.96),rgba(15,57,68,.82))}
+.exercise-sequence-key>div{display:flex;align-items:center;gap:9px;min-width:0}
+.exercise-sequence-key>div>b{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;background:#55d2cf;color:#08222d;font-size:13px;font-weight:900}
+.exercise-sequence-key span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.exercise-sequence-key strong{color:#e7f8fa;font-size:10px;letter-spacing:.08em}
+.exercise-sequence-key small{color:#b8ced8;font-size:10px;line-height:1.35}
+.exercise-sequence-key>i{font-style:normal;color:#eac27d;font-size:17px;font-weight:800}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase rect{fill:#102f42;stroke:#3c6b7d;stroke-width:1.5}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase text{fill:#e2f7f7;font-size:9px;font-weight:900;letter-spacing:1px}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-0 rect{stroke:#56d9d0;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-1 rect{stroke:#eac27d;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg .exercise-phase-2 rect{stroke:#7bd3ae;stroke-width:2}
+.exercise-library-art svg.exercise-sequence-svg>path{stroke-width:2.8}
+@media(max-width:650px){
+ .exercise-sequence-key{grid-template-columns:minmax(0,1fr);gap:7px;padding:12px}
+ .exercise-sequence-key>i{display:none}
+ .exercise-sequence-key>div{gap:10px}
+ .exercise-sequence-key small{font-size:11px}
+}
