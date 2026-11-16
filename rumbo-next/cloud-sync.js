@@ -1,4 +1,12 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.105.0";
+// Lazy cloud client: local features must start even when offline.
+let client=null;
+async function getClient(){
+ if(client)return client;
+ if(!navigator.onLine)throw new Error("Sin conexión: sincronización pendiente.");
+ const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2.105.0");
+ client=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ return client;
+}
 
 const SUPABASE_URL = "https://nptghdnbdzvrvgdiaxzn.supabase.co";
 const SUPABASE_KEY = "sb_publishable_FiZ3-rmiX4ofRALNlqv-sg_i90ss6j5";
@@ -15,9 +23,7 @@ const deviceId = (() => {
   return value;
 })();
 
-const client = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-});
+
 
 let currentUser = null;
 let timer = null;
@@ -98,7 +104,7 @@ async function signIn() {
   if (!email || !password) return setStatus("Introduce email y contraseña", "error");
   setStatus("Conectando…", "syncing");
   try {
-    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    const { data, error } = await (await getClient()).auth.signInWithPassword({ email, password });
     if (error) throw error;
     currentUser = data.user;
     await synchronize();
@@ -109,14 +115,14 @@ async function signIn() {
 async function signOut() {
   clearTimeout(timer);
   try {
-    const { error } = await client.auth.signOut();
+    const { error } = await (await getClient()).auth.signOut();
     if (error) throw error;
   } catch (error) {
     setStatus(error?.message || "No se pudo cerrar la sesión", "error");
     return;
   }
   currentUser = null;
-  if (channel) await client.removeChannel(channel);
+  if (channel) await client?.removeChannel(channel);
   channel = null;
   lastRemoteUpdatedAt = 0;
   setStatus("Solo en este dispositivo", "local");
@@ -129,7 +135,7 @@ async function signUp() {
   if (!email || password.length < 8) return setStatus("Usa un email y contraseña de 8 caracteres o más", "error");
   setStatus("Creando cuenta…", "syncing");
   try {
-    const { data, error } = await client.auth.signUp({ email, password });
+    const { data, error } = await (await getClient()).auth.signUp({ email, password });
     if (error) throw error;
     if (!data.session) {
       setStatus("Revisa tu correo para confirmar la cuenta", "waiting");
@@ -149,7 +155,7 @@ async function synchronize() {
   syncing = true;
   setStatus("Sincronizando…", "syncing");
   try {
-    const { data: remote, error } = await client.from(STATE_TABLE)
+    const { data: remote, error } = await (await getClient()).from(STATE_TABLE)
       .select("state, updated_at, device_id")
       .eq("user_id", currentUser.id)
       .maybeSingle();
@@ -241,13 +247,13 @@ function subscribe() {
 export function initRumboCloudSync(options = {}) {
   callbacks = options;
   mountCloudUI();
-  client.auth.getSession().then(({ data, error }) => {
-    if (error) return setStatus("No se pudo recuperar la sesión", "error");
-    currentUser = data.session?.user || null;
-    if (currentUser) synchronize();
-    else setStatus("Solo en este dispositivo", "local");
-  });
-  client.auth.onAuthStateChange((event, session) => {
+  // Cloud authentication is optional for local-first startup.
+  getClient().then(async c=>{
+    const {data,error}=await c.auth.getSession();
+    if(error)throw error;
+    currentUser=data.session?.user||null;
+    if(currentUser)await synchronize();else setStatus("Solo en este dispositivo","local");
+    c.auth.onAuthStateChange((event,session)=>{
     currentUser = session?.user || null;
     if (currentUser && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) queueMicrotask(() => synchronize());
     else if (!currentUser && event === "SIGNED_OUT") {
@@ -258,10 +264,17 @@ export function initRumboCloudSync(options = {}) {
       setStatus("Solo en este dispositivo", "local");
       setAuthUI(false);
     }
+    });
+  }).catch(error=>{
+    console.info("RUMBO local-first; cloud sync unavailable:",error?.message||error);
+    setStatus(navigator.onLine?"Solo en este dispositivo · nube no disponible":"Sin conexión · cambios guardados localmente","local");
+    setAuthUI(false);
   });
-  window.addEventListener("online", () => {
-    if (currentUser) synchronize();
-    else setStatus("Conexión recuperada · solo local", "local");
+  window.addEventListener("online",()=>{
+    getClient().then(c=>c.auth.getSession()).then(({data})=>{
+      currentUser=data.session?.user||null;
+      if(currentUser)synchronize();else setStatus("Conexión recuperada · solo local","local");
+    }).catch(()=>setStatus("Local · sincronización pendiente","waiting"));
   });
   window.addEventListener("offline", () => setStatus("Sin conexión · cambios locales pendientes", "waiting"));
   return {
@@ -269,7 +282,7 @@ export function initRumboCloudSync(options = {}) {
     synchronize,
     getUser: () => currentUser,
     getAccessToken: async () => {
-      const { data, error } = await client.auth.getSession();
+      const { data, error } = await (await getClient()).auth.getSession();
       if (error) throw error;
       return data.session?.access_token || null;
     }
