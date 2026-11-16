@@ -1,5 +1,5 @@
 import {flightMapData,flightMapSvg,loadAirportDirectory,AIRPORTS} from "./flight-map.js";
-import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,parsePastedRecipe,nutritionTargets,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,adaptRecipeForGoal,calculateBatchPortions,parseQuantityGrams,NUTRITION_REFERENCE_URL} from "./life-intelligence.js";
+import {RECIPES,makeMealWeek,shoppingFromMeals,familyWeek,financeSummary,buildAssistantContext,recipeNutrition,parsePastedRecipe,nutritionTargets,validateFoodLog,nutritionDiarySummary,pantryExpiryStatus,filterRecipesByProfile,adaptRecipeForGoal,calculateBatchPortions,parseQuantityGrams,NUTRITION_REFERENCE_URL} from "./life-intelligence.js?v=kitchen-v1";
 import {ROUTINES,validateWorkout,suggestTraining,workoutStats,buildTrainingProgram} from "./training-intelligence.js";
 import {EXERCISES,exerciseById,suggestNextLoad,validateExerciseEntry} from "./fitness-engine.js?v=fitness-journey-v2";
 import {exerciseSequenceSvg} from "./exercise-illustrations.js";
