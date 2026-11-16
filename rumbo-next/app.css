@@ -1502,3 +1502,48 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-motion-svg .motion-phase-1{opacity:1!important}
  .motion-loop-badge i{animation:none!important}
 }
+
+
+/* Kitchen IA redesign: four clear steps, no crowded dashboard */
+.kitchen-import .social-recipe-import{display:grid;gap:12px;padding:16px}
+.kitchen-import .social-recipe-import>label{display:grid;gap:7px;font-weight:700}
+.kitchen-import .social-recipe-import input,.kitchen-import textarea{width:100%;min-width:0;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:rgba(5,24,37,.72);color:var(--text);font:inherit}
+.kitchen-import .social-recipe-import .btn{justify-self:start}
+.kitchen-import .social-recipe-import #socialRecipeStatus{display:block;margin:0;line-height:1.5}
+.kitchen-manual-fallback{border-top:1px solid var(--line);padding-top:12px}
+.kitchen-manual-fallback summary{cursor:pointer;color:var(--muted);font-size:12px}
+.kitchen-manual-fallback textarea{margin:10px 0}
+.kitchen-section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:16px 18px 12px}
+.kitchen-section-heading h2{font-size:clamp(20px,2.4vw,27px);margin:5px 0}
+.kitchen-section-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.kitchen-section-heading>.form{align-items:flex-end;min-width:min(100%,300px)}
+.kitchen-section-heading>.form input{min-width:150px}
+.kitchen-calendar>.nutrition-week-list{padding:0 14px 14px}
+.kitchen-library .kitchen-search{display:grid;grid-template-columns:minmax(180px,2fr) minmax(130px,1fr) minmax(110px,.8fr) minmax(140px,auto);gap:9px;padding:12px 16px 16px}
+.kitchen-library .kitchen-search input,.kitchen-library .kitchen-search select{min-width:0;width:100%}
+.kitchen-search-results{padding:10px 16px 16px;border-bottom:1px solid var(--line)}
+.kitchen-search-results h3{font-size:14px;margin:4px 0 12px}
+.kitchen-library .nutrition-library-group{margin:10px 14px}
+.kitchen-library .nutrition-library-group>summary{min-height:50px}
+.kitchen-library .nutrition-library-grid{padding:12px}
+.kitchen-add-to-menu{align-items:flex-end;flex-wrap:wrap;margin-top:16px}
+.kitchen-add-to-menu label{display:grid;gap:6px;min-width:150px;flex:1}
+.kitchen-add-to-menu input,.kitchen-add-to-menu select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--text)}
+.kitchen-add-to-menu .btn{align-self:flex-end}
+.kitchen-calendar .nutrition-day-card{margin:8px 0}
+.kitchen-calendar .nutrition-day-card>summary{padding:15px 16px}
+.kitchen-calendar .nutrition-slot{grid-template-columns:minmax(0,1fr) minmax(150px,240px) auto}
+.kitchen-calendar .nutrition-slot select{min-width:0;width:100%;padding:10px;border-radius:9px}
+.kitchen-step-note{color:var(--muted);font-size:12px}
+@media(max-width:760px){
+ .kitchen-section-heading{display:grid;align-items:stretch;padding:14px 14px 10px}
+ .kitchen-section-heading>.form{display:grid;grid-template-columns:1fr;min-width:0;width:100%}
+ .kitchen-library .kitchen-search{grid-template-columns:1fr 1fr;padding:10px}
+ .kitchen-library .kitchen-search input:first-child{grid-column:1/-1}
+ .kitchen-library .kitchen-search .btn{grid-column:1/-1;width:100%}
+ .kitchen-calendar .nutrition-slot{grid-template-columns:1fr;gap:8px}
+ .kitchen-calendar .nutrition-slot select{width:100%}
+ .kitchen-add-to-menu{display:grid;grid-template-columns:1fr 1fr}
+ .kitchen-add-to-menu .btn{grid-column:1/-1;width:100%}
+ .kitchen-search-results{padding:10px}
+}
