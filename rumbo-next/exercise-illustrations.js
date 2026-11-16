@@ -142,6 +142,6 @@ function equipment(f,cx){
 }
 export function exerciseSequenceSvg(ex){
  const f=family(ex),cx=[60,180,300],labels=["INICIO","MOVIMIENTO","FINAL"];
- const frames=cx.map((x,i)=>'<g><rect x="'+(x-54)+'" y="8" width="108" height="150" rx="12" fill="#102b3c" stroke="#2e596b"/><text x="'+x+'" y="24" text-anchor="middle" fill="#8fb4c1" font-size="8" font-weight="700" letter-spacing="1">'+labels[i]+'</text><path d="M'+(x-43)+' 146h86" stroke="'+C.floor+'" stroke-width="2"/>'+equipment(f,x)+drawFigure(f,i,x)+'</g>').join("");
+ const frames=cx.map((x,i)=>'<g class="exercise-phase exercise-phase-'+i+'"><rect x="'+(x-54)+'" y="8" width="108" height="150" rx="12" fill="#102b3c" stroke="#2e596b"/><text x="'+x+'" y="24" text-anchor="middle" fill="#8fb4c1" font-size="8" font-weight="700" letter-spacing="1">'+labels[i]+'</text><path d="M'+(x-43)+' 146h86" stroke="'+C.floor+'" stroke-width="2"/>'+equipment(f,x)+drawFigure(f,i,x)+'</g>').join("");
  return '<svg class="exercise-demo-svg exercise-sequence-svg" viewBox="0 0 360 166" role="img" aria-label="'+String(ex.name||"Ejercicio").replace(/&/g,"&amp;").replace(/"/g,"&quot;")+' en tres fases: inicio, movimiento y final">'+frames+'<path d="M116 82h10m-4 -4 4 4 -4 4M236 82h10m-4 -4 4 4 -4 4" stroke="#eac27d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
