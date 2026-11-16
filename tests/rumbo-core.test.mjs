@@ -369,9 +369,11 @@ test("Apple Health Shortcut import rejects empty or malformed exports",()=>{
 test("Recovery exposes the Apple Health bridge inside Fitness and Nutrition, not a top-level navigation item",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
- assert.ok(app.includes("APPLE HEALTH · FREE SHORTCUT BRIDGE"));
+ assert.ok(app.includes("APPLE HEALTH · IPHONE SHORTCUT SYNC"));
  assert.ok(app.includes('id="importAppleHealth"'));
  assert.ok(app.includes('"healthDaily"'));
+ assert.ok(app.includes("La sincronización automática y nativa de HealthKit requiere una app iOS"));
+ assert.ok(app.includes("Lifestyle & Recovery"));
  assert.ok(html.includes('id="healthImportInput"'));
  assert.ok(!app.includes('["lifestyle","Lifestyle"]'));
 });
