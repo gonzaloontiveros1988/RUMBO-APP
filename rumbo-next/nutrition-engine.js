@@ -112,10 +112,11 @@ export function calculateIngredientNutrition(ingredient){
   return {name,quantity,kcal:round(values[0]*factor),protein:round(values[1]*factor),carbs:round(values[2]*factor),fat:round(values[3]*factor),rawGrams,cookedGrams,basis,covered:true,source:"generic-food-reference-estimate"};
 }
 export function calculateRecipeNutrition(recipe={}){
-  const ingredients=(recipe.ingredients||[]).map(calculateIngredientNutrition),known=ingredients.filter(x=>x.covered);
+  const ingredients=(recipe.ingredients||[]).map(calculateIngredientNutrition),known=ingredients.filter(x=>x.covered),servings=Math.max(1,Number(recipe.servings)||1),override=recipe.nutritionOverride?.perServing;
+  if(override&&["kcal","protein","carbs","fat"].every(k=>Number.isFinite(Number(override[k])))){const perServing=Object.fromEntries(["kcal","protein","carbs","fat"].map(k=>[k,round(override[k])])),total=Object.fromEntries(Object.entries(perServing).map(([k,v])=>[k,Math.round(v*servings)]));return {complete:true,coverage:100,estimated:true,unknownIngredients:[],total,perServing,ingredients,source:"user-entered-recipe-macros"}}
   const totals={kcal:0,protein:0,carbs:0,fat:0};
   for(const item of known)for(const key of Object.keys(totals))totals[key]+=Number(item[key]||0);
-  const servings=Math.max(1,Number(recipe.servings)||1),complete=ingredients.length>0&&known.length===ingredients.length;
+  const complete=ingredients.length>0&&known.length===ingredients.length;
   return {complete,coverage:ingredients.length?round(known.length/ingredients.length*100):0,estimated:known.some(x=>x.source!=="recipe-entered-estimate"),unknownIngredients:ingredients.filter(x=>!x.covered).map(x=>x.name),total:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v)])),perServing:Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v/servings)])),ingredients};
 }
 export function calculateBatchPortions(recipe,cookedYieldGrams,portionCookedGrams){
@@ -158,10 +159,10 @@ export function adaptRecipeForGoal(recipe,mode="light"){
   if(mode==="high-protein"){\n    const breakfast=copy.category==="Breakfast",name=breakfast?"Claras de huevo":"Pechuga de pollo",grams=(breakfast?100:80)*Math.max(1,Number(copy.servings)||1);\n    copy.ingredients.push([name,grams+" g crudo",0,0,0,0,grams,0,"raw"]);\n    swaps.push("Añadir "+(breakfast?"100 g de claras":"80 g de pechuga de pollo")+" por ración para elevar la proteína.");\n    copy.steps=[...(copy.steps||[]),"Incorpora la proteína añadida y cocínala completamente antes de servir."];\n  }\n  if(mode==="low-carb"){
     for(let i=0;i<copy.ingredients.length;i++){
       const row=copy.ingredients[i],name=String(row[0]||"");
-      if(/arroz blanco|pasta|espagueti|macarr[oó]n/i.test(name)){
+      if(/arroz blanco|pasta|espagueti|macarr[oó]n|patata/i.test(name)){
         const parsed=parseQuantityGrams(row[1]),grams=Number(row[7])||Number(row[6])||parsed.grams;
         if(!(grams>0))continue;
-        const replacement=/arroz/i.test(name)?"Coliflor":"Calabacín",next=Math.round(grams*1.5);
+        const replacement=/arroz|patata/i.test(name)?"Coliflor":"Calabacín",next=Math.round(grams*1.5);
         copy.ingredients[i]=[replacement,next+" g",0,0,0,0,next,0,"raw"];
         swaps.push("Cambiar "+name+" por "+replacement.toLowerCase()+" ("+grams+" → "+next+" g).");
       }
