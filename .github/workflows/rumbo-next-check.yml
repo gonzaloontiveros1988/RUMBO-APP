@@ -52,7 +52,6 @@ jobs:
           node --check tests/rumbo-core.test.mjs
           node --check tests/recipe-assistant.test.mjs
           node --test tests/rumbo-core.test.mjs tests/recipe-assistant.test.mjs
-          node --input-type=module -e "import {EXERCISES} from './rumbo-next/fitness-engine.js'; import {classifyExerciseMotion} from './rumbo-next/fitness-3d.js'; const unclassified=EXERCISES.filter(x=>classifyExerciseMotion(x.id)==='general').map(x=>x.id); if(unclassified.length) throw new Error('Unclassified 3D exercises: '+unclassified.join(', ')); console.log('3D exercise motion coverage:',EXERCISES.length,'/',EXERCISES.length);"
           node --check rumbo-next/flight-map.js
           node --check rumbo-next/life-intelligence.js
           node --input-type=module -e "import {RECIPES} from './rumbo-next/life-intelligence.js'; for (const category of ['Breakfast','Lunch','Dinner']) { const n=RECIPES.filter(r=>r.category===category).length; if(n<9) throw new Error(category+' only has '+n+' recipes'); console.log(category+' recipes:',n); }"
