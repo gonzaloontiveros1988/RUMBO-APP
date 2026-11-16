@@ -8,6 +8,7 @@ import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTIN
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
 import {normalizeAppleHealthExport} from "../rumbo-next/health-import.js";
+import {answerLocally} from "../rumbo-next/local-assistant.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
@@ -376,4 +377,29 @@ test("Recovery exposes the Apple Health bridge inside Fitness and Nutrition, not
  assert.ok(app.includes("Lifestyle & Recovery"));
  assert.ok(html.includes('id="healthImportInput"'));
  assert.ok(!app.includes('["lifestyle","Lifestyle"]'));
+});
+
+
+test("RUMBO local assistant answers from saved roster data without a remote model",()=>{
+ const answer=answerLocally("¿Qué servicios tengo próximamente?",{
+  duties:[{date:"2026-11-18",code:"FLIGHT",route:"DOH-MLE",time:"07:00"}]
+ },new Date("2026-11-16T08:00:00Z"));
+ assert.match(answer,/ROSTER/);
+ assert.match(answer,/18\/11\/2026|18\/11\/2026|18\/11\/2026/);
+ assert.match(answer,/DOH-MLE/);
+});
+test("RUMBO local assistant keeps currencies separate and does not invent financial totals",()=>{
+ const answer=answerLocally("Analiza mis gastos y presupuesto",{
+  expenses:[{date:"2026-11-03",amount:100,currency:"QAR"},{date:"2026-11-04",amount:50,currency:"EUR"}],
+  budgets:{QAR:500}
+ },new Date("2026-11-16T08:00:00Z"));
+ assert.match(answer,/QAR 100/);
+ assert.match(answer,/EUR 50/);
+ assert.match(answer,/monedas se mantienen separadas/);
+});
+test("RUMBO AI screen uses the private local assistant rather than a paid inference endpoint",()=>{
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ assert.ok(app.includes("answerLocally(q,state)"));
+ assert.ok(app.includes("RUMBO LOCAL · SIN API"));
+ assert.ok(!app.includes("/functions/v1/rumbo-ai"));
 });
