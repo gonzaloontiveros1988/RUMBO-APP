@@ -57,6 +57,7 @@ export const EXERCISES = [
  {id:"band-external-rotation",name:"Band external rotation",pattern:"Shoulder external rotation",muscles:["Rotator cuff","Rear deltoids"],equipment:["Resistance band"],level:"Beginner",cues:["Keep elbow close to your side.","Rotate forearm outward without twisting the trunk.","Use light resistance and slow control."],substitutions:["Cable external rotation","Isometric external rotation"],videoSearch:"band shoulder external rotation exercise technique"},
  {id:"single-leg-calf-raise",name:"Single-leg calf raise",pattern:"Unilateral ankle strength",muscles:["Calves"],equipment:["Bodyweight","Wall support"],level:"Intermediate",cues:["Use a wall for balance if needed.","Rise vertically through the ball of the foot.","Lower slowly and keep the ankle aligned."],substitutions:["Standing calf raise","Seated calf raise"],videoSearch:"single leg calf raise exercise technique"},
  {id:"tempo-squat",name:"Tempo bodyweight squat",pattern:"Squat",muscles:["Quadriceps","Glutes","Core"],equipment:["Bodyweight"],level:"Beginner",cues:["Lower for three controlled seconds.","Keep the whole foot grounded.","Stand smoothly without bouncing."],substitutions:["Goblet squat","Box squat"],videoSearch:"tempo bodyweight squat exercise technique"}
+ {id:"seated-machine-chest-press",name:"Seated Machine Chest Press",pattern:"Horizontal push",muscles:["Chest","Triceps","Front deltoids"],equipment:["Chest press machine"],level:"Beginner",cues:["Adjust the seat so the handles start around mid-chest.","Keep your back supported and wrists neutral.","Press smoothly; stop before locking the elbows or provoking shoulder pain."],substitutions:["Incline machine press","Dumbbell bench press"],videoSearch:"seated machine chest press"},
 ];
 export function exerciseById(id){return EXERCISES.find(x=>x.id===id)||null}
 export function suggestNextLoad(history,exerciseId){
@@ -68,8 +69,7 @@ export function suggestNextLoad(history,exerciseId){
  return {status:"repeat",weight,message:"Repite la carga y consolida las repeticiones antes de progresar."};
 }
 export function validateExerciseEntry(entry){
- const errors=[ {id:"seated-machine-chest-press",name:"Seated Machine Chest Press",pattern:"Horizontal push",muscles:["Chest","Triceps","Front deltoids"],equipment:["Chest press machine"],level:"Beginner",cues:["Adjust the seat so the handles start around mid-chest.","Keep your back supported and wrists neutral.","Press smoothly; stop before locking the elbows or provoking shoulder pain."],substitutions:["Incline machine press","Dumbbell bench press"],videoSearch:"seated machine chest press"}
-];
+ const errors=[];
  if(!exerciseById(entry.exerciseId))errors.push("Choose an exercise.");
  if(!Number.isInteger(Number(entry.sets))||Number(entry.sets)<1||Number(entry.sets)>20)errors.push("Sets must be between 1 and 20.");
  if(!Number.isInteger(Number(entry.reps))||Number(entry.reps)<1||Number(entry.reps)>100)errors.push("Reps must be between 1 and 100.");
