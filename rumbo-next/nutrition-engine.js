@@ -155,17 +155,7 @@ export function adaptRecipeForGoal(recipe,mode="light"){
       swaps.push(rule.reason+" ("+name+" → "+rule.name+")");
     }
   }
-  if(mode==="high-protein"){
-    const names=copy.ingredients.map(x=>String(x[0]||"").toLowerCase()).join(" ");
-    const alreadyProtein=/pollo|pavo|ternera|vacuno|salmon|merluza|bacalao|atun|gamba|huevo|tofu|lenteja|garbanzo/.test(normalizeFoodName(names));
-    if(!alreadyProtein){
-      const breakfast=copy.category==="Breakfast",name=breakfast?"Claras de huevo":"Pechuga de pollo",grams=(breakfast?120:120)*Math.max(1,Number(copy.servings)||1);
-      copy.ingredients.push([name,grams+" g crudo",0,0,0,0,grams,0,"raw"]);
-      swaps.push("Añadir "+(breakfast?"claras de huevo":"pechuga de pollo")+" para elevar la proteína.");
-      copy.steps=[...(copy.steps||[]),"Incorpora la proteína añadida y cocina completamente antes de servir."];
-    }
-  }
-  if(mode==="low-carb"){
+  if(mode==="high-protein"){\n    const breakfast=copy.category==="Breakfast",name=breakfast?"Claras de huevo":"Pechuga de pollo",grams=(breakfast?100:80)*Math.max(1,Number(copy.servings)||1);\n    copy.ingredients.push([name,grams+" g crudo",0,0,0,0,grams,0,"raw"]);\n    swaps.push("Añadir "+(breakfast?"100 g de claras":"80 g de pechuga de pollo")+" por ración para elevar la proteína.");\n    copy.steps=[...(copy.steps||[]),"Incorpora la proteína añadida y cocínala completamente antes de servir."];\n  }\n  if(mode==="low-carb"){
     for(let i=0;i<copy.ingredients.length;i++){
       const row=copy.ingredients[i],name=String(row[0]||"");
       if(/arroz blanco|pasta|espagueti|macarr[oó]n/i.test(name)){
