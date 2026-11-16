@@ -34,6 +34,7 @@ test("Fitness summary calculates weight loss, remaining weight and BMI", () => {
 
 test("weight log validation rejects implausible weights and invalid dates", () => {
   assert.equal(validateFitnessWeightEntry({date:"2026-11-16",weightKg:114}).length, 0);
-  assert.ok(validateFitnessWeightEntry({date:"2026-02-31",weightKg:114}).length > 0 || validateFitnessWeightEntry({date:"bad",weightKg:114}).length > 0);
+  assert.ok(validateFitnessWeightEntry({date:"2026-02-31",weightKg:114}).length > 0);
+  assert.ok(validateFitnessWeightEntry({date:"bad",weightKg:114}).length > 0);
   assert.ok(validateFitnessWeightEntry({date:"2026-11-16",weightKg:900}).length > 0);
 });
