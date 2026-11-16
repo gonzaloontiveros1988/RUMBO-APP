@@ -129,7 +129,7 @@ export function calculateBatchPortions(recipe,cookedYieldGrams,portionCookedGram
 export function parseShoppingQuantity(quantity){
   const m=String(quantity||"").trim().match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
   if(!m)return null;
-  return {value:Number(m[1].replace(",",".")),unit:m[2].trim()};
+  return {value:Number(m[1].replace(",",".")),unit:m[2].trim().replace(/\\b(crudo|cruda|cocido|cocida|seco|seca|secos|secas)\\b/gi,"").trim()};
 }
 export function scaleQuantity(quantity,factor){
   const parsed=parseShoppingQuantity(quantity);
