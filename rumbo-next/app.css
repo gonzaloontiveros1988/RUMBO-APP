@@ -1166,3 +1166,5 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .crew-bidding-profile .check-label{display:flex;flex-direction:row;align-items:center;gap:8px}
 .crew-bidding-profile .check-label input{width:auto}
 @media(max-width:680px){.crew-bid-row{grid-template-columns:30px minmax(0,1fr) 34px;gap:7px}.crew-bid-row select{grid-column:2;grid-row:2}.crew-bid-row button{grid-column:3;grid-row:1}.crew-bid-main{grid-column:2;grid-row:1}}
+
+.health-json-example{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:9px;background:#081b29;color:#a9d9d8;font:10px/1.6 ui-monospace,monospace;margin:12px 0}
