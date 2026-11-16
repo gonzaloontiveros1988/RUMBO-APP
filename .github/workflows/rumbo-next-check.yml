@@ -48,6 +48,7 @@ jobs:
           node --check rumbo-next/training-intelligence.js
           node --check rumbo-next/fitness-engine.js
           node --check rumbo-next/health-import.js
+          node --check rumbo-next/local-assistant.js
           node --check rumbo-next/crew-bidding.js
           node --check rumbo-next/cloud-sync.js
           node --check tests/rumbo-core.test.mjs
@@ -71,6 +72,7 @@ jobs:
           test -s rumbo-next/training-intelligence.js
           test -s rumbo-next/fitness-engine.js
           test -s rumbo-next/health-import.js
+          test -s rumbo-next/local-assistant.js
           test -s rumbo-next/crew-bidding.js
           test -s rumbo-next/exercise-illustrations.js
           test -s rumbo-next/flight-map.js
