@@ -33,11 +33,12 @@ function family(ex){
  if(/jump|cycling|rope/.test(id)||p.includes("cardio"))return "cardio";
  if(/carry/.test(id)||p.includes("carry"))return "carry";
  if(/calf/.test(id)||p.includes("ankle"))return "calf";
- return "squat";
+ return "neutral";
 }
 function points(f,k){
  const stand={head:[0,-37],sh:[0,-10],hip:[0,30],el:[-13,7],hand:[-18,23],knee:[4,63],ankle:[5,96]};
  const P={
+ neutral:[stand,stand,stand],
  squat:[
   stand,
   {head:[5,-26],sh:[8,0],hip:[12,43],el:[-12,14],hand:[-25,25],knee:[-17,66],ankle:[-18,96]},
