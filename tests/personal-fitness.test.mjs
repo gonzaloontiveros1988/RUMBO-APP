@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FITNESS_JOURNEY_DEFAULTS, YMOVE_FREE_VIDEOS, PERSONAL_FITNESS_SESSIONS, fitnessJourneySummary, validateFitnessWeightEntry } from "../rumbo-next/personal-fitness.js";
+import { FITNESS_JOURNEY_DEFAULTS, YMOVE_FREE_VIDEOS, PERSONAL_FITNESS_SESSIONS, fitnessJourneySummary, validateFitnessWeightEntry, fitnessWeekPlan, assessWorkoutPerformance } from "../rumbo-next/personal-fitness.js";
 
 test("personal Fitness defaults match the user's confirmed starting profile", () => {
   assert.equal(FITNESS_JOURNEY_DEFAULTS.startWeightKg, 114);
@@ -37,4 +37,37 @@ test("weight log validation rejects implausible weights and invalid dates", () =
   assert.ok(validateFitnessWeightEntry({date:"2026-02-31",weightKg:114}).length > 0);
   assert.ok(validateFitnessWeightEntry({date:"bad",weightKg:114}).length > 0);
   assert.ok(validateFitnessWeightEntry({date:"2026-11-16",weightKg:900}).length > 0);
+});
+
+
+test("12-week programme contains four ordered sessions and clear progression phases", () => {
+  const first = fitnessWeekPlan(1), middle = fitnessWeekPlan(6), final = fitnessWeekPlan(12);
+  assert.equal(first.week, 1);
+  assert.equal(first.days.length, 4);
+  assert.deepEqual(first.days.map(x => x.day), [1,2,3,4]);
+  assert.equal(first.days.filter(x => x.kind === "strength").length, 2);
+  assert.equal(first.days.filter(x => x.kind === "cardio").length, 2);
+  assert.equal(first.sets, 2);
+  assert.equal(middle.sets, 3);
+  assert.equal(final.phase, "Consolidación y revisión");
+  assert.ok(first.days.filter(x => x.kind === "strength").every(x => x.exercises.every(e => e.videoId)));
+});
+
+test("Coach RUMBO recommends controlled progression after completed easy sets", () => {
+  const result = assessWorkoutPerformance({ exercises: [{ sets: 2, setLog: [
+    { reps: 12, weight: 15, rpe: 5 }, { reps: 12, weight: 15, rpe: 5 }
+  ] }] });
+  assert.equal(result.rating, "Progresión posible");
+});
+
+test("Coach RUMBO flags high effort and pain notes instead of recommending more load", () => {
+  const pain = assessWorkoutPerformance({ exercises: [{ sets: 1, setLog: [{ reps: 8, weight: 20, rpe: 6, notes: "molestia en rodilla" }] }] });
+  const effort = assessWorkoutPerformance({ exercises: [{ sets: 1, setLog: [{ reps: 8, weight: 20, rpe: 9 }] }] });
+  assert.match(pain.rating, /Reducir/);
+  assert.match(effort.rating, /Reducir/);
+});
+
+test("Coach RUMBO distinguishes a partially completed workout", () => {
+  const result = assessWorkoutPerformance({ exercises: [{ sets: 3, setLog: [{ reps: 10, weight: 10, rpe: 6 }] }] });
+  assert.equal(result.rating, "Sesión parcial");
 });
