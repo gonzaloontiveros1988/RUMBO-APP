@@ -34,7 +34,7 @@ test("batch calculator divides the measured cooked yield by the cooked portion w
   const result=calculateBatchPortions(recipe,800,200);
   assert.equal(result.ok,true);
   assert.equal(result.wholePortions,4);
-  assert.equal(result.perPortion.kcal,Math.round(recipeNutrition(recipe).total.kcal/4));
+  assert.equal(result.perPortion.kcal,Math.round(recipeNutrition(recipe).total.kcal/4*10)/10);
 });
 
 test("weekly meal plan creates 21 varied meal slots for a four-person household",()=>{
