@@ -8,6 +8,7 @@ import {parseWaderCsv} from "./wader-import.js";
 import {cityCatalogue,cityForAirport} from "./city-scenes.js";
 import {expandReminders,reminderLabel} from "./reminders.js";
 import {initRumboCloudSync} from "./cloud-sync.js";
+import {normalizeAppleHealthExport} from "./health-import.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "./crew-bidding.js";
 const $=s=>document.querySelector(s);const icons={home:"⌂",roster:"▦",aviation:"✈",wellness:"◈",lifestyle:"♡",family:"⌂",finance:"▤",ai:"✧"};
 const modules=[["home","Command Center"],["roster","Roster & Duty Planning"],["aviation","Aviation & Logbook"],["wellness","Fitness & Nutrition"],["family","Family Week"],["finance","Home & Finance"],["ai","RUMBO AI"]];
@@ -118,8 +119,8 @@ function initRumboScene(){
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRumboScene()});
 }
 
-function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[],crewBids:[],crewBidHistory:[],crewBiddingProfile:{...DEFAULT_CREW_BIDDING_PROFILE}}}
-function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};next.crewBiddingProfile=normalizeCrewBiddingProfile(next.crewBiddingProfile);return next}
+function emptyState(){return {duties:[],reminders:[],events:[],workouts:[],shopping:[],expenses:[],incomes:[],debts:[],assets:[],sleepLogs:[],healthDaily:[],dailyCheckins:[],hydrationLogs:[],habits:[{id:"water",name:"Hydration"},{id:"mobility",name:"Mobility"},{id:"walk",name:"Walk / daily movement"},{id:"reading",name:"Reading"}],habitLogs:[],logbook:[],recommendations:[],mealPlan:[],pantry:[],customRecipes:[],recipeSearchResults:[],selectedRecipeCandidate:null,receiptDraftItems:[],budgets:{},trainingPlan:[],trainingGoals:[],aviationTraining:[],aiLog:[],rosterHotels:[],rosterTraining:[],airportNotes:[],crewBids:[],crewBidHistory:[],crewBiddingProfile:{...DEFAULT_CREW_BIDDING_PROFILE}}}
+function normalizeState(raw){const base=emptyState(),source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};const next={...base,...source};for(const key of ["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","healthDaily","dailyCheckins","hydrationLogs","habitLogs","habits","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory"])if(!Array.isArray(next[key]))next[key]=[];if(!Array.isArray(next.receiptDraftItems))next.receiptDraftItems=[];if(!next.budgets||typeof next.budgets!=="object"||Array.isArray(next.budgets))next.budgets={};next.crewBiddingProfile=normalizeCrewBiddingProfile(next.crewBiddingProfile);return next}
 function load(){try{return normalizeState(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return emptyState()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem("rumbo_cloud_local_updated_at",String(Date.now()));window.rumboCloudSync?.schedule(state)}
 function allRecipes(){return [...RECIPES,...(state.customRecipes||[])]}
@@ -513,7 +514,7 @@ function finance(){
  </div>`;
 }
 function lifestyle(){
- const date=today(),sleep=(state.sleepLogs||[]).find(x=>x.date===date),check=(state.dailyCheckins||[]).find(x=>x.date===date),water=(state.hydrationLogs||[]).find(x=>x.date===date),done=new Set((state.habitLogs||[]).filter(x=>x.date===date).map(x=>x.habitId));
+ const date=today(),healthToday=(state.healthDaily||[]).find(x=>x.date===date),healthRecent=(state.healthDaily||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7),sleep=(state.sleepLogs||[]).find(x=>x.date===date),check=(state.dailyCheckins||[]).find(x=>x.date===date),water=(state.hydrationLogs||[]).find(x=>x.date===date),done=new Set((state.habitLogs||[]).filter(x=>x.date===date).map(x=>x.habitId));
  const habits=(state.habits||[]).map(h=>'<label class="item"><input type="checkbox" data-habit="'+esc(h.id)+'" '+(done.has(h.id)?"checked":"")+'><span class="grow">'+esc(h.name)+'</span></label>').join("");
  const history=(state.sleepLogs||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7),validSleep=history.filter(x=>Number.isFinite(Number(x.hours))),avgSleep=validSleep.length?validSleep.reduce((n,x)=>n+Number(x.hours),0)/validSleep.length:null;
  const nextDuty=(state.duties||[]).filter(x=>x.date>=date).sort((a,b)=>a.date.localeCompare(b.date))[0],dutyType=nextDuty?rosterType(nextDuty):"";
@@ -528,7 +529,7 @@ function lifestyle(){
  panel("ROSTER-AWARE RECOVERY",'<div class="callout"><b>'+(nextDuty?dateText(nextDuty.date)+' · '+esc(nextDuty.code||dutyType):"NO UPCOMING DUTY")+'</b><p>'+esc(recoveryTip)+'</p></div><button class="btn primary" id="buildRecoveryPlan">Build my recovery plan</button><div id="recoveryPlan" class="callout" style="margin-top:10px"><b>PERSONAL RECOVERY PLAN</b><p>Registra sueño y readiness y genera una propuesta que tenga en cuenta tu próximo servicio.</p></div>')+
  panel("DAILY HABITS",habits+'<div class="form"><input id="newHabit" placeholder="Add a personal habit"><button class="btn ghost" id="addHabit">Add habit</button></div>')+
  panel("7-DAY RECOVERY SNAPSHOT",recoverySnapshot)+panel("SLEEP HISTORY · LAST 7 LOGS",sleepRows||'<div class="empty">Log your first night to start a sleep trend.</div>')+
- panel("CONNECTED DEVICES",'<div class="callout"><b>MANUAL TRACKING ACTIVE</b><p>Apple Health, Health Connect and wearables are not connected. No device data is being imported.</p></div>')+'</div>';
+ panel("APPLE HEALTH · FREE SHORTCUT BRIDGE",'<div class="callout"><b>IMPORTACIÓN CONTROLADA DESDE IPHONE</b><p>Safari no puede leer Apple Health directamente. Crea un Atajo que reúna los datos diarios autorizados y los exporte como JSON; después impórtalo aquí. Los registros se guardan en tu cuenta RUMBO y se sincronizan con tus otros dispositivos.</p></div><div class="grid four">'+metric("PASOS HOY",healthToday?.steps==null?"—":Number(healthToday.steps).toLocaleString("es-ES"))+metric("SUEÑO APPLE HEALTH",healthToday?.sleepHours==null?"—":healthToday.sleepHours+" h")+metric("ENERGÍA ACTIVA",healthToday?.activeEnergyKcal==null?"—":healthToday.activeEnergyKcal+" kcal")+metric("DISTANCIA ANDANDO",healthToday?.walkingRunningKm==null?"—":healthToday.walkingRunningKm+" km")+'</div><div class="form"><button class="btn primary" id="importAppleHealth" type="button">Importar archivo Apple Health JSON</button><span class="muted">'+healthRecent.length+" días importados recientemente"+'</span></div><pre class="health-json-example">{"source":"Apple Health","days":[{"date":"2026-11-16","steps":8200,"sleepHours":7.4,"activeEnergyKcal":510,"walkingRunningKm":5.8}]}</pre><small class="muted">Campos opcionales: steps, sleepHours, activeEnergyKcal y walkingRunningKm. El Atajo debe exportar un objeto JSON con una lista days. Puedes importar un archivo nuevo cuando quieras.</small>')+'</div>';
 }
 function ai(){
  const c=buildAssistantContext(state),logs=state.aiLog||[];
@@ -820,6 +821,18 @@ $("#waderCsvInput").addEventListener("change",async e=>{
  finally{e.target.value=""}
 });
 $("#importBackupBtn").onclick=()=>openPicker($("#backupInput"));
+$("#healthImportInput").addEventListener("change",async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  const imported=normalizeAppleHealthExport(JSON.parse(await file.text()));
+  const merged=new Map((state.healthDaily||[]).map(row=>[row.date,row]));
+  for(const row of imported)merged.set(row.date,row);
+  state.healthDaily=[...merged.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  save();render();toast(imported.length+" días de Apple Health importados y guardados.");
+ }catch(error){toast("No se pudo importar Apple Health: "+error.message)}
+ finally{e.target.value=""}
+});
+bind("importAppleHealth",()=>$("#healthImportInput")?.click());
 $("#backupInput").addEventListener("change",async e=>{
  const file=e.target.files[0];if(!file)return;
  try{
@@ -841,7 +854,7 @@ $("#today").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",da
 loadAirportDirectory().then(()=>{if(active==="home")try{render()}catch(err){console.error("Airport map refresh failed",err)}}).catch(err=>console.warn("Airport directory could not be loaded",err));
 window.rumboCloudSync=initRumboCloudSync({
  getLocalState:()=>state,
- hasLocalContent:()=>["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","receiptDraftItems","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory","foodDiary","exerciseProgress","fitnessHistory"].some(key=>Array.isArray(state[key])&&state[key].length>0)||Object.keys(state.budgets||{}).length>0||["fitnessProfile","nutritionProfile","waderImportSummary"].some(key=>state[key]&&typeof state[key]==="object"&&Object.keys(state[key]).length>0)||Array.isArray(state.trainingProgram?.sessions)&&state.trainingProgram.sessions.length>0||Number(state.previousExperienceHours)>0||JSON.stringify(state.crewBiddingProfile)!==JSON.stringify(DEFAULT_CREW_BIDDING_PROFILE),
+ hasLocalContent:()=>["duties","reminders","events","workouts","shopping","expenses","incomes","debts","assets","sleepLogs","dailyCheckins","hydrationLogs","habitLogs","logbook","recommendations","mealPlan","pantry","customRecipes","recipeSearchResults","receiptDraftItems","trainingPlan","trainingGoals","aviationTraining","aiLog","rosterHotels","rosterTraining","airportNotes","crewBids","crewBidHistory","healthDaily","foodDiary","exerciseProgress","fitnessHistory"].some(key=>Array.isArray(state[key])&&state[key].length>0)||Object.keys(state.budgets||{}).length>0||["fitnessProfile","nutritionProfile","waderImportSummary"].some(key=>state[key]&&typeof state[key]==="object"&&Object.keys(state[key]).length>0)||Array.isArray(state.trainingProgram?.sessions)&&state.trainingProgram.sessions.length>0||Number(state.previousExperienceHours)>0||JSON.stringify(state.crewBiddingProfile)!==JSON.stringify(DEFAULT_CREW_BIDDING_PROFILE),
  onRemoteState:(remote)=>{
   try{state=normalizeState(remote);localStorage.setItem(KEY,JSON.stringify(state));render();toast("RUMBO actualizado desde otro dispositivo.")}catch(error){console.error("Remote RUMBO state rejected",error);toast("No se pudo aplicar la sincronización remota.")}
  }
