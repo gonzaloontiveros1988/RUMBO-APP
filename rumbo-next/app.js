@@ -805,7 +805,8 @@ $("#importBackupBtn").onclick=()=>openPicker($("#backupInput"));
 $("#healthImportInput").addEventListener("change",async e=>{
  const file=e.target.files?.[0];if(!file)return;
  try{
-  const raw=await file.text();\n  const imported=file.name.toLowerCase().endsWith(".xml")?normalizeAppleHealthXml(raw):normalizeAppleHealthExport(JSON.parse(raw));
+  const raw=await file.text();
+  const imported=file.name.toLowerCase().endsWith(".xml")?normalizeAppleHealthXml(raw):normalizeAppleHealthExport(JSON.parse(raw));
   const merged=new Map((state.healthDaily||[]).map(row=>[row.date,row]));
   for(const row of imported)merged.set(row.date,row);
   state.healthDaily=[...merged.values()].sort((a,b)=>a.date.localeCompare(b.date));
