@@ -7,7 +7,7 @@ import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/month
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
 import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
-import {normalizeAppleHealthExport,normalizeAppleHealthXml} from "../rumbo-next/health-import.js";
+import {normalizeAppleHealthExport,normalizeAppleHealthXml,normalizeAppleHealthWorkouts} from "../rumbo-next/health-import.js";
 import {answerLocally} from "../rumbo-next/local-assistant.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
@@ -429,4 +429,16 @@ test("Apple Health export.xml merges overlapping sleep intervals and rejects non
  const rows=normalizeAppleHealthXml(xml);
  assert.equal(rows[0].sleepHours,5);
  assert.throws(()=>normalizeAppleHealthXml("<OtherData/>"),/No parece un export.xml válido/);
+});
+
+
+test("Apple Health export.xml imports Apple Watch cardio workout duration, distance, energy and heart rate",()=>{
+ const xml='<HealthData><Workout workoutActivityType="HKWorkoutActivityTypeCycling" duration="1800" startDate="2026-11-15 07:00:00 +0300" endDate="2026-11-15 07:30:00 +0300"><WorkoutStatistics type="HKQuantityTypeIdentifierDistanceCycling" sum="5000" unit="m"/><WorkoutStatistics type="HKQuantityTypeIdentifierActiveEnergyBurned" sum="250" unit="kcal"/><WorkoutStatistics type="HKQuantityTypeIdentifierHeartRate" average="130" unit="count/min"/></Workout></HealthData>';
+ const rows=normalizeAppleHealthWorkouts(xml);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].type,"Cardio");
+ assert.equal(rows[0].minutes,30);
+ assert.equal(rows[0].distanceKm,5);
+ assert.equal(rows[0].activeEnergyKcal,250);
+ assert.equal(rows[0].averageHeartRate,130);
 });
