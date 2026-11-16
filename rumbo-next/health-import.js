@@ -110,7 +110,7 @@ export function normalizeAppleHealthWorkouts(xml) {
   const source = String(xml || "");
   if (!source.includes("<HealthData") || source.length > 100 * 1024 * 1024) return [];
   const workouts = [];
-  for (const match of source.matchAll(/<Workout\\b([^>]*)>([\\s\\S]*?)<\\/Workout\\s*>|<Workout\\b([^>]*)\\/>/g)) {
+  for (const match of source.matchAll(/<Workout\b([^>]*)>([\s\S]*?)<\/Workout\s*>|<Workout\b([^>]*)\/>/g)) {
     const attrs = xmlAttributes(match[1] || match[3] || "");
     const activity = String(attrs.workoutActivityType || "").replace(/^HKWorkoutActivityType/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
     const start = parseAppleHealthDate(attrs.startDate), end = parseAppleHealthDate(attrs.endDate);
