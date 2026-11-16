@@ -1,4 +1,4 @@
-import { calculateRecipeNutrition, normalizeFoodName, scaleQuantity, parseShoppingQuantity } from "./nutrition-engine.js";
+import { calculateRecipeNutrition, normalizeFoodName, scaleQuantity, parseShoppingQuantity } from "./nutrition-engine.js?v=kitchen-v1";
 export { adaptRecipeForGoal, calculateBatchPortions, parseQuantityGrams, NUTRITION_REFERENCE_URL } from "./nutrition-engine.js";
 // Nutrition values are estimates per listed ingredient quantity; confirm labels and weights for precision.
 export const RECIPES=[
