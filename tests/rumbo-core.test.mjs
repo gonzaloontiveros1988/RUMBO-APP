@@ -331,9 +331,9 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
-test("fitness library contains 52 distinct, documented exercises with a rendered three-phase human guide",()=>{
- assert.equal(EXERCISES.length,52);
- assert.equal(new Set(EXERCISES.map(x=>x.id)).size,52);
+test("fitness library contains 56 distinct, documented exercises with a rendered three-phase human guide",()=>{
+ assert.equal(EXERCISES.length,56);
+ assert.equal(new Set(EXERCISES.map(x=>x.id)).size,56);
  for(const exercise of EXERCISES){
   assert.ok(exercise.name&&exercise.pattern&&exercise.muscles.length&&exercise.equipment.length&&exercise.cues.length>=2,exercise.id+" is missing coaching data");
   const svg=exerciseSequenceSvg(exercise);
