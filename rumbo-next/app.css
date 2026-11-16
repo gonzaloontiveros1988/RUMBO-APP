@@ -1547,3 +1547,41 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .kitchen-add-to-menu .btn{grid-column:1/-1;width:100%}
  .kitchen-search-results{padding:10px}
 }
+
+
+/* Fitness video-first UI: real Your Move MP4s replace all vector/3D exercise figures. */
+.guided-figure,
+.program-detail-body .guided-figure,
+.exercise-library-art .guided-figure{
+  display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-height:0;
+  padding:0;background:transparent;border-radius:14px;overflow:visible;cursor:default!important;touch-action:auto;
+}
+.guided-figure canvas,.guided-figure svg{display:none!important}
+.fitness-video-frame{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;width:100%;min-width:0}
+.fitness-demo-video{
+  display:block;width:min(100%,260px);height:auto;max-height:430px;aspect-ratio:9/16;
+  object-fit:contain;object-position:center;background:#f7f7f7;border:1px solid rgba(130,170,185,.25);
+  border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.18)
+}
+.fitness-video-credit{display:inline-flex;align-items:center;gap:5px;color:#79d9d5;text-decoration:underline;text-underline-offset:3px;font-size:10px;font-weight:700}
+.fitness-video-missing{display:grid;place-items:center;min-height:150px;padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:11px;text-align:center}
+.guided-exercise-visual{grid-template-columns:minmax(0,.9fr) minmax(220px,1.1fr);align-items:start}
+.guided-exercise-visual .guided-figure{justify-content:center}
+.fitness-day-exercise-visual{display:flex;align-items:flex-start;justify-content:center;min-width:0}
+.fitness-day-exercise-visual .fitness-demo-video{max-width:170px;max-height:300px}
+.exercise-library-art .fitness-demo-video{max-width:145px;max-height:250px}
+.ymove-library-panel{margin-top:14px}
+.ymove-video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:start}
+.ymove-video-card{min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
+.ymove-video-card h3{min-height:30px;margin:0 0 5px;font-size:11px;line-height:1.35}
+.ymove-video-card>small{display:block;min-height:26px;margin-bottom:8px;color:var(--muted);font-size:9px}
+.ymove-video-card .fitness-demo-video{max-width:100%;max-height:250px}
+.fitness-video-attribution{margin:14px 0 0;color:var(--muted);font-size:10px;line-height:1.6}
+.fitness-video-attribution a{color:#79d9d5}
+@media(max-width:700px){
+ .guided-exercise-visual{grid-template-columns:1fr;gap:14px}
+ .guided-exercise-visual .fitness-demo-video{max-width:min(100%,260px);max-height:420px}
+ .ymove-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .ymove-video-card{padding:8px}
+ .ymove-video-card .fitness-demo-video{max-height:220px}
+}
