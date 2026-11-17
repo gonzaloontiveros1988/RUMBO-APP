@@ -40,6 +40,17 @@
     const hrv=d.hrvSdnnMs==null?"—":number(d.hrvSdnnMs)+" ms";
     return '<div class="row"><span><b>'+esc(d.date||"")+'</b><small>Steps '+number(d.steps)+' · '+(d.distanceMeters==null?"—":number(d.distanceMeters/1000,2)+" km")+' · Sleep '+sleep+'</small></span><span><b>'+number(d.activeEnergyKcal)+' kcal</b><small>HR '+heart+' · HRV '+hrv+'</small></span></div>';
   }
+  function recoveryEstimate(rows){
+    const valid=rows.filter(x=>Number.isFinite(x.sleepHours)&&Number.isFinite(x.hrvSdnnMs)&&Number.isFinite(x.restingHeartRateBpm));
+    if(valid.length<14)return {score:null,reason:"Necesitamos al menos 14 días con sueño, HRV y pulso en reposo para establecer una referencia personal."};
+    const sorted=valid.slice().sort((a,b)=>a.date.localeCompare(b.date));
+    const latest=sorted[sorted.length-1],baseline=sorted.slice(-14,-1);
+    const avg=key=>baseline.reduce((sum,x)=>sum+x[key],0)/baseline.length;
+    const sleepScore=Math.max(0,Math.min(100,(latest.sleepHours/8)*100));
+    const hrvScore=Math.max(0,Math.min(100,100+(latest.hrvSdnnMs/Math.max(1,avg("hrvSdnnMs"))-1)*100));
+    const rhrScore=Math.max(0,Math.min(100,100-(latest.restingHeartRateBpm-avg("restingHeartRateBpm"))*8));
+    return {score:Math.round(sleepScore*.4+hrvScore*.3+rhrScore*.3),reason:"Estimación orientativa: sueño 40%, HRV 30% y pulso en reposo 30%, comparados con tu referencia. No es una medida médica."};
+  }
   function dashboardMarkup(rows,workouts=[]){
     const current=rows.find(x=>x.date===today())||{};
     const last=rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);
@@ -47,13 +58,14 @@
     const sleep=current.sleepHours==null?"—":number(current.sleepHours,1)+" h";
     const heart=current.heartRateBpm==null?"—":number(current.heartRateBpm)+" bpm";
     const resting=current.restingHeartRateBpm==null?"—":number(current.restingHeartRateBpm)+" bpm";
-    const hrv=current.hrvSdnnMs==null?"—":number(current.hrvSdnnMs)+" ms";
+    const hrv=current.hrvSdnnMs==null?"—":number(current.hrvSdnnMs)+" ms";\n    const recovery=recoveryEstimate(rows);
     const workoutRows=workouts.slice(0,8).map(w=>'<div class="row"><span><b>'+esc(w.activity||"Workout")+'</b><small>'+esc(w.date||"")+' · '+number(w.durationMinutes)+' min · '+esc(w.source||"")+'</small></span><b>'+(w.activeEnergyKcal==null?"—":number(w.activeEnergyKcal)+" kcal")+'</b></div>').join("");
     return '<div class="grid three" style="margin:10px 0">'+
       metric("STEPS TODAY",number(current.steps))+metric("ACTIVE ENERGY",number(current.activeEnergyKcal)+" kcal")+
       metric("WALK / RUN",current.distanceMeters==null?"—":number(current.distanceMeters/1000,2)+" km")+
       metric("SLEEP",sleep)+metric("AVERAGE HEART RATE",heart)+metric("RESTING HEART RATE",resting)+'</div>'+
       '<div class="grid two">'+metric("HRV · SDNN",hrv)+metric("WORKOUTS · 30 DAYS",workouts.length)+'</div>'+
+      '<section class="panel" style="margin-top:10px"><div class="stat-label">RECOVERY TREND · EXPERIMENTAL</div><div class="stat">'+(recovery.score==null?"Building baseline":recovery.score+"/100")+'</div><p class="muted">'+esc(recovery.reason)+'</p></section>'+
       '<div class="kicker" style="margin:12px 0 6px">LAST 7 DAYS · APPLE HEALTH</div>'+
       (last.length?last.map(rowMarkup).join(""):'<div class="empty">No hay muestras disponibles. Conecta Apple Health y vuelve a actualizar.</div>')+
       '<div class="kicker" style="margin:16px 0 6px">RECENT WORKOUTS</div>'+
@@ -106,7 +118,7 @@
       }
     }
     connect.addEventListener("click",()=>run("connect"));
-    refresh.addEventListener("click",()=>run("refresh"));
+    refresh.addEventListener("click",()=>run("refresh"));\n    window.addEventListener("rumbo-healthkit-updated",()=>run("refresh"));
   }
   function observe(){
     const view=document.getElementById("view");
