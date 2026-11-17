@@ -1,13 +1,13 @@
 name: RUMBO iOS HealthKit build
 on:
   pull_request:
-    branches: [main]
+    branches: [redesign/rumbo-os-v4]
     paths:
       - 'ios/**'
       - 'rumbo-next/healthkit-bridge.js'
       - '.github/workflows/ios-healthkit-build.yml'
   push:
-    branches: [main, feature/healthkit-native-app-shell]
+    branches: [feature/rumbo-v4-healthkit]
     paths:
       - 'ios/**'
       - 'rumbo-next/healthkit-bridge.js'
