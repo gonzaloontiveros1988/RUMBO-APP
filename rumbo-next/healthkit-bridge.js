@@ -42,9 +42,9 @@
     const current=rows.find(x=>x.date===today())||{};
     const last=rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);
     return '<div class="grid three" style="margin:10px 0">'+
-      '<div class="stat-card"><div class="stat-label">STEPS TODAY</div><div class="stat">'+number(current.steps)+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">ACTIVE ENERGY</div><div class="stat">'+number(current.activeEnergyKcal)+' <small>kcal</small></div></div>'+
-      '<div class="stat-card"><div class="stat-label">WALK / RUN</div><div class="stat">'+(current.distanceMeters==null?"—":number(current.distanceMeters/1000,2))+' <small>km</small></div></div></div>'+
+      '<section class="panel"><div class="stat-label">STEPS TODAY</div><div class="stat">'+number(current.steps)+'</div></section>'+
+      '<section class="panel"><div class="stat-label">ACTIVE ENERGY</div><div class="stat">'+number(current.activeEnergyKcal)+' <small>kcal</small></div></section>'+
+      '<section class="panel"><div class="stat-label">WALK / RUN</div><div class="stat">'+(current.distanceMeters==null?"—":number(current.distanceMeters/1000,2))+' <small>km</small></div></section></div>'+
       '<div class="kicker" style="margin:12px 0 6px">LAST 7 DAYS · APPLE HEALTH</div>'+
       (last.length?last.map(rowMarkup).join(""):'<div class="empty">No hay muestras disponibles. Conecta Apple Health y vuelve a actualizar.</div>')+
       '<p class="muted" style="margin-top:8px">Datos leídos de Apple Health en este dispositivo. La ausencia de una cifra no demuestra que hayas denegado el permiso: iOS no revela el estado del permiso de lectura.</p>';
