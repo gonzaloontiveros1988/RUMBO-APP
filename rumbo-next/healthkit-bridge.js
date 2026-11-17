@@ -26,6 +26,11 @@
       const item=pending.get(result&&result.id);if(!item)return;
       pending.delete(result.id);
       result.error?item.reject(new Error(result.error)):item.resolve(result.data);
+    },
+    getCachedSummary:()=>{
+      const days=loadCache();
+      let workouts=[];try{workouts=JSON.parse(localStorage.getItem(CACHE_KEY+"_workouts")||"[]")}catch{}
+      return {days,workouts,recovery:recoveryEstimate(days),lastUpdated:localStorage.getItem(CACHE_KEY+"_updated")||null};
     }
   };
 
@@ -109,8 +114,9 @@
         const safeRows=Array.isArray(result?.days)?result.days.filter(x=>x&&/^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.date||""))):[];
         const workouts=Array.isArray(result?.workouts)?result.workouts:[];
         saveCache(safeRows);
-        try{localStorage.setItem(CACHE_KEY+"_workouts",JSON.stringify(workouts))}catch{}
+        try{localStorage.setItem(CACHE_KEY+"_workouts",JSON.stringify(workouts));localStorage.setItem(CACHE_KEY+"_updated",new Date().toISOString())}catch{}
         summary.innerHTML=dashboardMarkup(safeRows,workouts);
+        window.dispatchEvent(new CustomEvent("rumbo-healthkit-data-ready"));
         status.textContent="Lectura completada · "+new Date().toLocaleString()+". iOS no informa si se ha concedido acceso de lectura; solo se muestran muestras disponibles.";
       }catch(error){
         status.textContent=error.message||"No se pudieron leer los datos de Apple Health.";
