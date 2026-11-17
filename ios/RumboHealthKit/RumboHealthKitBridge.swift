@@ -6,6 +6,7 @@ import WebKit
 final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
     private let store = HKHealthStore()
     private weak var webView: WKWebView?
+    private var observerQueries: [HKObserverQuery] = []
     private let isoDay: DateFormatter = {
         let f = DateFormatter()
         f.calendar = Calendar(identifier: .gregorian)
@@ -18,6 +19,7 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
     init(webView: WKWebView) {
         self.webView = webView
         super.init()
+        startBackgroundObservation()
     }
 
     private var readableTypes: Set<HKObjectType> {
@@ -30,6 +32,27 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
         if let sleep = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) { types.insert(sleep) }
         types.insert(HKObjectType.workoutType())
         return types
+    }
+
+    /// Ask HealthKit for background updates where the OS/device permits them.
+    /// Delivery is opportunistic, not real-time or guaranteed.
+    private func startBackgroundObservation() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        for objectType in readableTypes {
+            guard let sampleType = objectType as? HKSampleType else { continue }
+            let query = HKObserverQuery(sampleType: sampleType, predicate: nil) { [weak self] _, completion, error in
+                defer { completion() }
+                guard error == nil else { return }
+                DispatchQueue.main.async {
+                    self?.webView?.evaluateJavaScript("window.dispatchEvent(new Event('rumbo-healthkit-updated'))")
+                }
+            }
+            observerQueries.append(query)
+            store.execute(query)
+            store.enableBackgroundDelivery(for: sampleType, frequency: .hourly) { _, _ in
+                // Background delivery may be unavailable for a type or restricted by iOS.
+            }
+        }
     }
 
     func userContentController(_ userContentController: WKUserContentController,
