@@ -58,7 +58,8 @@
     const sleep=current.sleepHours==null?"—":number(current.sleepHours,1)+" h";
     const heart=current.heartRateBpm==null?"—":number(current.heartRateBpm)+" bpm";
     const resting=current.restingHeartRateBpm==null?"—":number(current.restingHeartRateBpm)+" bpm";
-    const hrv=current.hrvSdnnMs==null?"—":number(current.hrvSdnnMs)+" ms";\n    const recovery=recoveryEstimate(rows);
+    const hrv=current.hrvSdnnMs==null?"—":number(current.hrvSdnnMs)+" ms";
+    const recovery=recoveryEstimate(rows);
     const workoutRows=workouts.slice(0,8).map(w=>'<div class="row"><span><b>'+esc(w.activity||"Workout")+'</b><small>'+esc(w.date||"")+' · '+number(w.durationMinutes)+' min · '+esc(w.source||"")+'</small></span><b>'+(w.activeEnergyKcal==null?"—":number(w.activeEnergyKcal)+" kcal")+'</b></div>').join("");
     return '<div class="grid three" style="margin:10px 0">'+
       metric("STEPS TODAY",number(current.steps))+metric("ACTIVE ENERGY",number(current.activeEnergyKcal)+" kcal")+
@@ -118,7 +119,8 @@
       }
     }
     connect.addEventListener("click",()=>run("connect"));
-    refresh.addEventListener("click",()=>run("refresh"));\n    window.addEventListener("rumbo-healthkit-updated",()=>run("refresh"));
+    refresh.addEventListener("click",()=>run("refresh"));
+    window.addEventListener("rumbo-healthkit-updated",()=>run("refresh"));
   }
   function observe(){
     const view=document.getElementById("view");
