@@ -1,38 +1,25 @@
-# RUMBO iOS native shell — Xcode setup
+# RUMBO 4.0 iOS · Apple HealthKit
 
-This folder contains the first SwiftUI host shell for the existing RUMBO web app. It is not yet a signed, built, or tested iOS application. Complete the steps below on a Mac with Xcode.
+El proyecto Xcode ya está incluido en `ios/RumboAppProject/RUMBO.xcodeproj`. No hay que crear un proyecto nuevo ni reemplazar la interfaz RUMBO 4.0.
 
-## Files added
+## Abrir y compilar
+1. Abre `ios/RumboAppProject/RUMBO.xcodeproj` en Xcode.
+2. Selecciona el esquema `RUMBO` y un simulador iPhone para validar la interfaz.
+3. Para instalarlo en tu iPhone, selecciona el dispositivo físico y configura tu Personal Team en **Signing & Capabilities**. El identificador actual es `com.rumbo.app`; si Apple exige uno propio, cámbialo en el target.
+4. El target ya incluye la capacidad HealthKit, el permiso de lectura y la carpeta azul `rumbo-next` como recurso del bundle. Esa carpeta es la aplicación RUMBO 4.0, con su interfaz y módulos actuales.
+5. Ejecuta la app en un iPhone real, entra en **Lifestyle → Apple Health**, pulsa **Connect Apple Health** y después **Refresh data**. Autoriza los tipos de datos que quieras compartir.
 
-- `RumboApp.swift`: SwiftUI application entry point.
-- `ContentView.swift`: root view.
-- `RumboWebView.swift`: local bundled RUMBO web app in a WKWebView, with the `rumboHealthKit` message handler registered and external navigation opened outside the web view.
-- `Info-HealthKit.plist`: HealthKit read permission explanation.
-- `RumboApp.entitlements`: HealthKit entitlement.
+## Datos leídos
+- Pasos, distancia caminando/corriendo y energía activa.
+- Frecuencia cardiaca media, frecuencia cardiaca en reposo y HRV SDNN.
+- Sueño y entrenamientos recientes (hasta 30 días).
+- Los datos procedentes del Apple Watch aparecen cuando se sincronizan con Salud en el iPhone y el usuario autoriza su lectura.
 
-The existing native reader is in `../RumboHealthKit/RumboHealthKitBridge.swift`.
+Fitness y Nutrición muestran un resumen contextual local. La puntuación de recuperación es experimental, no médica; la actividad no cambia automáticamente calorías ni menús. Los datos permanecen en el dispositivo: no se suben a Supabase ni al asistente de IA.
 
-## Create the Xcode project
-
-1. Open Xcode and choose **Create a new Xcode project**.
-2. Choose **iOS → App**.
-3. Product Name: `RUMBO`; Interface: **SwiftUI**; Language: **Swift**. Use your own organization identifier (for example, a reverse-DNS identifier you control).
-4. Save the project inside the downloaded repository at `ios/RumboAppProject`. Do not overwrite the source folders.
-5. Remove the starter `ContentView.swift` and app entry point created by Xcode from the target (or replace their contents with the files from this folder).
-6. Add all files from `ios/RumboApp` and `ios/RumboHealthKit` to the app target. Ensure **Copy items if needed** is selected if Xcode asks.
-7. Drag the entire `rumbo-next` folder into the project navigator. In the import dialog choose **Create folder references** (blue folder), and tick the RUMBO app target. This is important: the app expects `rumbo-next/index.html` to be present in the app bundle.
-8. In the app target **Build Phases → Copy Bundle Resources**, verify that the `rumbo-next` folder reference is included.
-9. In **Build Settings**, set **Info.plist Values** / custom Info.plist configuration so the app includes the `NSHealthShareUsageDescription` value from `Info-HealthKit.plist`. Alternatively add that key and its Spanish explanation directly to the generated app Info.plist. Do not create any HealthKit write usage description; this app requests read-only access.
-10. In **Signing & Capabilities**, add **HealthKit**. Use the entitlements file `RumboApp.entitlements` as the target's Code Signing Entitlements file. Do not enable Clinical Health Records.
-11. Set the deployment target to iOS 17 or later.
-12. Select an iPhone simulator and build. The simulator is useful for checking the UI, but HealthKit data and Apple Watch integration must ultimately be tested on a real iPhone paired with an Apple Watch.
-
-## Current limitations
-
-- The host loads the bundled `rumbo-next/index.html` locally. Browser-only capabilities such as service workers/PWA installation do not apply inside this native shell.
-- HealthKit currently reads daily steps, active energy and walking/running distance only.
-- HealthKit read permission is privacy-preserving: iOS does not tell an app whether read access was denied. A successful authorization request callback must not be displayed as proof that permission was granted. Empty results can mean no samples or no read access.
-- Heart rate, resting heart rate, sleep, workouts, background delivery, durable health-data storage, and cloud sync are not implemented.
-- No health data is uploaded by this native shell.
-- Do not expose the `rumboHealthKit` script message handler to external websites. The current host only loads local bundled files and opens non-file links outside the WKWebView.
-- This source scaffold has not yet been compiled or validated on a physical device. Do not distribute it until signing, permissions, navigation, privacy behavior and real-device tests are complete.
+## Límites y validación
+- La web/PWA abierta en Safari no puede leer HealthKit. Hace falta la app nativa iOS.
+- iOS no revela si el usuario denegó permisos de lectura; una autorización completada no demuestra que haya muestras disponibles.
+- La actualización en segundo plano depende de iOS y no está garantizada por hora.
+- GitHub Actions compila el target para simulador sin firma. La lectura real de Salud y la sincronización del Apple Watch requieren una prueba física en tu iPhone.
+- Una cuenta Apple gratuita permite pruebas locales; TestFlight/App Store requiere membresía de pago.
