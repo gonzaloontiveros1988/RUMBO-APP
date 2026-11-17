@@ -1,5 +1,12 @@
-name: RUMBO 3.0 validation
+name: RUMBO 4.0 validation
 on:
+  pull_request:
+    branches:
+      - redesign/rumbo-os-v4
+    paths:
+      - 'rumbo-next/**'
+      - 'tests/**'
+      - '.github/workflows/rumbo-next-check.yml'
   push:
     branches:
       - redesign/rumbo-os-v4
@@ -24,6 +31,7 @@ jobs:
           node --check rumbo-next/app.js
           node --check rumbo-next/fitness-3d.js
           node --check rumbo-next/sw.js
+          node --check rumbo-next/healthkit-bridge.js
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -65,4 +73,5 @@ jobs:
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
           test -s rumbo-next/sw.js
+          test -s rumbo-next/healthkit-bridge.js
           test -s tests/rumbo-core.test.mjs

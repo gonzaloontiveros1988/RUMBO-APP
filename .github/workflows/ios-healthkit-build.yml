@@ -1,0 +1,26 @@
+name: RUMBO iOS HealthKit build
+on:
+  pull_request:
+    branches: [redesign/rumbo-os-v4]
+    paths:
+      - 'ios/**'
+      - 'rumbo-next/healthkit-bridge.js'
+      - '.github/workflows/ios-healthkit-build.yml'
+  push:
+    branches: [feature/rumbo-v4-healthkit]
+    paths:
+      - 'ios/**'
+      - 'rumbo-next/healthkit-bridge.js'
+      - '.github/workflows/ios-healthkit-build.yml'
+  workflow_dispatch:
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: List project schemes
+        run: xcodebuild -list -project ios/RumboAppProject/RUMBO.xcodeproj
+      - name: Build iOS simulator app
+        run: xcodebuild -project ios/RumboAppProject/RUMBO.xcodeproj -scheme RUMBO -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -configuration Debug CODE_SIGNING_ALLOWED=NO build
