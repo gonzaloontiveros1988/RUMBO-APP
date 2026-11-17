@@ -177,8 +177,8 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
                         "date": self.isoDay.string(from: workout.startDate),
                         "activity": workout.workoutActivityType.name,
                         "durationMinutes": workout.duration / 60,
-                        "activeEnergyKcal": workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) as Any? ?? NSNull(),
-                        "distanceMeters": workout.totalDistance?.doubleValue(for: .meter()) as Any? ?? NSNull(),
+                        "activeEnergyKcal": workout.totalEnergyBurned.map { $0.doubleValue(for: .kilocalorie()) } ?? 0,
+                        "distanceMeters": workout.totalDistance.map { $0.doubleValue(for: .meter()) } ?? 0,
                         "source": workout.sourceRevision.source.name
                     ]
                 }
