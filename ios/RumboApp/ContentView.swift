@@ -4,6 +4,6 @@ struct ContentView: View {
     var body: some View {
         RumboWebView()
             .ignoresSafeArea()
-            .background(Color(red: 7 / 255, green: 21 / 255, blue: 34 / 255))
+            .background(Color(red: 7.0 / 255.0, green: 21.0 / 255.0, blue: 34.0 / 255.0))
     }
 }
