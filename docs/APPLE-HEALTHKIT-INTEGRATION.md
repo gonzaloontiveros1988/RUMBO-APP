@@ -25,3 +25,20 @@ RUMBO is currently a browser PWA. A browser/PWA cannot read the HealthKit databa
 - iOS controls background execution; this is not guaranteed continuous real-time sync.
 - Apple health permissions are per data type and can be revoked at any time.
 - Do not send health data to cloud storage until the user-facing cloud-sync consent, account ownership, retention and deletion controls are implemented and reviewed.
+
+
+## Lifestyle dashboard integration (17 November 2026)
+
+The Lifestyle & Recovery screen now contains the first native Apple Health activity dashboard.
+
+- Connect Apple Health and refresh controls are rendered inside Lifestyle.
+- Reads the existing native daily summary for steps, active energy and walking/running distance over the last seven days.
+- Displays today's totals and a seven-day daily history.
+- Keeps the latest returned summary in local device storage only (`rumbo_healthkit_daily_v1`) so the panel can show the last successful reading while offline.
+- No HealthKit records are sent to Supabase or an AI service.
+- The UI explicitly explains that iOS does not disclose read-permission status; an authorization request completing is not proof that access was granted.
+- The browser/PWA version explains that native iOS is required and disables HealthKit actions.
+
+Not included in this first Lifestyle delivery: sleep stages/duration, heart rate, resting heart rate, HRV, workout ingestion, recovery scoring, background delivery, Apple Watch companion app, and cross-module Fitness/Nutrition recommendations. These require additional HealthKit query types, validation against real device samples, and a separately documented scoring methodology. No medical interpretation is made.
+
+Validation: GitHub Actions RUMBO 3.0 validation workflow run 44052976967 completed successfully (JavaScript syntax and required app-file checks). This is not an Xcode/iPhone build or physical HealthKit test.
