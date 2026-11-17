@@ -2,11 +2,18 @@ import Foundation
 import HealthKit
 import WebKit
 
-/// Add this handler to the RUMBO WKWebView configuration under the name "rumboHealthKit".
-/// Keep the WKWebView's navigation allow-list restricted to the RUMBO origin.
+/// HealthKit reader exposed only to RUMBO's bundled, local WKWebView.
 final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
     private let store = HKHealthStore()
     private weak var webView: WKWebView?
+    private let isoDay: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = Calendar(identifier: .gregorian)
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = .current
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 
     init(webView: WKWebView) {
         self.webView = webView
@@ -15,11 +22,11 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
 
     private var readableTypes: Set<HKObjectType> {
         var types = Set<HKObjectType>()
-        let identifiers: [HKQuantityTypeIdentifier] = [
+        let ids: [HKQuantityTypeIdentifier] = [
             .stepCount, .distanceWalkingRunning, .activeEnergyBurned,
-            .heartRate, .restingHeartRate
+            .heartRate, .restingHeartRate, .heartRateVariabilitySDNN
         ]
-        identifiers.compactMap(HKObjectType.quantityType(forIdentifier:)).forEach { types.insert($0) }
+        ids.compactMap(HKObjectType.quantityType(forIdentifier:)).forEach { types.insert($0) }
         if let sleep = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) { types.insert(sleep) }
         types.insert(HKObjectType.workoutType())
         return types
@@ -30,23 +37,22 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
         guard let body = message.body as? [String: Any],
               let id = body["id"] as? String,
               let action = body["action"] as? String else { return }
-
         guard HKHealthStore.isHealthDataAvailable() else {
             respond(id: id, error: "Apple Health no está disponible en este dispositivo.")
             return
         }
-
         switch action {
         case "requestAuthorization":
-            store.requestAuthorization(toShare: [], read: readableTypes) { [weak self] success, error in
+            store.requestAuthorization(toShare: [], read: readableTypes) { [weak self] _, error in
                 if let error = error { self?.respond(id: id, error: error.localizedDescription); return }
-                self?.respond(id: id, data: ["authorizedRequestCompleted": success])
+                // HealthKit deliberately does not reveal read-permission decisions.
+                self?.respond(id: id, data: ["requestCompleted": true])
             }
         case "readDailySummary":
             let days = min(max(body["days"] as? Int ?? 7, 1), 30)
-            readDailySummary(days: days) { [weak self] result in
+            readDashboard(days: days) { [weak self] result in
                 switch result {
-                case .success(let rows): self?.respond(id: id, data: rows)
+                case .success(let data): self?.respond(id: id, data: data)
                 case .failure(let error): self?.respond(id: id, error: error.localizedDescription)
                 }
             }
@@ -55,69 +61,142 @@ final class RumboHealthKitBridge: NSObject, WKScriptMessageHandler {
         }
     }
 
-    private func readDailySummary(days: Int, completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
+    private func readDashboard(days: Int, completion: @escaping (Result<[String: Any], Error>) -> Void) {
         let calendar = Calendar.current
-        let end = Date()
-        guard let start = calendar.date(byAdding: .day, value: -days + 1, to: calendar.startOfDay(for: end)) else {
-            completion(.success([])); return
+        let now = Date()
+        guard let start = calendar.date(byAdding: .day, value: -days + 1, to: calendar.startOfDay(for: now)) else {
+            completion(.success(["days": [], "workouts": []])); return
         }
         let group = DispatchGroup()
         let lock = NSLock()
         var rows: [String: [String: Any]] = [:]
+        var workouts: [[String: Any]] = []
         var firstError: Error?
 
-        func add(_ date: Date, _ key: String, _ value: Double) {
+        func record(_ date: Date, _ key: String, _ value: Double) {
             lock.lock(); defer { lock.unlock() }
-            let day = ISO8601DateFormatter.rumboDay.string(from: date)
+            let day = isoDay.string(from: date)
             var row = rows[day] ?? ["date": day]
             row[key] = value
             rows[day] = row
         }
-
-        func quantity(_ identifier: HKQuantityTypeIdentifier, unit: HKUnit, key: String) {
+        func setError(_ error: Error) {
+            lock.lock(); defer { lock.unlock() }
+            firstError = firstError ?? error
+        }
+        func quantity(_ identifier: HKQuantityTypeIdentifier, unit: HKUnit, key: String,
+                      option: HKStatisticsOptions, transform: ((Double) -> Double)? = nil) {
             guard let type = HKObjectType.quantityType(forIdentifier: identifier) else { return }
             group.enter()
-            let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+            let predicate = HKQuery.predicateForSamples(withStart: start, end: now, options: .strictStartDate)
             let query = HKStatisticsCollectionQuery(quantityType: type, quantitySamplePredicate: predicate,
-                options: .cumulativeSum, anchorDate: calendar.startOfDay(for: start),
+                options: option, anchorDate: calendar.startOfDay(for: start),
                 intervalComponents: DateComponents(day: 1))
             query.initialResultsHandler = { _, collection, error in
                 defer { group.leave() }
-                if let error = error { lock.lock(); firstError = firstError ?? error; lock.unlock(); return }
-                collection?.enumerateStatistics(from: start, to: end) { statistics, _ in
-                    if let sum = statistics.sumQuantity() { add(statistics.startDate, key, sum.doubleValue(for: unit)) }
+                if let error = error { setError(error); return }
+                collection?.enumerateStatistics(from: start, to: now) { stats, _ in
+                    let sample = option.contains(.cumulativeSum) ? stats.sumQuantity() : stats.averageQuantity()
+                    if let sample {
+                        let raw = sample.doubleValue(for: unit)
+                        record(stats.startDate, key, transform?(raw) ?? raw)
+                    }
                 }
             }
             store.execute(query)
         }
 
-        quantity(.stepCount, unit: .count(), key: "steps")
-        quantity(.activeEnergyBurned, unit: .kilocalorie(), key: "activeEnergyKcal")
-        quantity(.distanceWalkingRunning, unit: .meter(), key: "distanceMeters")
+        quantity(.stepCount, unit: .count(), key: "steps", option: .cumulativeSum)
+        quantity(.activeEnergyBurned, unit: .kilocalorie(), key: "activeEnergyKcal", option: .cumulativeSum)
+        quantity(.distanceWalkingRunning, unit: .meter(), key: "distanceMeters", option: .cumulativeSum)
+        quantity(.heartRate, unit: HKUnit.count().unitDivided(by: .minute()), key: "heartRateBpm", option: .discreteAverage)
+        quantity(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()), key: "restingHeartRateBpm", option: .discreteAverage)
+        quantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli), key: "hrvSdnnMs", option: .discreteAverage)
+
+        if let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) {
+            group.enter()
+            let predicate = HKQuery.predicateForSamples(withStart: start, end: now, options: [])
+            let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit,
+                                      sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { [weak self] _, samples, error in
+                defer { group.leave() }
+                if let error { setError(error); return }
+                let values = (samples as? [HKCategorySample]) ?? []
+                var durations: [String: TimeInterval] = [:]
+                for sample in values {
+                    let asleep = sample.value == HKCategoryValueSleepAnalysis.asleep.rawValue ||
+                        sample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+                        sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue ||
+                        sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue
+                    guard asleep else { continue }
+                    // Attribute sleep to the local date on which the sleep interval ends.
+                    let key = self?.isoDay.string(from: sample.endDate) ?? ""
+                    durations[key, default: 0] += sample.endDate.timeIntervalSince(sample.startDate)
+                }
+                for (day, seconds) in durations {
+                    lock.lock()
+                    var row = rows[day] ?? ["date": day]
+                    row["sleepHours"] = seconds / 3600
+                    rows[day] = row
+                    lock.unlock()
+                }
+            }
+            store.execute(query)
+        }
+
+        group.enter()
+        let workoutPredicate = HKQuery.predicateForSamples(withStart: start, end: now, options: .strictStartDate)
+        let workoutQuery = HKSampleQuery(sampleType: .workoutType(), predicate: workoutPredicate, limit: 100,
+            sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { _, samples, error in
+                defer { group.leave() }
+                if let error { setError(error); return }
+                workouts = ((samples as? [HKWorkout]) ?? []).map { workout in
+                    [
+                        "date": self.isoDay.string(from: workout.startDate),
+                        "activity": workout.workoutActivityType.name,
+                        "durationMinutes": workout.duration / 60,
+                        "activeEnergyKcal": workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) as Any? ?? NSNull(),
+                        "distanceMeters": workout.totalDistance?.doubleValue(for: .meter()) as Any? ?? NSNull(),
+                        "source": workout.sourceRevision.source.name
+                    ]
+                }
+            }
+        store.execute(workoutQuery)
 
         group.notify(queue: .main) {
-            if let error = firstError { completion(.failure(error)); return }
+            if let firstError { completion(.failure(firstError)); return }
             let output = rows.keys.sorted().compactMap { rows[$0] }
-            completion(.success(output))
+            completion(.success(["days": output, "workouts": workouts]))
         }
     }
 
     private func respond(id: String, data: Any? = nil, error: String? = nil) {
         var payload: [String: Any] = ["id": id]
-        if let data = data { payload["data"] = data }
-        if let error = error { payload["error"] = error }
-        guard let json = try? JSONSerialization.data(withJSONObject: payload),
-              let string = String(data: json, encoding: .utf8) else { return }
+        if let data { payload["data"] = data }
+        if let error { payload["error"] = error }
+        guard JSONSerialization.isValidJSONObject(payload),
+              let json = try? JSONSerialization.data(withJSONObject: payload),
+              let string = String(data: json, encoding: .utf8) else {
+            DispatchQueue.main.async { [weak self] in self?.webView?.evaluateJavaScript("window.RumboHealthKit && window.RumboHealthKit.handleResponse({id:'\(id)',error:'No se pudo serializar la respuesta de HealthKit.'});") }
+            return
+        }
         DispatchQueue.main.async { [weak self] in
             self?.webView?.evaluateJavaScript("window.RumboHealthKit && window.RumboHealthKit.handleResponse(\(string));")
         }
     }
 }
 
-private extension ISO8601DateFormatter {
-    static let rumboDay: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFullDate]
-        return formatter
-    }()
+private extension HKWorkoutActivityType {
+    var name: String {
+        switch self {
+        case .running: return "Running"
+        case .walking: return "Walking"
+        case .cycling: return "Cycling"
+        case .traditionalStrengthTraining, .functionalStrengthTraining: return "Strength training"
+        case .swimming: return "Swimming"
+        case .rowing: return "Rowing"
+        case .yoga: return "Yoga"
+        case .highIntensityIntervalTraining: return "HIIT"
+        default: return "Workout"
+        }
+    }
 }
