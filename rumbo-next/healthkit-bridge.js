@@ -37,7 +37,7 @@
         status.textContent=action==="connect"?"Solicitando permisos de Apple…":"Leyendo datos autorizados…";
         if(action==="connect") await window.RumboHealthKit.requestAuthorization();
         const data=await window.RumboHealthKit.readDailySummary(7);
-        status.textContent="Conectado · última lectura "+new Date().toLocaleString();
+        status.textContent="Lectura completada · "+new Date().toLocaleString()+" · iOS no confirma permisos de lectura; los datos dependen de las muestras disponibles.";
         summary.innerHTML=(data||[]).map(d=>'<div class="row"><span><b>'+d.date+'</b><small>Steps · '+(d.steps??"—")+' · Distance · '+(d.distanceMeters==null?"—":(d.distanceMeters/1000).toFixed(2)+" km")</small></span><b>'+(d.activeEnergyKcal??"—")+' kcal</b></div>').join("")||"No hay muestras disponibles para el periodo seleccionado.";
       }catch(error){status.textContent=error.message||"No se pudo leer Apple Health.";}
     }
