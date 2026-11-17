@@ -1,0 +1,181 @@
+// !$*UTF8*$!
+{
+  archiveVersion = 1;
+  classes = {};
+  objectVersion = 56;
+  objects = {
+
+/* Begin PBXBuildFile section */
+    A10000000000000000000001 /* RumboApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* RumboApp.swift */; };
+    A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
+    A10000000000000000000003 /* RumboWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* RumboWebView.swift */; };
+    A10000000000000000000004 /* RumboHealthKitBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* RumboHealthKitBridge.swift */; };
+    A10000000000000000000005 /* rumbo-next in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* rumbo-next */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+    A20000000000000000000001 /* RumboApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RumboApp.swift; sourceTree = "<group>"; };
+    A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+    A20000000000000000000003 /* RumboWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RumboWebView.swift; sourceTree = "<group>"; };
+    A20000000000000000000004 /* RumboHealthKitBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RumboHealthKitBridge.swift; sourceTree = "<group>"; };
+    A20000000000000000000005 /* rumbo-next */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ../../rumbo-next; sourceTree = "<group>"; };
+    A20000000000000000000006 /* RumboApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RumboApp.entitlements; sourceTree = "<group>"; };
+    A20000000000000000000007 /* Info-HealthKit.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info-HealthKit.plist; sourceTree = "<group>"; };
+    A20000000000000000000008 /* RUMBO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RUMBO.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+    A30000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+    A40000000000000000000001 = {
+      isa = PBXGroup;
+      children = (
+        A40000000000000000000002 /* RumboApp */,
+        A40000000000000000000003 /* RumboHealthKit */,
+        A20000000000000000000005 /* rumbo-next */,
+        A40000000000000000000004 /* Products */,
+      );
+      sourceTree = "<group>";
+    };
+    A40000000000000000000002 /* RumboApp */ = {
+      isa = PBXGroup;
+      path = ../RumboApp;
+      sourceTree = "<group>";
+      children = (
+        A20000000000000000000001 /* RumboApp.swift */,
+        A20000000000000000000002 /* ContentView.swift */,
+        A20000000000000000000003 /* RumboWebView.swift */,
+        A20000000000000000000006 /* RumboApp.entitlements */,
+        A20000000000000000000007 /* Info-HealthKit.plist */,
+      );
+    };
+    A40000000000000000000003 /* RumboHealthKit */ = {
+      isa = PBXGroup;
+      path = ../RumboHealthKit;
+      sourceTree = "<group>";
+      children = (A20000000000000000000004 /* RumboHealthKitBridge.swift */,);
+    };
+    A40000000000000000000004 /* Products */ = {
+      isa = PBXGroup;
+      name = Products;
+      sourceTree = "<group>";
+      children = (A20000000000000000000008 /* RUMBO.app */,);
+    };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+    A50000000000000000000001 /* RUMBO */ = {
+      isa = PBXNativeTarget;
+      buildConfigurationList = A70000000000000000000002 /* Build configuration list for PBXNativeTarget */;
+      buildPhases = (
+        A30000000000000000000001 /* Frameworks */,
+        A60000000000000000000001 /* Sources */,
+        A60000000000000000000002 /* Resources */,
+      );
+      buildRules = ();
+      dependencies = ();
+      name = RUMBO;
+      productName = RUMBO;
+      productReference = A20000000000000000000008 /* RUMBO.app */;
+      productType = "com.apple.product-type.application";
+    };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+    A50000000000000000000002 /* Project object */ = {
+      isa = PBXProject;
+      attributes = {
+        BuildIndependentTargetsInParallel = 1;
+        LastUpgradeCheck = 2720;
+        TargetAttributes = {
+          A50000000000000000000001 = {
+            CreatedOnToolsVersion = 27.2;
+            SystemCapabilities = { com.apple.HealthKit = { enabled = 1; }; };
+          };
+        };
+      };
+      buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject */;
+      compatibilityVersion = "Xcode 14.0";
+      developmentRegion = en;
+      hasScannedForEncodings = 0;
+      knownRegions = (en, Base,);
+      mainGroup = A40000000000000000000001;
+      productRefGroup = A40000000000000000000004 /* Products */;
+      projectDirPath = "";
+      projectRoot = "";
+      targets = (A50000000000000000000001 /* RUMBO */,);
+    };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+    A60000000000000000000002 /* Resources */ = {
+      isa = PBXResourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (A10000000000000000000005 /* rumbo-next in Resources */,);
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+    A60000000000000000000001 /* Sources */ = {
+      isa = PBXSourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+        A10000000000000000000001 /* RumboApp.swift in Sources */,
+        A10000000000000000000002 /* ContentView.swift in Sources */,
+        A10000000000000000000003 /* RumboWebView.swift in Sources */,
+        A10000000000000000000004 /* RumboHealthKitBridge.swift in Sources */,
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+    A80000000000000000000001 /* Debug project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; }; name = Debug; };
+    A80000000000000000000002 /* Release project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; }; name = Release; };
+    A80000000000000000000003 /* Debug target */ = {isa = XCBuildConfiguration; buildSettings = {
+      CODE_SIGN_ENTITLEMENTS = ../RumboApp/RumboApp.entitlements;
+      CODE_SIGN_STYLE = Automatic;
+      CURRENT_PROJECT_VERSION = 1;
+      GENERATE_INFOPLIST_FILE = YES;
+      INFOPLIST_KEY_NSHealthShareUsageDescription = "RUMBO lee los datos de actividad que autorices, como pasos, distancia caminada y energía activa, para mostrar tu actividad dentro de la aplicación.";
+      INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+      INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+      INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+      INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+      PRODUCT_BUNDLE_IDENTIFIER = com.rumbo.app;
+      PRODUCT_NAME = "$(TARGET_NAME)";
+      SWIFT_EMIT_LOC_STRINGS = YES;
+      SWIFT_VERSION = 5.0;
+      TARGETED_DEVICE_FAMILY = "1,2";
+      IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+    }; name = Debug; };
+    A80000000000000000000004 /* Release target */ = {isa = XCBuildConfiguration; buildSettings = {
+      CODE_SIGN_ENTITLEMENTS = ../RumboApp/RumboApp.entitlements;
+      CODE_SIGN_STYLE = Automatic;
+      CURRENT_PROJECT_VERSION = 1;
+      GENERATE_INFOPLIST_FILE = YES;
+      INFOPLIST_KEY_NSHealthShareUsageDescription = "RUMBO lee los datos de actividad que autorices, como pasos, distancia caminada y energía activa, para mostrar tu actividad dentro de la aplicación.";
+      INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+      INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+      INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+      INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+      PRODUCT_BUNDLE_IDENTIFIER = com.rumbo.app;
+      PRODUCT_NAME = "$(TARGET_NAME)";
+      SWIFT_EMIT_LOC_STRINGS = YES;
+      SWIFT_VERSION = 5.0;
+      TARGETED_DEVICE_FAMILY = "1,2";
+      IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+    }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+    A70000000000000000000001 /* Build configuration list for PBXProject */ = {isa = XCConfigurationList; buildConfigurations = (A80000000000000000000001, A80000000000000000000002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+    A70000000000000000000002 /* Build configuration list for PBXNativeTarget */ = {isa = XCConfigurationList; buildConfigurations = (A80000000000000000000003, A80000000000000000000004,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+  };
+  rootObject = A50000000000000000000002 /* Project object */;
+}
