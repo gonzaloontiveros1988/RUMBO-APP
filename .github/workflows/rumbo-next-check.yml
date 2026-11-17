@@ -32,7 +32,7 @@ jobs:
           node --check api/gateway-auth.js
           node --check api/rumbo-ai.js
           node --check api/recipe-assistant.js
-          node --check rumbo-next/app.js
+          node --check rumbo-next/app.js\n          node --check rumbo-next/healthkit-bridge.js
           node --check rumbo-next/sw.js
           python3 - <<'PY'
           from pathlib import Path
