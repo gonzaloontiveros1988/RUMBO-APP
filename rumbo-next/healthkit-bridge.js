@@ -35,19 +35,30 @@
   function loadCache(){try{const v=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");return Array.isArray(v)?v:[]}catch{return[]}}
   function saveCache(rows){try{localStorage.setItem(CACHE_KEY,JSON.stringify(rows))}catch{}}
   function rowMarkup(d){
-    const label=esc(d.date||"");
-    return '<div class="row"><span><b>'+label+'</b><small>Steps · '+number(d.steps)+' · Distance · '+(d.distanceMeters==null?"—":number(d.distanceMeters/1000,2)+" km")+'</small></span><b>'+number(d.activeEnergyKcal)+' kcal</b></div>';
+    const sleep=d.sleepHours==null?"—":number(d.sleepHours,1)+" h";
+    const heart=d.heartRateBpm==null?"—":number(d.heartRateBpm)+" bpm";
+    const hrv=d.hrvSdnnMs==null?"—":number(d.hrvSdnnMs)+" ms";
+    return '<div class="row"><span><b>'+esc(d.date||"")+'</b><small>Steps '+number(d.steps)+' · '+(d.distanceMeters==null?"—":number(d.distanceMeters/1000,2)+" km")+' · Sleep '+sleep+'</small></span><span><b>'+number(d.activeEnergyKcal)+' kcal</b><small>HR '+heart+' · HRV '+hrv+'</small></span></div>';
   }
-  function dashboardMarkup(rows){
+  function dashboardMarkup(rows,workouts=[]){
     const current=rows.find(x=>x.date===today())||{};
     const last=rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);
+    const metric=(label,value)=>'<section class="panel"><div class="stat-label">'+label+'</div><div class="stat">'+value+'</div></section>';
+    const sleep=current.sleepHours==null?"—":number(current.sleepHours,1)+" h";
+    const heart=current.heartRateBpm==null?"—":number(current.heartRateBpm)+" bpm";
+    const resting=current.restingHeartRateBpm==null?"—":number(current.restingHeartRateBpm)+" bpm";
+    const hrv=current.hrvSdnnMs==null?"—":number(current.hrvSdnnMs)+" ms";
+    const workoutRows=workouts.slice(0,8).map(w=>'<div class="row"><span><b>'+esc(w.activity||"Workout")+'</b><small>'+esc(w.date||"")+' · '+number(w.durationMinutes)+' min · '+esc(w.source||"")+'</small></span><b>'+(w.activeEnergyKcal==null?"—":number(w.activeEnergyKcal)+" kcal")+'</b></div>').join("");
     return '<div class="grid three" style="margin:10px 0">'+
-      '<section class="panel"><div class="stat-label">STEPS TODAY</div><div class="stat">'+number(current.steps)+'</div></section>'+
-      '<section class="panel"><div class="stat-label">ACTIVE ENERGY</div><div class="stat">'+number(current.activeEnergyKcal)+' <small>kcal</small></div></section>'+
-      '<section class="panel"><div class="stat-label">WALK / RUN</div><div class="stat">'+(current.distanceMeters==null?"—":number(current.distanceMeters/1000,2))+' <small>km</small></div></section></div>'+
+      metric("STEPS TODAY",number(current.steps))+metric("ACTIVE ENERGY",number(current.activeEnergyKcal)+" kcal")+
+      metric("WALK / RUN",current.distanceMeters==null?"—":number(current.distanceMeters/1000,2)+" km")+
+      metric("SLEEP",sleep)+metric("AVERAGE HEART RATE",heart)+metric("RESTING HEART RATE",resting)+'</div>'+
+      '<div class="grid two">'+metric("HRV · SDNN",hrv)+metric("WORKOUTS · 30 DAYS",workouts.length)+'</div>'+
       '<div class="kicker" style="margin:12px 0 6px">LAST 7 DAYS · APPLE HEALTH</div>'+
       (last.length?last.map(rowMarkup).join(""):'<div class="empty">No hay muestras disponibles. Conecta Apple Health y vuelve a actualizar.</div>')+
-      '<p class="muted" style="margin-top:8px">Datos leídos de Apple Health en este dispositivo. La ausencia de una cifra no demuestra que hayas denegado el permiso: iOS no revela el estado del permiso de lectura.</p>';
+      '<div class="kicker" style="margin:16px 0 6px">RECENT WORKOUTS</div>'+
+      (workoutRows||'<div class="empty">No hay entrenamientos registrados en Apple Health en este periodo.</div>')+
+      '<p class="muted" style="margin-top:8px">Son resúmenes de muestras disponibles, no diagnósticos ni puntuaciones médicas. iOS no revela el estado del permiso de lectura.</p>';
   }
   function mount(){
     const view=document.getElementById("view");if(!view)return;
@@ -66,7 +77,7 @@
     const connect=document.getElementById("rumboHealthConnect");
     const refresh=document.getElementById("rumboHealthRefresh");
     const cached=loadCache();
-    if(cached.length)summary.innerHTML=dashboardMarkup(cached);
+    if(cached.length){let cachedWorkouts=[];try{cachedWorkouts=JSON.parse(localStorage.getItem(CACHE_KEY+"_workouts")||"[]")}catch{}summary.innerHTML=dashboardMarkup(cached,cachedWorkouts)}
     if(!nativeAvailable()){
       status.textContent="Modo web/PWA: puedes consultar el panel, pero la lectura de Apple Health requiere abrir RUMBO como aplicación iOS nativa.";
       connect.disabled=true;refresh.disabled=true;
@@ -81,10 +92,12 @@
           await window.RumboHealthKit.requestAuthorization();
         }
         status.textContent="Leyendo actividad autorizada…";
-        const rows=await window.RumboHealthKit.readDailySummary(7);
-        const safeRows=Array.isArray(rows)?rows.filter(x=>x&&/^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.date||""))):[];
+        const result=await window.RumboHealthKit.readDailySummary(30);
+        const safeRows=Array.isArray(result?.days)?result.days.filter(x=>x&&/^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.date||""))):[];
+        const workouts=Array.isArray(result?.workouts)?result.workouts:[];
         saveCache(safeRows);
-        summary.innerHTML=dashboardMarkup(safeRows);
+        try{localStorage.setItem(CACHE_KEY+"_workouts",JSON.stringify(workouts))}catch{}
+        summary.innerHTML=dashboardMarkup(safeRows,workouts);
         status.textContent="Lectura completada · "+new Date().toLocaleString()+". iOS no informa si se ha concedido acceso de lectura; solo se muestran muestras disponibles.";
       }catch(error){
         status.textContent=error.message||"No se pudieron leer los datos de Apple Health.";
