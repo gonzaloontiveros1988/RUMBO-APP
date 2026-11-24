@@ -13,12 +13,16 @@ import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,su
 import {parseRosterText,normalizeRosterDate} from "../rumbo-next/roster-import.js";
 
 
-test("Fitness defaults to the local exercise-specific SVG guide and Cloud Sync detects Fitness and Nutrition data",()=>{
+test("Fitness uses the Your Move MP4 library and Cloud Sync detects Fitness and Nutrition data",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
  const html=readFileSync(new URL("../rumbo-next/index.html",import.meta.url),"utf8");
  const sw=readFileSync(new URL("../rumbo-next/sw.js",import.meta.url),"utf8");
  assert.doesNotMatch(app,/import\s+["']\.\/fitness-3d\.js["']/);
- assert.ok(app.includes("data-exercise-sequence="));
+ assert.ok(app.includes("function exerciseVideoFor"));
+ assert.ok(app.includes("video/mp4"));
+ assert.ok(app.includes("YMOVE_FREE_VIDEOS.map(video"));
+ assert.ok(!app.includes("exerciseMotionSvg"));
+ assert.ok(!app.includes("data-exercise-sequence="));
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
  assert.match(html,/fitness-v4/);
@@ -408,9 +412,9 @@ test("RUMBO AI chat stays local while Fitness can request authenticated workout 
 
 test("Nutrition provides a free broad web search without a paid recipe API",()=>{
  const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
- assert.ok(app.includes('id="searchWebRecipes"'));
+ assert.ok(app.includes('bind("searchWebRecipes"'));
+ assert.ok(app.includes('id="searchRecipes"'));
  assert.ok(app.includes("https://www.google.com/search?q="));
- assert.ok(app.includes("Buscar en toda la web"));
  assert.ok(!app.includes("spoonacular.com/food-api"));
 });
 
