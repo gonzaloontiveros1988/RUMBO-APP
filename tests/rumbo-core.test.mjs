@@ -25,7 +25,7 @@ test("Fitness uses the Your Move MP4 library and Cloud Sync detects Fitness and 
  assert.ok(!app.includes("data-exercise-sequence="));
  assert.ok(!app.includes("data-exercise3d="));
  assert.doesNotMatch(sw,/fitness-3d\.js/);
- assert.match(html,/fitness-v4/);
+ assert.match(app,/personal-fitness\.js\?v=fitness-journey-v4/);
  assert.ok(app.includes('"foodDiary","exerciseProgress","fitnessHistory"'));
  assert.ok(app.includes('["fitnessProfile","nutritionProfile","fitnessJourney","waderImportSummary"]'));
 });
