@@ -811,44 +811,25 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .demo-squat .figure-leg.left,.demo-squat .detail-leg.a{animation:demoSquatLegA 2.2s ease-in-out infinite}
 .demo-squat .figure-leg.right,.demo-squat .detail-leg.b{animation:demoSquatLegB 2.2s ease-in-out infinite}
 .demo-squat .figure-arm,.demo-squat .detail-arm{animation:demoSquatArms 2.2s ease-in-out infinite}
-@keyframes demoSquatTorso{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 13px;rotate:8deg}}
-@keyframes demoSquatLegA{0%,100%{rotate:8deg}50%{rotate:29deg}}
-@keyframes demoSquatLegB{0%,100%{rotate:-8deg}50%{rotate:-29deg}}
-@keyframes demoSquatArms{0%,100%{rotate:0deg}50%{rotate:-12deg}}
 .demo-rdl .figure-body,.demo-rdl .detail-torso{transform-origin:bottom center;animation:demoHinge 2.5s ease-in-out infinite}
 .demo-rdl .figure-arm,.demo-rdl .detail-arm{animation:demoHang 2.5s ease-in-out infinite}
-@keyframes demoHinge{0%,100%{rotate:0deg}50%{rotate:28deg}}
 @keyframes demoHang{0%,100%{rotate:0deg}50%{rotate:-18deg}}
 .demo-bench-press .figure-arm,.demo-bench-press .detail-arm,.demo-db-press .figure-arm,.demo-db-press .detail-arm{animation:demoPress 1.8s ease-in-out infinite}
-@keyframes demoPress{0%,100%{rotate:48deg}50%{rotate:-48deg}}
 .demo-shoulder-press .figure-arm,.demo-shoulder-press .detail-arm{animation:demoOverhead 1.9s ease-in-out infinite}
 @keyframes demoOverhead{0%,100%{rotate:48deg}50%{rotate:-150deg}}
 .demo-row .figure-arm,.demo-row .detail-arm,.demo-lat-pulldown .figure-arm,.demo-lat-pulldown .detail-arm{animation:demoRow 2s ease-in-out infinite}
-@keyframes demoRow{0%,100%{rotate:0deg}50%{rotate:62deg}}
 .demo-hip-bridge .figure-body,.demo-hip-bridge .detail-torso{transform-origin:bottom center;animation:demoBridge 2.1s ease-in-out infinite}
-@keyframes demoBridge{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -18px;rotate:-12deg}}
 .demo-split-squat .figure-body,.demo-split-squat .detail-torso{animation:demoLunge 2.3s ease-in-out infinite}
 .demo-split-squat .figure-leg.left,.demo-split-squat .detail-leg.a{animation:demoLungeFront 2.3s ease-in-out infinite}
 .demo-split-squat .figure-leg.right,.demo-split-squat .detail-leg.b{animation:demoLungeBack 2.3s ease-in-out infinite}
-@keyframes demoLunge{0%,100%{translate:0 0}50%{translate:0 12px}}
-@keyframes demoLungeFront{0%,100%{rotate:8deg}50%{rotate:35deg}}
-@keyframes demoLungeBack{0%,100%{rotate:-8deg}50%{rotate:-28deg}}
 .demo-plank .figure-body,.demo-plank .detail-torso{animation:demoPlank 2s ease-in-out infinite}
 .demo-plank .figure-arm,.demo-plank .detail-arm{animation:demoPlankArms 2s ease-in-out infinite}
-@keyframes demoPlank{0%,100%{rotate:0deg}50%{rotate:4deg}}
-@keyframes demoPlankArms{0%,100%{rotate:0deg}50%{rotate:-8deg}}
 .demo-dead-bug .figure-arm,.demo-dead-bug .detail-arm{animation:demoDeadBugArms 1.8s ease-in-out infinite}
 .demo-dead-bug .figure-leg.left,.demo-dead-bug .detail-leg.a{animation:demoDeadBugLegA 1.8s ease-in-out infinite}
 .demo-dead-bug .figure-leg.right,.demo-dead-bug .detail-leg.b{animation:demoDeadBugLegB 1.8s ease-in-out infinite}
-@keyframes demoDeadBugArms{0%,100%{rotate:0deg}50%{rotate:35deg}}
-@keyframes demoDeadBugLegA{0%,100%{rotate:8deg}50%{rotate:42deg}}
-@keyframes demoDeadBugLegB{0%,100%{rotate:-8deg}50%{rotate:-35deg}}
 .demo-leg-press .figure-body,.demo-leg-press .detail-torso{animation:demoLegPress 2s ease-in-out infinite}
 .demo-leg-press .figure-leg.left,.demo-leg-press .detail-leg.a{animation:demoPressLegA 2s ease-in-out infinite}
 .demo-leg-press .figure-leg.right,.demo-leg-press .detail-leg.b{animation:demoPressLegB 2s ease-in-out infinite}
-@keyframes demoLegPress{0%,100%{translate:0 0}50%{translate:0 5px}}
-@keyframes demoPressLegA{0%,100%{rotate:8deg}50%{rotate:34deg}}
-@keyframes demoPressLegB{0%,100%{rotate:-8deg}50%{rotate:-34deg}}
 @media(prefers-reduced-motion:reduce){.demo-caption:before,.guided-figure span,.program-detail-body span{animation:none!important}}
 
 
@@ -928,9 +909,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 /* 3D humanoid exercise viewer integration */
 .program-detail-body .guided-figure{width:100%;height:100%;min-height:165px;border-radius:13px;background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
 .exercise-library-art .guided-figure{width:100%;height:150px;min-height:138px;border-radius:11px;background:transparent}
-.rumbo-biomech-row{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
 .rumbo-camera-group,.rumbo-speed-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.rumbo-biomech-readout{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;color:#9bd4d4;font-size:9px}
 @media(max-width:520px){.rumbo-biomech-controls{left:4px!important;right:4px!important;bottom:4px!important}.rumbo-biomech-controls button,.rumbo-biomech-controls select{font-size:9px;padding:4px 5px}.rumbo-biomech-readout{font-size:8px}}
 
 /* Interactive roster calendar cells */
@@ -942,7 +921,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 /* Keep 3D transport controls below, never over the exercise image */
 .guided-figure-stage{display:flex;flex-direction:column;align-self:stretch;min-width:0;width:100%;gap:0}
 .guided-figure-stage>.guided-figure{flex:0 0 auto;width:100%;min-height:190px;height:190px}
-.guided-figure-stage .rumbo-biomech-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
 @media(max-width:650px){.guided-figure-stage>.guided-figure{height:230px;min-height:230px}}
 
 
@@ -955,7 +933,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 /* Fitness 3D final layout: large human preview, no tiny thumbnail column. */
 .exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
 .exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
-.exercise-library-art .rumbo-human-viewport{height:300px!important;min-height:300px!important;flex-basis:300px!important}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
 @media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
@@ -965,14 +942,8 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
 .exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
-.exercise-library-art .rumbo-human-viewport{height:244px!important;min-height:244px!important;flex-basis:244px!important}
-.exercise-library-art .rumbo-human-status,.exercise-library-art .rumbo-human-controls{display:none!important}
 .exercise-library-copy{min-width:0}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
-.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:400px!important;min-height:400px!important;flex-basis:400px!important}
-.guided-exercise-visual .rumbo-human-status,.program-detail-body .rumbo-human-status{margin-top:2px}
-.rumbo-human-viewport canvas{display:block;width:100%;height:100%;outline:0}
-.rumbo-human-controls button{min-width:64px}
 @media(max-width:900px){.exercise-library-grid{grid-template-columns:1fr}.exercise-library-card{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
 @media(max-width:560px){.exercise-library-card{grid-template-columns:minmax(0,1fr);}.exercise-library-art .rumbo-human-viewport{height:260px!important;min-height:260px!important;flex-basis:260px!important}.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important}}
 
@@ -1126,8 +1097,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  padding:12px!important;overflow:visible!important;box-sizing:border-box!important;
  background:linear-gradient(145deg,#0b2638,#102f42)!important;
 }
-.exercise-library-grid .exercise-library-card .exercise-library-art .rumbo-human-viewport,
-.exercise-library-grid .exercise-library-card .exercise-library-art canvas{display:none!important}
 @media(max-width:650px){
  .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{min-height:190px!important}
  .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{min-height:190px!important}
@@ -1135,7 +1104,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 
 /* Personal video-guided sessions: never show generic SVG as if it were the verified demo. */
-.personal-video-guided .guided-figure{display:none!important}
 .personal-video-guided .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important}
 .personal-video-guided .exercise-source-link{display:inline-flex;margin:10px 0;padding:10px 13px;border:1px solid #3c7888;border-radius:10px;color:#8fe4e1;font-weight:800;text-decoration:none}
 .personal-plan-panel .panel{height:100%}
