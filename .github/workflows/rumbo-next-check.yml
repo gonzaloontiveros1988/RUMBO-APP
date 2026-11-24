@@ -25,8 +25,6 @@ jobs:
           node --check api/rumbo-ai.js
           node --check api/recipe-assistant.js
           node --check rumbo-next/app.js
-          node --check rumbo-next/fitness-3d.js
-          node --check rumbo-next/exercise-illustrations.js
           node --check rumbo-next/sw.js
           python3 - <<'PY'
           from pathlib import Path
@@ -80,7 +78,6 @@ jobs:
           test -s rumbo-next/health-import.js
           test -s rumbo-next/local-assistant.js
           test -s rumbo-next/crew-bidding.js
-          test -s rumbo-next/exercise-illustrations.js
           test -s rumbo-next/flight-map.js
           test -s rumbo-next/life-intelligence.js
           test -s rumbo-next/cloud-sync.js
