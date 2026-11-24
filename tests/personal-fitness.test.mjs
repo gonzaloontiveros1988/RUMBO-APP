@@ -15,6 +15,7 @@ test("the free Your Move library contains 25 distinct verified source clips", ()
   assert.equal(YMOVE_FREE_VIDEOS.length, 25);
   assert.equal(new Set(YMOVE_FREE_VIDEOS.map(x => x.id)).size, 25);
   assert.ok(YMOVE_FREE_VIDEOS.every(x => x.sourceUrl === "https://ymove.app/free-exercise-videos" && x.thumbnailUrl.startsWith("https://ymove.app/api/free/")));
+  assert.ok(YMOVE_FREE_VIDEOS.every(x => x.videoUrl.startsWith("https://cdn.jsdelivr.net/gh/ymove-app/exercise-api@main/free-videos/") && x.videoUrl.endsWith(".mp4")));
 });
 
 test("personal weekly plan has two strength and two low-impact cardio sessions", () => {
