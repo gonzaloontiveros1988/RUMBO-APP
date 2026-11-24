@@ -1,4 +1,4 @@
-name: RUMBO 3.0 validation
+name: RUMBO 4.0 validation # Your Move MP4 integration checks
 on:
   push:
     branches:
