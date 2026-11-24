@@ -1,4 +1,4 @@
-name: RUMBO 4.0 validation # Your Move MP4 integration checks
+name: RUMBO 4.0 validation # Your Move MP4 integration checks · test refresh
 on:
   push:
     branches:
