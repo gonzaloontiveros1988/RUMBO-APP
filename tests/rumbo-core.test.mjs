@@ -6,7 +6,6 @@ import {validateSector,summarizeLogbook} from "../rumbo-next/flight-intelligence
 import {classifyDuty,buildMonthlyPlan,buildMonthCells} from "../rumbo-next/monthly-planner.js";
 import {validateWorkout,suggestTraining,adaptiveTrainingPlan,workoutStats,ROUTINES,buildTrainingProgram} from "../rumbo-next/training-intelligence.js";
 import {EXERCISES,suggestNextLoad,validateExerciseEntry} from "../rumbo-next/fitness-engine.js";
-import {exerciseSequenceSvg} from "../rumbo-next/exercise-illustrations.js";
 import {normalizeAppleHealthExport,normalizeAppleHealthXml,normalizeAppleHealthWorkouts} from "../rumbo-next/health-import.js";
 import {answerLocally} from "../rumbo-next/local-assistant.js";
 import {DEFAULT_CREW_BIDDING_PROFILE,normalizeCrewBiddingProfile,rankCrewBids,summarizeCrewBidHistory} from "../rumbo-next/crew-bidding.js";
@@ -337,15 +336,21 @@ test("nutrition diary excludes recipes with missing macro data from totals",()=>
 });
 
 
-test("fitness library contains 57 distinct, documented exercises with a rendered three-phase human guide",()=>{
+test("fitness library keeps 57 coached exercises and uses only the approved 25 looping Your Move videos",()=>{
  assert.equal(EXERCISES.length,57);
  assert.equal(new Set(EXERCISES.map(x=>x.id)).size,57);
  for(const exercise of EXERCISES){
   assert.ok(exercise.name&&exercise.pattern&&exercise.muscles.length&&exercise.equipment.length&&exercise.cues.length>=2,exercise.id+" is missing coaching data");
-  const svg=exerciseSequenceSvg(exercise);
-  assert.ok(svg.includes('<svg')&&svg.includes('class="exercise-demo-svg exercise-sequence-svg"')&&svg.includes('viewBox="0 0 360 192"')&&svg.includes("1 · PREPARA")&&svg.includes("2 · EJECUTA")&&svg.includes("3 · REGRESA"),exercise.id+" has no three-phase visual");
-  assert.ok(svg.includes("exercise-phase-0")&&svg.includes("exercise-phase-1")&&svg.includes("exercise-phase-2"),exercise.id+" does not highlight the three phases in sequence");
  }
+ const fitness=readFileSync(new URL("../rumbo-next/personal-fitness.js",import.meta.url),"utf8");
+ const app=readFileSync(new URL("../rumbo-next/app.js",import.meta.url),"utf8");
+ const css=readFileSync(new URL("../rumbo-next/app.css",import.meta.url),"utf8");
+ assert.equal((fitness.match(/"videoUrl":/g)||[]).length,25);
+ assert.ok(app.includes("function exerciseVideoMarkup"));
+ assert.ok(app.includes("autoplay muted")&&app.includes("loop playsinline"));
+ assert.match(app,/<details class="fitness-video-library">/);
+ assert.doesNotMatch(app,/exerciseSequenceSvg|exerciseDemoSvg|exerciseMotionSvg|fitness-3d\.js|exercise-illustrations\.js/);
+ assert.doesNotMatch(css,/exercise-demo-svg|data-exercise-sequence|data-exercise-3d|rumbo-biomech-controls|@keyframes\s+(?:vector|rig)/);
 });
 
 test("four-day strength plan uses the upper/lower split and keeps all sessions within selected duration",()=>{
