@@ -725,7 +725,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:700px){.program-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.program-exercise-mini{align-items:flex-start}.program-day-actions{align-items:stretch;flex-direction:column}.program-day-actions .btn{width:100%}.program-day-exercises{grid-template-columns:1fr}}
 
 
-/* Exercise-by-exercise guided coach */
+
 .guided-exercise-card{margin:14px 0;padding:clamp(16px,3vw,28px);border:1px solid rgba(82,210,205,.34);border-radius:20px;background:linear-gradient(145deg,rgba(9,39,57,.97),rgba(5,24,39,.98));box-shadow:0 18px 50px rgba(0,0,0,.2)}
 .guided-exercise-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .guided-exercise-visual{display:grid;grid-template-columns:minmax(130px,.7fr) minmax(0,1.3fr);gap:20px;align-items:center;padding:22px 0;border-bottom:1px solid rgba(138,196,207,.16)}
@@ -765,7 +765,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:620px){.guided-exercise-visual{grid-template-columns:1fr;gap:10px}.guided-figure{height:150px}.guided-timer-card{align-items:flex-start;flex-direction:column}.guided-timer-buttons,.guided-timer-buttons button{width:100%}.guided-navigation button{flex:1}.guided-target-row{gap:6px}.guided-target-row>div{padding:9px}.guided-target-row b{font-size:12px}}
 
 
-/* Expandable exercise sheets in the six-week program */
+
 .program-exercise-block{display:grid;gap:0}
 .program-exercise-trigger{width:100%;border:1px solid rgba(125,183,197,.16);text-align:left;cursor:pointer;color:inherit;font:inherit}
 .program-exercise-trigger:hover,.program-exercise-trigger[aria-expanded="true"]{border-color:rgba(62,211,202,.55);background:rgba(44,176,181,.1)}
@@ -803,7 +803,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:560px){.recipe-search-form{grid-template-columns:1fr}.recipe-search-form input:first-child,.recipe-search-form button{grid-column:auto}.recipe-paste-label textarea{min-height:190px}}
 
 
-/* RUMBO exercise demonstrations: exercise-specific looping movement */
+
 .demo-caption{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#71ded7;font:700 9px 'DM Mono',monospace;letter-spacing:.13em}
 .demo-caption:before{content:"";width:7px;height:7px;border-radius:50%;background:#58d8ce;box-shadow:0 0 10px rgba(88,216,206,.8);animation:demoPulse 1.4s ease-in-out infinite}
 @keyframes demoPulse{50%{opacity:.35;transform:scale(.75)}}
@@ -830,7 +830,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .demo-leg-press .figure-body,.demo-leg-press .detail-torso{animation:demoLegPress 2s ease-in-out infinite}
 .demo-leg-press .figure-leg.left,.demo-leg-press .detail-leg.a{animation:demoPressLegA 2s ease-in-out infinite}
 .demo-leg-press .figure-leg.right,.demo-leg-press .detail-leg.b{animation:demoPressLegB 2s ease-in-out infinite}
-@media(prefers-reduced-motion:reduce){.demo-caption:before,.guided-figure span,.program-detail-body span{animation:none!important}}
 
 
 /* Premium six-week fitness programme panel */
@@ -848,13 +847,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .fitness-program-principles span:before{content:"";width:5px;height:5px;border-radius:50%;background:#54d7ca}
 @media(max-width:650px){.fitness-profile-panel .form{flex-direction:column}.fitness-profile-panel #buildSixWeekProgram{width:100%}}
 
-/* RUMBO 4.1 · exercise-specific vector demonstrations */
-.guided-figure,.program-detail-body{display:grid;place-items:center;min-height:190px;height:100%;border-radius:16px;background:radial-gradient(ellipse at 50% 55%,rgba(43,193,183,.18),rgba(12,37,55,.06) 70%);overflow:hidden}
-@media(prefers-reduced-motion:reduce){.exercise-demo-svg *{animation:none!important}}
-@media(max-width:620px){.exercise-demo-svg{min-height:160px}}
-@media(prefers-reduced-motion:reduce){.exercise-demo-svg .rig-body,.exercise-demo-svg .rig-arms,.exercise-demo-svg .rig-legs{animation:none!important}}
 
-/* Searchable exercise catalogue */
+.guided-figure,.program-detail-body{display:grid;place-items:center;min-height:190px;height:100%;border-radius:16px;background:radial-gradient(ellipse at 50% 55%,rgba(43,193,183,.18),rgba(12,37,55,.06) 70%);overflow:hidden}
+
+
 .exercise-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .exercise-library-card{display:grid;grid-template-columns:minmax(118px,.8fr) minmax(0,1.2fr);gap:12px;padding:12px;border:1px solid rgba(113,170,184,.18);border-radius:14px;background:rgba(9,28,42,.48);min-width:0}
 .exercise-library-card[hidden]{display:none!important}
@@ -873,44 +869,11 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-details>summary:after{content:"＋";margin-left:auto;color:#79d9d0}
 .exercise-library-details[open]>summary:after{content:"−"}
 .exercise-library-details[open]>summary{margin-bottom:12px}
-@keyframes jointSquatHip{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg)}}
-@keyframes jointSquatKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(-30deg)}}
-@keyframes jointSquatArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-7deg)}}
-@keyframes jointHipHinge{0%,100%{transform:rotate(0)}50%{transform:rotate(16deg)}}
-@keyframes jointHingeArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
-@keyframes jointLungeHip{0%,100%{transform:rotate(0)}50%{transform:rotate(12deg)}}
-@keyframes jointLungeKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(-25deg)}}
-@keyframes jointBridgeHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
-@keyframes jointElbowCurl{0%,100%{transform:rotate(0)}50%{transform:rotate(-48deg)}}
-@keyframes jointCalf{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
-@keyframes jointPressShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
-@keyframes jointPressElbow{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
-@keyframes jointFlyShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
-@keyframes jointPullShoulder{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
-@keyframes jointPullElbow{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
-@keyframes jointLateralRaise{0%,100%{transform:rotate(0)}50%{transform:rotate(-24deg)}}
-@keyframes jointAntiRotation{0%,100%{transform:rotate(0)}50%{transform:rotate(3deg)}}
-@keyframes jointCarry{0%,100%{transform:rotate(0)}50%{transform:rotate(2deg)}}
-@keyframes jointClimberHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
-@keyframes jointClimberKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(42deg)}}
-@media(prefers-reduced-motion:reduce){.exercise-demo-svg .rig-arm-upper,.exercise-demo-svg .rig-arm-lower,.exercise-demo-svg .rig-leg-upper,.exercise-demo-svg .rig-leg-lower,.exercise-demo-svg .rig-torso{animation:none!important}}
-@keyframes jointDeadbugArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg)}}
-@keyframes jointDeadbugLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(22deg)}}
-@keyframes jointLegpressHip{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
-@keyframes jointLegpressKnee{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
-@keyframes jointPlankStability{0%,100%{transform:rotate(0)}50%{transform:rotate(1deg)}}
-@keyframes jointMobilityTorso{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
-@keyframes jointMobilityArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
-@keyframes jointMobilityLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
-@keyframes jointCardioLeg{0%,100%{transform:rotate(0)}50%{transform:rotate(17deg)}}
-@keyframes jointCardioArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
-@media(max-width:650px){.guided-exercise-visual{grid-template-columns:1fr}.guided-figure[data-exercise-sequence]{height:230px}}
 
-/* 3D humanoid exercise viewer integration */
+
 .program-detail-body .guided-figure{width:100%;height:100%;min-height:165px;border-radius:13px;background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
 .exercise-library-art .guided-figure{width:100%;height:150px;min-height:138px;border-radius:11px;background:transparent}
 .rumbo-camera-group,.rumbo-speed-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-@media(max-width:520px){.rumbo-biomech-controls{left:4px!important;right:4px!important;bottom:4px!important}.rumbo-biomech-controls button,.rumbo-biomech-controls select{font-size:9px;padding:4px 5px}.rumbo-biomech-readout{font-size:8px}}
 
 /* Interactive roster calendar cells */
 .calendar .roster-day{font:inherit;text-align:left;color:inherit;cursor:pointer;min-width:0;width:100%;border:1px solid rgba(104,177,198,.14);background:rgba(12,39,56,.38);display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px;border-radius:9px;transition:border-color .15s,background .15s}
@@ -918,44 +881,35 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .calendar .roster-day:focus-visible{outline:2px solid #70e5db;outline-offset:2px}
 .calendar .roster-day.outside{opacity:.42}
 
-/* Keep 3D transport controls below, never over the exercise image */
+
 .guided-figure-stage{display:flex;flex-direction:column;align-self:stretch;min-width:0;width:100%;gap:0}
 .guided-figure-stage>.guided-figure{flex:0 0 auto;width:100%;min-height:190px;height:190px}
 @media(max-width:650px){.guided-figure-stage>.guided-figure{height:230px;min-height:230px}}
 
 
-/* Fitness 3D: give the human viewer the full row; never squeeze it into the old thumbnail column. */
+
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important;}
 .guided-exercise-title{width:100%;}
-@media(max-width:640px){.guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;}.guided-figure[data-exercise-sequence] .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important;}}
 
-/* Fitness 3D final layout: large human preview, no tiny thumbnail column. */
+
 .exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
 .exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
 @media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
-@media(max-width:430px){.exercise-library-art .rumbo-human-viewport{height:280px!important;min-height:280px!important;flex-basis:280px!important}}
 
-/* RUMBO Fitness 3D — responsive, consistently framed human demos */
+
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
 .exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
 .exercise-library-copy{min-width:0}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
 @media(max-width:900px){.exercise-library-grid{grid-template-columns:1fr}.exercise-library-card{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
-@media(max-width:560px){.exercise-library-card{grid-template-columns:minmax(0,1fr);}.exercise-library-art .rumbo-human-viewport{height:260px!important;min-height:260px!important;flex-basis:260px!important}.guided-exercise-visual .rumbo-human-viewport,.program-detail-body .rumbo-human-viewport{height:340px!important;min-height:340px!important;flex-basis:340px!important}}
 
-/* RUMBO 4.2 · Three-phase 2D exercise instruction cards */
-.exercise-sequence-svg{min-height:170px;max-height:230px}
-.exercise-sequence-svg text{font-family:Manrope,system-ui,sans-serif}
-.guided-figure:has(.exercise-sequence-svg),.exercise-library-art:has(.exercise-sequence-svg){background:linear-gradient(145deg,rgba(10,32,48,.98),rgba(17,54,68,.92));}
-.guided-figure .exercise-sequence-svg{width:100%;height:auto}
-.exercise-library-art .exercise-sequence-svg{width:100%;height:auto;min-height:145px;display:block!important}
+
 .demo-caption{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(113,209,203,.2);border-radius:999px;background:rgba(35,163,157,.1);color:#8ce5dc;font-size:10px;font-weight:800;letter-spacing:.08em}
 .demo-caption:before{content:"";width:6px;height:6px;border-radius:50%;background:#8ce5dc}
-@media(max-width:620px){.exercise-sequence-svg{min-height:150px}.guided-figure .exercise-sequence-svg{min-height:145px}}
 
 .fitness-evidence-note{position:relative;z-index:1;display:grid;gap:6px;margin-top:12px;padding:13px 15px;border:1px solid rgba(101,199,194,.22);border-radius:12px;background:rgba(20,87,91,.13)}
 .fitness-evidence-note b{font:800 10px 'DM Mono',monospace;letter-spacing:.12em;color:#86e5dc}
@@ -976,9 +930,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .rumbo-cloud-actions{display:flex;gap:8px;flex-wrap:wrap}
 .rumbo-cloud-actions .btn{flex:1}
 .rumbo-cloud-panel button[hidden],.rumbo-cloud-panel input[hidden]{display:none!important}
-.exercise-library-art svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-width:100%;min-height:145px}
-.guided-figure svg.exercise-sequence-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-height:260px}
-@media(max-width:760px){.rumbo-cloud-trigger{font-size:0;padding:10px}.rumbo-cloud-trigger span:nth-child(2){font-size:0}.rumbo-cloud-panel{right:-6px}.exercise-library-art svg.exercise-sequence-svg{min-height:175px}}
 
 /* Crew Bidding planner */
 .crew-bidding-profile,.crew-bid-entry,.crew-bid-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
@@ -994,12 +945,8 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 .health-json-example{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:9px;background:#081b29;color:#a9d9d8;font:10px/1.6 ui-monospace,monospace;margin:12px 0}
 
-/* Three exercise phases are highlighted in sequence; the illustrated pose itself stays honest and static. */
-.exercise-sequence-svg .exercise-phase rect{animation:rumbo-exercise-phase 3.6s ease-in-out infinite}
-.exercise-sequence-svg .exercise-phase-1 rect{animation-delay:1.2s}
-.exercise-sequence-svg .exercise-phase-2 rect{animation-delay:2.4s}
+
 @keyframes rumbo-exercise-phase{0%,28%{stroke:#56d9d0;stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(86,217,208,.35))}34%,100%{stroke:#2e596b;stroke-width:1;filter:none}}
-@media(prefers-reduced-motion:reduce){.exercise-sequence-svg .exercise-phase rect{animation:none}}
 
 
 /* RUMBO responsive repair · Fitness library + small screens */
@@ -1007,7 +954,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;min-width:0!important;overflow:hidden!important;padding:0!important;background:linear-gradient(145deg,#102c3e,#0b2030)!important;border:1px solid #31576a!important;border-radius:16px!important;align-content:start}
 .exercise-library-art{width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;padding:12px!important;background:#0a1e2c!important;overflow:hidden!important}
 .exercise-library-art .guided-figure{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;display:block!important;overflow:hidden!important;border-radius:10px!important;background:#0c2939!important}
-.exercise-library-art svg.exercise-sequence-svg{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;opacity:1!important;visibility:visible!important}
 .exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;min-width:0!important;padding:14px 16px 16px!important;color:#edf5f8!important;opacity:1!important}
 .exercise-library-copy>b{color:#f3f8fb!important;font-size:16px!important;line-height:1.3!important}
 .exercise-library-copy>small{color:#b9ced9!important;font-size:12px!important;line-height:1.5!important;overflow-wrap:anywhere}
@@ -1021,7 +967,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important}
  .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
  .exercise-library-art{padding:10px!important}
- .exercise-library-art svg.exercise-sequence-svg{max-width:560px!important;margin:0 auto!important}
 }
 @media(max-width:650px){
  html,body{width:100%;min-width:0;overflow-x:hidden}
@@ -1038,19 +983,17 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
  .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
  .exercise-library-art{padding:8px!important}
- .exercise-library-art svg.exercise-sequence-svg{width:100%!important;min-height:0!important}
  .exercise-library-copy{padding:12px!important}
  .mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important}
  .mobile-nav button{min-width:0!important;font-size:8px!important;overflow:hidden}
 }
 
 
-/* RUMBO Fitness · editorial exercise cards, explicit 1–2–3 sequence */
+
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
 .exercise-library-card{display:flex!important;flex-direction:column!important;gap:0!important;padding:0!important;overflow:hidden!important;border:1px solid #31576a!important;border-radius:18px!important;background:linear-gradient(160deg,#102b3d 0%,#0a1d2c 100%)!important;box-shadow:0 12px 28px rgba(0,0,0,.18)!important}
 .exercise-library-art{padding:14px 14px 10px!important;background:linear-gradient(145deg,#0b2638,#102f42)!important;border-bottom:1px solid rgba(108,190,202,.2)!important}
 .exercise-library-art .guided-figure{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
-.exercise-library-art svg.exercise-sequence-svg{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;opacity:1!important;visibility:visible!important}
 .exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:15px 17px 17px!important;color:#edf6fa!important}
 .exercise-library-copy>b{font-size:17px!important;line-height:1.25!important;letter-spacing:-.02em;color:#f4fbff!important}
 .exercise-library-copy>small{font-size:12px!important;line-height:1.5!important;color:#bdd0db!important}
@@ -1074,12 +1017,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-sequence-key strong{color:#e7f8fa;font-size:10px;letter-spacing:.08em}
 .exercise-sequence-key small{color:#b8ced8;font-size:10px;line-height:1.35}
 .exercise-sequence-key>i{font-style:normal;color:#eac27d;font-size:17px;font-weight:800}
-.exercise-library-art svg.exercise-sequence-svg .exercise-phase rect{fill:#102f42;stroke:#3c6b7d;stroke-width:1.5}
-.exercise-library-art svg.exercise-sequence-svg .exercise-phase text{fill:#e2f7f7;font-size:9px;font-weight:900;letter-spacing:1px}
-.exercise-library-art svg.exercise-sequence-svg .exercise-phase-0 rect{stroke:#56d9d0;stroke-width:2}
-.exercise-library-art svg.exercise-sequence-svg .exercise-phase-1 rect{stroke:#eac27d;stroke-width:2}
-.exercise-library-art svg.exercise-sequence-svg .exercise-phase-2 rect{stroke:#7bd3ae;stroke-width:2}
-.exercise-library-art svg.exercise-sequence-svg>path{stroke-width:2.8}
 @media(max-width:650px){
  .exercise-sequence-key{grid-template-columns:minmax(0,1fr);gap:7px;padding:12px}
  .exercise-sequence-key>i{display:none}
@@ -1098,8 +1035,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  background:linear-gradient(145deg,#0b2638,#102f42)!important;
 }
 @media(max-width:650px){
- .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence]{min-height:190px!important}
- .exercise-library-grid .exercise-library-card .exercise-library-art .guided-figure[data-exercise-sequence] svg.exercise-demo-svg.exercise-sequence-svg{min-height:190px!important}
 }
 
 
@@ -1219,9 +1154,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:900px){.fitness-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fitness-day-exercise{grid-template-columns:1fr}.fitness-day-exercise-visual{min-height:190px}}
 @media(max-width:620px){.fitness-checkin-grid{grid-template-columns:1fr}.fitness-weight-focus{gap:7px}.fitness-weight-focus>div{padding:10px}.fitness-week-grid,.fitness-day-grid{grid-template-columns:1fr}.fitness-measure-details .form{grid-template-columns:1fr}}
 
-.exercise-sequence-svg .exercise-phase{transform-origin:center;animation:fitnessPhaseGlow 3.6s ease-in-out infinite;opacity:.72}
-.exercise-sequence-svg .exercise-phase-1{animation-delay:1.2s}
-.exercise-sequence-svg .exercise-phase-2{animation-delay:2.4s}
 @keyframes fitnessPhaseGlow{0%,28%,100%{opacity:.62;filter:saturate(.85)}10%,18%{opacity:1;filter:saturate(1.35) drop-shadow(0 0 5px rgba(81,212,223,.45))}}
 .fitness-ai-review{white-space:pre-wrap;line-height:1.7;color:#eaf8f4;background:#0d2c35;border:1px solid #327c72;border-radius:12px;padding:16px;margin-top:12px}
 
@@ -1341,7 +1273,7 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 }
 
 
-/* Fitness video-first UI: real Your Move MP4s replace all vector/3D exercise figures. */
+
 .guided-figure,
 .program-detail-body .guided-figure,
 .exercise-library-art .guided-figure{
