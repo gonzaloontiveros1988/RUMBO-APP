@@ -730,14 +730,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-exercise-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .guided-exercise-visual{display:grid;grid-template-columns:minmax(130px,.7fr) minmax(0,1.3fr);gap:20px;align-items:center;padding:22px 0;border-bottom:1px solid rgba(138,196,207,.16)}
 .guided-figure{height:190px;position:relative;display:flex;align-items:center;justify-content:center;border-radius:16px;background:radial-gradient(circle at 50% 42%,rgba(40,199,192,.18),rgba(18,64,84,.08) 65%);overflow:hidden}
-.guided-figure .figure-head{width:25px;height:25px;top:27px;border-radius:50%}
-.guided-figure .figure-body{width:35px;height:75px;top:56px;border-radius:16px}
-.guided-figure .figure-arm{width:13px;height:72px;top:61px;transform-origin:top center}
-.guided-figure .figure-arm.left{transform:rotate(32deg);margin-left:-52px}
-.guided-figure .figure-arm.right{transform:rotate(-32deg);margin-left:52px}
-.guided-figure .figure-leg{width:15px;height:66px;top:124px;transform-origin:top center}
-.guided-figure .figure-leg.left{transform:rotate(8deg);margin-left:-15px}
-.guided-figure .figure-leg.right{transform:rotate(-8deg);margin-left:15px}
 .guided-exercise-title h2{font-size:clamp(22px,3vw,32px);margin:5px 0}
 .guided-exercise-title p,.guided-equipment{color:#a9c6d1;font-size:13px}
 .guided-equipment{display:block;margin:7px 0 13px}
@@ -806,30 +798,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 .demo-caption{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#71ded7;font:700 9px 'DM Mono',monospace;letter-spacing:.13em}
 .demo-caption:before{content:"";width:7px;height:7px;border-radius:50%;background:#58d8ce;box-shadow:0 0 10px rgba(88,216,206,.8);animation:demoPulse 1.4s ease-in-out infinite}
-@keyframes demoPulse{50%{opacity:.35;transform:scale(.75)}}
-.demo-squat .figure-body,.demo-squat .detail-torso{transform-origin:bottom center;animation:demoSquatTorso 2.2s ease-in-out infinite}
-.demo-squat .figure-leg.left,.demo-squat .detail-leg.a{animation:demoSquatLegA 2.2s ease-in-out infinite}
-.demo-squat .figure-leg.right,.demo-squat .detail-leg.b{animation:demoSquatLegB 2.2s ease-in-out infinite}
-.demo-squat .figure-arm,.demo-squat .detail-arm{animation:demoSquatArms 2.2s ease-in-out infinite}
-.demo-rdl .figure-body,.demo-rdl .detail-torso{transform-origin:bottom center;animation:demoHinge 2.5s ease-in-out infinite}
-.demo-rdl .figure-arm,.demo-rdl .detail-arm{animation:demoHang 2.5s ease-in-out infinite}
-@keyframes demoHang{0%,100%{rotate:0deg}50%{rotate:-18deg}}
-.demo-bench-press .figure-arm,.demo-bench-press .detail-arm,.demo-db-press .figure-arm,.demo-db-press .detail-arm{animation:demoPress 1.8s ease-in-out infinite}
-.demo-shoulder-press .figure-arm,.demo-shoulder-press .detail-arm{animation:demoOverhead 1.9s ease-in-out infinite}
-@keyframes demoOverhead{0%,100%{rotate:48deg}50%{rotate:-150deg}}
-.demo-row .figure-arm,.demo-row .detail-arm,.demo-lat-pulldown .figure-arm,.demo-lat-pulldown .detail-arm{animation:demoRow 2s ease-in-out infinite}
-.demo-hip-bridge .figure-body,.demo-hip-bridge .detail-torso{transform-origin:bottom center;animation:demoBridge 2.1s ease-in-out infinite}
-.demo-split-squat .figure-body,.demo-split-squat .detail-torso{animation:demoLunge 2.3s ease-in-out infinite}
-.demo-split-squat .figure-leg.left,.demo-split-squat .detail-leg.a{animation:demoLungeFront 2.3s ease-in-out infinite}
-.demo-split-squat .figure-leg.right,.demo-split-squat .detail-leg.b{animation:demoLungeBack 2.3s ease-in-out infinite}
-.demo-plank .figure-body,.demo-plank .detail-torso{animation:demoPlank 2s ease-in-out infinite}
-.demo-plank .figure-arm,.demo-plank .detail-arm{animation:demoPlankArms 2s ease-in-out infinite}
-.demo-dead-bug .figure-arm,.demo-dead-bug .detail-arm{animation:demoDeadBugArms 1.8s ease-in-out infinite}
-.demo-dead-bug .figure-leg.left,.demo-dead-bug .detail-leg.a{animation:demoDeadBugLegA 1.8s ease-in-out infinite}
-.demo-dead-bug .figure-leg.right,.demo-dead-bug .detail-leg.b{animation:demoDeadBugLegB 1.8s ease-in-out infinite}
-.demo-leg-press .figure-body,.demo-leg-press .detail-torso{animation:demoLegPress 2s ease-in-out infinite}
-.demo-leg-press .figure-leg.left,.demo-leg-press .detail-leg.a{animation:demoPressLegA 2s ease-in-out infinite}
-.demo-leg-press .figure-leg.right,.demo-leg-press .detail-leg.b{animation:demoPressLegB 2s ease-in-out infinite}
 
 
 /* Premium six-week fitness programme panel */
@@ -852,16 +820,14 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 
 .exercise-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
-.exercise-library-card{display:grid;grid-template-columns:minmax(118px,.8fr) minmax(0,1.2fr);gap:12px;padding:12px;border:1px solid rgba(113,170,184,.18);border-radius:14px;background:rgba(9,28,42,.48);min-width:0}
+.exercise-library-card{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:12px;border:1px solid rgba(113,170,184,.18);border-radius:14px;background:rgba(9,28,42,.48);min-width:0}
 .exercise-library-card[hidden]{display:none!important}
-.exercise-library-art{min-height:138px;display:grid;place-items:center;border-radius:11px;background:radial-gradient(ellipse at center,rgba(55,184,180,.14),transparent 72%);overflow:hidden}
 .exercise-library-copy{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
 .exercise-library-copy>b{font-size:14px}
 .exercise-library-copy>small,.exercise-library-copy>p{font-size:11px;line-height:1.4;margin:0;color:var(--muted,#9cb4c3)}
 .exercise-library-copy .btn{margin-top:auto}
 .exercise-library-panel .form{align-items:center}
 @media(max-width:760px){.exercise-library-grid{grid-template-columns:1fr}}
-@media(max-width:430px){.exercise-library-card{grid-template-columns:108px minmax(0,1fr);gap:9px;padding:9px}.exercise-library-art{min-height:120px}}
 
 .exercise-library-details{margin-top:8px}
 .exercise-library-details>summary{cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(113,170,184,.2);border-radius:12px;color:#b8eee7;font-weight:700;list-style:none}
@@ -872,7 +838,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 
 .program-detail-body .guided-figure{width:100%;height:100%;min-height:165px;border-radius:13px;background:radial-gradient(circle,rgba(41,196,188,.2),rgba(20,67,83,.08) 68%)}
-.exercise-library-art .guided-figure{width:100%;height:150px;min-height:138px;border-radius:11px;background:transparent}
 .rumbo-camera-group,.rumbo-speed-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 
 /* Interactive roster calendar cells */
@@ -894,15 +859,12 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 
 .exercise-library-card{grid-template-columns:minmax(230px,.95fr) minmax(0,1.05fr)!important;align-items:stretch}
-.exercise-library-art{min-height:300px!important;align-content:start;overflow:hidden}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
 .guided-exercise-visual>.guided-figure{width:100%!important;max-width:620px!important;margin:0 auto!important}
-@media(max-width:760px){.exercise-library-card{grid-template-columns:minmax(0,1fr)!important}.exercise-library-art{min-height:300px!important}}
 
 
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .exercise-library-card{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:12px;padding:12px}
-.exercise-library-art{display:block;min-width:0;min-height:0;height:auto;overflow:visible;background:transparent}
 .exercise-library-copy{min-width:0}
 .guided-exercise-visual{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
 @media(max-width:900px){.exercise-library-grid{grid-template-columns:1fr}.exercise-library-card{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
@@ -952,8 +914,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 /* RUMBO responsive repair · Fitness library + small screens */
 .exercise-library-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:stretch}
 .exercise-library-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;min-width:0!important;overflow:hidden!important;padding:0!important;background:linear-gradient(145deg,#102c3e,#0b2030)!important;border:1px solid #31576a!important;border-radius:16px!important;align-content:start}
-.exercise-library-art{width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;padding:12px!important;background:#0a1e2c!important;overflow:hidden!important}
-.exercise-library-art .guided-figure{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;display:block!important;overflow:hidden!important;border-radius:10px!important;background:#0c2939!important}
 .exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;min-width:0!important;padding:14px 16px 16px!important;color:#edf5f8!important;opacity:1!important}
 .exercise-library-copy>b{color:#f3f8fb!important;font-size:16px!important;line-height:1.3!important}
 .exercise-library-copy>small{color:#b9ced9!important;font-size:12px!important;line-height:1.5!important;overflow-wrap:anywhere}
@@ -966,7 +926,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 @media(max-width:900px){
  .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important}
  .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
- .exercise-library-art{padding:10px!important}
 }
 @media(max-width:650px){
  html,body{width:100%;min-width:0;overflow-x:hidden}
@@ -982,7 +941,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .two{grid-template-columns:minmax(0,1fr)!important}
  .exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
  .exercise-library-card{grid-template-columns:minmax(0,1fr)!important}
- .exercise-library-art{padding:8px!important}
  .exercise-library-copy{padding:12px!important}
  .mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important}
  .mobile-nav button{min-width:0!important;font-size:8px!important;overflow:hidden}
@@ -992,8 +950,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 .exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
 .exercise-library-card{display:flex!important;flex-direction:column!important;gap:0!important;padding:0!important;overflow:hidden!important;border:1px solid #31576a!important;border-radius:18px!important;background:linear-gradient(160deg,#102b3d 0%,#0a1d2c 100%)!important;box-shadow:0 12px 28px rgba(0,0,0,.18)!important}
-.exercise-library-art{padding:14px 14px 10px!important;background:linear-gradient(145deg,#0b2638,#102f42)!important;border-bottom:1px solid rgba(108,190,202,.2)!important}
-.exercise-library-art .guided-figure{display:block!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important;background:transparent!important}
 .exercise-library-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:15px 17px 17px!important;color:#edf6fa!important}
 .exercise-library-copy>b{font-size:17px!important;line-height:1.25!important;letter-spacing:-.02em;color:#f4fbff!important}
 .exercise-library-copy>small{font-size:12px!important;line-height:1.5!important;color:#bdd0db!important}
@@ -1007,7 +963,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .exercise-library-details>.form input::placeholder{color:#607b89!important}
 .exercise-library-details>.form #exerciseLibraryCount{color:#d0e5ec!important;font-weight:700!important}
 @media(max-width:900px){.exercise-library-grid{grid-template-columns:minmax(0,1fr)!important;max-width:680px!important;margin-inline:auto!important}}
-@media(max-width:650px){.exercise-library-grid{gap:14px!important}.exercise-library-art{padding:10px 10px 7px!important}.exercise-library-copy{padding:13px 14px 15px!important}.exercise-library-copy>b{font-size:16px!important}}
 
 
 .exercise-sequence-key{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:9px;padding:14px;margin:12px 0 16px;border:1px solid rgba(103,195,204,.25);border-radius:14px;background:linear-gradient(120deg,rgba(13,45,62,.96),rgba(15,57,68,.82))}
@@ -1023,12 +978,10 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
  .exercise-sequence-key>div{gap:10px}
  .exercise-sequence-key small{font-size:11px}
 }
-.exercise-library-art{height:auto!important;min-height:0!important;overflow:visible!important}
 
 
 /* Definitive Fitness catalogue artwork sizing: reserve real vertical space.
    Older 3D catalogue rules set a 300px art viewport and hide the SVG fallback. */
-.exercise-library-grid .exercise-library-card .exercise-library-art{
  display:block!important;position:relative!important;width:100%!important;
  height:auto!important;min-height:0!important;max-height:none!important;
  padding:12px!important;overflow:visible!important;box-sizing:border-box!important;
@@ -1276,7 +1229,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 
 .guided-figure,
 .program-detail-body .guided-figure,
-.exercise-library-art .guided-figure{
   display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-height:0;
   padding:0;background:transparent;border-radius:14px;overflow:visible;cursor:default!important;touch-action:auto;
 }
@@ -1292,7 +1244,6 @@ body[data-rumbo-theme="night"] .panel,body[data-rumbo-theme="night"] .aviation-s
 .guided-exercise-visual .guided-figure{justify-content:center}
 .fitness-day-exercise-visual{display:flex;align-items:flex-start;justify-content:center;min-width:0}
 .fitness-day-exercise-visual .fitness-demo-video{max-width:170px;max-height:300px}
-.exercise-library-art .fitness-demo-video{max-width:145px;max-height:250px}
 .ymove-library-panel{margin-top:14px}
 .ymove-video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:start}
 .ymove-video-card{min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
